@@ -425,7 +425,7 @@
         min-height: 560px;
         justify-content: flex-start;
         gap: 0;
-        padding: clamp(32px, 8vw, 48px) 0 28px;
+        padding: clamp(32px, 13vw, 58px) 0 28px;
     }
     /* ============================================
        VIDEO
