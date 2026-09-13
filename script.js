@@ -17,7 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroVideos = Array.from(document.querySelectorAll('.hero__video'));
     const mobileScreen = window.matchMedia('(max-width: 767px)');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let activeVideo = null;
+    const heroGroups = ['desktop', 'mobile'].map(format => ({
+        format,
+        intro: document.querySelector(`[data-hero-format="${format}"][data-hero-intro]`),
+        loop: document.querySelector(`[data-hero-format="${format}"][data-hero-loop]`),
+        loopStarted: false
+    })).filter(group => group.intro && group.loop);
+    let activeGroup = null;
+    let activeGeneration = 0;
     let loaderComplete = false;
     let loaderTimeout = 0;
     const finishLoading = () => {
@@ -30,59 +37,117 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.setAttribute('aria-hidden', 'true');
         }
     };
+    const setVideoVisible = (video, visible) => {
+        if (!video) return;
+        video.classList.toggle('hero__video--visible', visible);
+    };
+    const loadVideo = video => {
+        if (!video || video.getAttribute('src') || !video.dataset.src) return;
+        video.src = video.dataset.src;
+        video.load();
+    };
     const playVideo = video => {
-        if (video !== activeVideo || document.hidden || reducedMotion.matches) return;
+        if (!video || document.hidden || reducedMotion.matches) return;
         try {
             const result = video.play();
             if (result && typeof result.catch === 'function') result.catch(() => {
-                // Autoplay restrictions leave a usable first frame instead of an endless loader.
-                if (video === activeVideo) finishLoading();
+                // Autoplay restrictions still leave the first available frame visible.
+                if (activeGroup && video === activeGroup.intro) finishLoading();
             });
         } catch (_) {
-            if (video === activeVideo) finishLoading();
+            if (activeGroup && video === activeGroup.intro) finishLoading();
         }
     };
-    heroVideos.forEach(video => {
-        video.muted = true;
-        video.addEventListener('loadeddata', () => {
-            if (video === activeVideo) finishLoading();
+
+    const revealLoop = (group, generation) => {
+        if (group !== activeGroup || generation !== activeGeneration) return;
+        setVideoVisible(group.loop, true);
+        // Keep the intro's last frame underneath until the short crossfade completes.
+        window.setTimeout(() => {
+            if (group === activeGroup && generation === activeGeneration) setVideoVisible(group.intro, false);
+        }, 200);
+    };
+    const startLoop = group => {
+        if (group !== activeGroup || group.loopStarted || document.hidden || reducedMotion.matches) return;
+        group.loopStarted = true;
+        const generation = activeGeneration;
+        loadVideo(group.loop);
+        group.loop.currentTime = 0;
+        playVideo(group.loop);
+
+        if ('requestVideoFrameCallback' in group.loop) {
+            group.loop.requestVideoFrameCallback(() => revealLoop(group, generation));
+        } else {
+            const revealAfterPaint = () => requestAnimationFrame(() => requestAnimationFrame(() => revealLoop(group, generation)));
+            if (group.loop.readyState >= 2) revealAfterPaint();
+            else group.loop.addEventListener('loadeddata', revealAfterPaint, { once: true });
+        }
+    };
+
+    heroGroups.forEach(group => {
+        group.intro.addEventListener('loadeddata', () => {
+            if (group === activeGroup) finishLoading();
         });
-        video.addEventListener('error', () => {
-            if (video === activeVideo) finishLoading();
-        });
-        video.addEventListener('ended', () => {
-            if (video !== activeVideo || video.loop || !video.dataset.loop) return;
-            video.src = video.dataset.loop;
-            video.loop = true;
-            playVideo(video);
+        group.intro.addEventListener('ended', () => startLoop(group));
+        group.intro.addEventListener('error', () => {
+            if (group !== activeGroup) return;
+            finishLoading();
+            startLoop(group);
         });
     });
+
     const selectVideo = () => {
-        activeVideo = heroVideos.find(video => video.classList.contains(mobileScreen.matches ? 'hero__video--mobile' : 'hero__video--desktop')) || heroVideos[0];
-        heroVideos.forEach(video => {
-            if (video !== activeVideo) {
-                video.pause();
-                video.preload = 'none';
+        const format = mobileScreen.matches ? 'mobile' : 'desktop';
+        const nextGroup = heroGroups.find(group => group.format === format) || heroGroups[0];
+        if (!nextGroup) return finishLoading();
+
+        if (nextGroup === activeGroup) {
+            if (reducedMotion.matches) {
+                nextGroup.intro.pause();
+                nextGroup.loop.pause();
+            } else if (nextGroup.loopStarted) {
+                playVideo(nextGroup.loop);
+            } else if (nextGroup.intro.ended) {
+                startLoop(nextGroup);
+            } else {
+                playVideo(nextGroup.intro);
             }
-        });
-        if (!activeVideo) return finishLoading();
-        activeVideo.preload = 'auto';
-        if (!activeVideo.getAttribute('src') && activeVideo.dataset.open) {
-            activeVideo.src = activeVideo.dataset.open;
-            activeVideo.load();
+            return;
         }
-        if (activeVideo.readyState >= 2 || activeVideo.error) finishLoading();
-        if (reducedMotion.matches) activeVideo.pause();
-        else playVideo(activeVideo);
+
+        activeGeneration += 1;
+        activeGroup = nextGroup;
+        heroVideos.forEach(video => {
+            video.pause();
+            setVideoVisible(video, false);
+            video.preload = video.dataset.heroFormat === format ? 'auto' : 'none';
+        });
+        nextGroup.loopStarted = false;
+        loadVideo(nextGroup.intro);
+        loadVideo(nextGroup.loop);
+        if (nextGroup.intro.readyState >= 1) nextGroup.intro.currentTime = 0;
+        if (nextGroup.loop.readyState >= 1) nextGroup.loop.currentTime = 0;
+        setVideoVisible(nextGroup.intro, true);
+        if (nextGroup.intro.readyState >= 2 || nextGroup.intro.error) finishLoading();
+        if (reducedMotion.matches) nextGroup.intro.pause();
+        else playVideo(nextGroup.intro);
     };
     loaderTimeout = setTimeout(finishLoading, 5000);
     selectVideo();
     mobileScreen.addEventListener('change', selectVideo);
     reducedMotion.addEventListener('change', selectVideo);
     document.addEventListener('visibilitychange', () => {
-        if (!activeVideo) return;
-        if (document.hidden) activeVideo.pause();
-        else playVideo(activeVideo);
+        if (!activeGroup) return;
+        if (document.hidden) {
+            activeGroup.intro.pause();
+            activeGroup.loop.pause();
+        } else if (activeGroup.loopStarted) {
+            playVideo(activeGroup.loop);
+        } else if (activeGroup.intro.ended) {
+            startLoop(activeGroup);
+        } else {
+            playVideo(activeGroup.intro);
+        }
     });
 
     const header = document.querySelector('.header');

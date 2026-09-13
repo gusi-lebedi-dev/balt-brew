@@ -25,12 +25,10 @@
 <body>
         <!-- ================= HERO ================= -->
     <div class="hero">
-        <video class="hero__bg hero__video hero__video--desktop" playsinline muted preload="none" data-open="video/OPEN.mp4" data-loop="video/LOOP.mp4">
-            
-        </video>
-        <video class="hero__bg hero__video hero__video--mobile" playsinline muted preload="none" data-open="video/FINAL 9-16_OPEN.mp4" data-loop="video/FINAL 9-16_LOOP.mp4">
-            
-        </video>
+        <video class="hero__bg hero__video hero__video--desktop hero__video--intro" playsinline muted preload="none" data-hero-format="desktop" data-hero-intro data-src="video/OPEN.mp4" aria-hidden="true"></video>
+        <video class="hero__bg hero__video hero__video--desktop hero__video--loop" playsinline muted preload="none" loop data-hero-format="desktop" data-hero-loop data-src="video/LOOP.mp4" aria-hidden="true"></video>
+        <video class="hero__bg hero__video hero__video--mobile hero__video--intro" playsinline muted preload="none" data-hero-format="mobile" data-hero-intro data-src="video/FINAL 9-16_OPEN.mp4" aria-hidden="true"></video>
+        <video class="hero__bg hero__video hero__video--mobile hero__video--loop" playsinline muted preload="none" loop data-hero-format="mobile" data-hero-loop data-src="video/FINAL 9-16_LOOP.mp4" aria-hidden="true"></video>
     </div>
 <div class="page">
 
@@ -95,9 +93,18 @@
         <div class="product__stage">
             <div class="product__art">
                 <div class="product__scene">
-                    <!-- TRACK - горизонтальная лента с фонами и мостами -->
+                    <!-- Фоны следуют тому же порядку, что бутылки и описания. -->
                     <div class="product__track" aria-hidden="true">
-                        <!-- Продукт 1: Анти-лагер -->
+                        <!-- Пневмо-сидр полусухой -->
+                        <div class="product__background product__background--cider">
+                            <img src="images/product/line/cider-scene.png" alt="" draggable="false">
+                        </div>
+
+                        <div class="product__bridge">
+                            <img src="images/product/bridge.png" alt="" draggable="false">
+                        </div>
+
+                        <!-- Анти-лагер Кёльш -->
                         <div class="product__background product__background--product1">
                             <img src="images/product/line/amti-lager-1-bg.webp" alt="" draggable="false">
                         </div>
@@ -106,7 +113,7 @@
                             <img src="images/product/bridge.png" alt="" draggable="false">
                         </div>
 
-                        <!-- Продукт 2: Техно IPA -->
+                        <!-- Техно IPA -->
                         <div class="product__background product__background--product2">
                             <img src="images/product/line/lgaer-bg.webp" alt="" draggable="false">
                         </div>
@@ -115,38 +122,41 @@
                             <img src="images/product/bridge.png" alt="" draggable="false">
                         </div>
 
-                        <!-- Продукт 3: Заводной крик -->
-                        <div class="product__background product__background--product3">
-                            <img src="images/product/line/kriek-scene.png" alt="" draggable="false">
+                        <!-- Аэронавт Бланш -->
+                        <div class="product__background product__background--product4">
+                            <img src="images/product/line/aero-bg.webp" alt="" draggable="false">
                         </div>
 
                         <div class="product__bridge">
                             <img src="images/product/bridge.png" alt="" draggable="false">
                         </div>
 
-                        <!-- Продукт 4: Аэронавт -->
-                        <div class="product__background product__background--product4">
-                            <img src="images/product/line/aero-bg.webp" alt="" draggable="false">
+                        <!-- Заводной Крик -->
+                        <div class="product__background product__background--product3">
+                            <img src="images/product/line/kriek-scene.png" alt="" draggable="false">
                         </div>
                     </div>
 
-                    <!-- BOTTLES - отдельный слой -->
-                    <div class="product__bottle product__bottle--product1">
+                    <!-- Бутылки анимируются отдельным слоем. -->
+                    <div class="product__bottle product__bottle--cider" aria-hidden="false">
+                        <img src="images/product/line/cider-bottle.png" alt="Пневмо-сидр полусухой" draggable="false">
+                    </div>
+                    <div class="product__bottle product__bottle--product1" aria-hidden="true">
                         <img src="images/product/line/anti-lager-1.png" alt="Анти-лагер Кёльш" draggable="false">
                     </div>
                     <div class="product__bottle product__bottle--product2" aria-hidden="true">
                         <img src="images/product/line/techno-ipa-bottle.png" alt="Техно IPA" draggable="false">
                     </div>
-                    <div class="product__bottle product__bottle--product3" aria-hidden="true">
-                        <img src="images/product/line/kriek-bottle.png" alt="Заводной крик" draggable="false">
-                    </div>
                     <div class="product__bottle product__bottle--product4" aria-hidden="true">
                         <img src="images/product/line/aero-bottle.png" alt="Аэронавт Бланш" draggable="false">
+                    </div>
+                    <div class="product__bottle product__bottle--product3" aria-hidden="true">
+                        <img src="images/product/line/kriek-bottle.png" alt="Заводной Крик" draggable="false">
                     </div>
 
                     <!-- CONTROLS -->
                     <div class="product__controls">
-                        <button class="product__arrow product__arrow--prev" type="button" data-prev aria-label="Предыдущий напиток" aria-disabled="true">
+                        <button class="product__arrow product__arrow--prev" type="button" data-prev aria-label="Предыдущий напиток">
                             <img src="images/left-arrow.png" alt="" draggable="false">
                         </button>
                         <button class="product__arrow product__arrow--next" type="button" data-next aria-label="Следующий напиток">
@@ -158,13 +168,38 @@
 
             <!-- COPY - текстовый контент (вне stage!) -->
             <div class="product__copy">
-                <article class="product__slide product__slide--product1 product__info" role="group" aria-label="1 из 4">
+                <article class="product__slide product__slide--cider product__info" role="group" aria-roledescription="слайд" aria-label="1 из 5" aria-hidden="false">
+                    <h2 class="product__title">Пневмо-сидр<br> Полусухой</h2>
+                    <p class="product__description">
+                        Внутри наших медных варочных чанов яблочный сок, добытый механическими усилиями пневомашин, превращается в искристый полусухой сидр. Баланс фруктовой сладости и освежающей приятной кислинки в нём выверен с инженерной точностью. И никакого сахара – лишь щепотка волшебства.
+                    </p>
+                    <div class="product__stats">
+                        <div class="product__stat">
+                            <span class="product__stat-value">5,3 %</span>
+                            <span class="product__stat-label">Алкоголь</span>
+                        </div>
+                        <div class="product__stat">
+                            <span class="product__stat-value">12,7 %</span>
+                            <span class="product__stat-label">Плотность</span>
+                        </div>
+                        <div class="product__stat">
+                            <span class="product__stat-value">23</span>
+                            <span class="product__stat-label">IBU</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="product__slide product__slide--product1 product__info" role="group" aria-roledescription="слайд" aria-label="2 из 5" aria-hidden="true" inert>
                     <h2 class="product__title">Анти-лагер Кёльш</h2>
                     <p class="product__description">
                         Кёльш – гибридный стиль: светлый эль с солодовым вкусом, оттенками фруктовой сладости и мягкими пшеничными полутонами, стремящийся быть похожим на лагер, оставаясь при этом элем. Одним словом: Анти-лагер.
                     </p>
                     <div class="product__stats">
                         <div class="product__stat">
+                            <span class="product__stat-value">5,3 %</span>
+                            <span class="product__stat-label">Алкоголь</span>
+                        </div>
+                        <div class="product__stat">
                             <span class="product__stat-value">12,7 %</span>
                             <span class="product__stat-label">Плотность</span>
                         </div>
@@ -172,20 +207,20 @@
                             <span class="product__stat-value">23</span>
                             <span class="product__stat-label">IBU</span>
                         </div>
-                        <div class="product__stat">
-                            <span class="product__stat-value">5,3 %</span>
-                            <span class="product__stat-label">Алкоголь</span>
-                        </div>
                     </div>
                 </article>
 
-                <article class="product__slide product__slide--product2 product__info" role="group" aria-label="2 из 4" aria-hidden="true" inert>
+                <article class="product__slide product__slide--product2 product__info" role="group" aria-roledescription="слайд" aria-label="3 из 5" aria-hidden="true" inert>
                     <h2 class="product__title">Техно IPA</h2>
                     <p class="product__description">
                         В этом IPA мы соединили индустриальные традиции викторианской эпохи с триумфом современных хмелевых технологий. Хмелевая горечь ощущается легкими электрическими покалываниями на языке. Яркий хвойно-цитрусовый аромат словно разряд пробуждает ваши рецепторы.
                     </p>
                     <div class="product__stats">
                         <div class="product__stat">
+                            <span class="product__stat-value">5,3 %</span>
+                            <span class="product__stat-label">Алкоголь</span>
+                        </div>
+                        <div class="product__stat">
                             <span class="product__stat-value">12,7 %</span>
                             <span class="product__stat-label">Плотность</span>
                         </div>
@@ -193,40 +228,40 @@
                             <span class="product__stat-value">23</span>
                             <span class="product__stat-label">IBU</span>
                         </div>
+                    </div>
+                </article>
+
+                <article class="product__slide product__slide--product4 product__info" role="group" aria-roledescription="слайд" aria-label="4 из 5" aria-hidden="true" inert>
+                    <h2 class="product__title">Аэронавт Бланш</h2>
+                    <p class="product__description">
+                        Попробуйте изысканный пшеничный напиток, доведённый до совершенства в нашей лаборатории. Мы взяли за основу проверенный временем подход к стилю «Бланш» и вывернули тумблер на полную мощность.Пышный, как облако, и освежающий, как дуновение цитрусово‑кориандрового вихря.
+                    </p>
+                    <div class="product__stats">
                         <div class="product__stat">
                             <span class="product__stat-value">5,3 %</span>
                             <span class="product__stat-label">Алкоголь</span>
                         </div>
+                        <div class="product__stat">
+                            <span class="product__stat-value">12,7 %</span>
+                            <span class="product__stat-label">Плотность</span>
+                        </div>
+                        <div class="product__stat">
+                            <span class="product__stat-value">23</span>
+                            <span class="product__stat-label">IBU</span>
+                        </div>
                     </div>
                 </article>
 
-                <article class="product__slide product__slide--product3 product__info" role="group" aria-label="3 из 4" aria-hidden="true" inert>
+                <article class="product__slide product__slide--product3 product__info" role="group" aria-roledescription="слайд" aria-label="5 из 5" aria-hidden="true" inert>
                     <h2 class="product__title">Заводной Крик</h2>
                     <p class="product__description">
                         Настоящая магия начинается, когда мы добавляем в наш ламбик натуральный сок вишни. Кислые, сладкие и терпкие ноты этого рубинового эля идеально гармонизируют друга друга, образуя эталонную формулу стиля. Никакого сахара — лишь щепотка волшебства.
                     </p>
                     <div class="product__stats">
                         <div class="product__stat">
-                            <span class="product__stat-value">12,7 %</span>
-                            <span class="product__stat-label">Плотность</span>
-                        </div>
-                        <div class="product__stat">
-                            <span class="product__stat-value">23</span>
-                            <span class="product__stat-label">IBU</span>
-                        </div>
-                        <div class="product__stat">
                             <span class="product__stat-value">5,3 %</span>
                             <span class="product__stat-label">Алкоголь</span>
                         </div>
-                    </div>
-                </article>
-
-                <article class="product__slide product__slide--product4 product__info" role="group" aria-label="4 из 4" aria-hidden="true" inert>
-                    <h2 class="product__title">Аэронавт Бланш</h2>
-                    <p class="product__description">
-                        Попробуйте изысканный пшеничный напиток, доведённый до совершенства в нашей лаборатории. Мы взяли за основу проверенный временем подход к стилю «Бланш» и вывернули тумблер на полную мощность. Пышный, как облако, и освежающий, как дуновение цитрусово‑кориандрового вихря.
-                    </p>
-                    <div class="product__stats">
                         <div class="product__stat">
                             <span class="product__stat-value">12,7 %</span>
                             <span class="product__stat-label">Плотность</span>
@@ -234,10 +269,6 @@
                         <div class="product__stat">
                             <span class="product__stat-value">23</span>
                             <span class="product__stat-label">IBU</span>
-                        </div>
-                        <div class="product__stat">
-                            <span class="product__stat-value">5,3 %</span>
-                            <span class="product__stat-label">Алкоголь</span>
                         </div>
                     </div>
                 </article>

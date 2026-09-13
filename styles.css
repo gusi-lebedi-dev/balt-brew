@@ -251,6 +251,22 @@ body {
     object-fit: cover;
 }
 
+.hero__video {
+    visibility: hidden;
+    opacity: 0;
+    background: #000;
+    transition: opacity 160ms linear;
+}
+
+.hero__video--visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+.hero__video--loop {
+    z-index: 1;
+}
+
 .hero__video--mobile {
     display: block;
 }

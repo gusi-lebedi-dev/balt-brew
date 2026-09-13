@@ -1,4 +1,4 @@
-/* Four real products. JS controls only horizontal motion; layout remains in CSS. */
+/* JS controls only horizontal motion; layout remains in CSS. */
 .product {
     --product-paper: #fff6e2;
     --product-ink: #502c2c;
@@ -34,6 +34,9 @@
 .product__track { position: absolute; left: 440px; top: -19px; display: flex; width: max-content; height: 1000px; transition: transform var(--product-duration) var(--product-easing); }
 .product__background { position: relative; flex: 0 0 1200px; height: 1000px; overflow: hidden; }
 .product__background img { position: absolute; inset: 0; width: 1200px; height: 1000px; object-fit: cover; }
+/* Original cider scene and crop from Figma 312:8868. */
+.product__background--cider img { inset: auto; left: -727.91px; top: .2px; width: 2517.11px; height: 1208.56px; }
+.product__background--cider::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--product-paper), transparent 160px, transparent 1040px, var(--product-paper)), linear-gradient(180deg, var(--product-paper), transparent 200px, transparent 800px, var(--product-paper)); }
 /* Correct original Kriek art from Figma 312:8761, instead of the duplicated IPA background. */
 .product__background--product3 img { inset: auto; left: -309.6px; top: -39.06px; width: 1638.375px; height: 1255.27px; }
 .product__background--product3::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--product-paper), transparent 200px, transparent 1040px, var(--product-paper)), linear-gradient(180deg, var(--product-paper), transparent 200px, transparent 800px, var(--product-paper)); }
@@ -42,7 +45,7 @@
 .product__bridge::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--product-paper), transparent 208px, transparent 712px, var(--product-paper)); }
 /* The visible bottom of each transparent bottle rests at y ≈ 898 on the scene floor. */
 .product__bottle { --bottle-x: 2500px; --bottle-opacity: 0; position: absolute; left: calc(var(--product-center) - 187px); top: 99px; right: auto; width: 374px; height: 840px; transform: translateX(var(--bottle-x)); opacity: var(--bottle-opacity); transition: transform var(--product-duration) var(--product-easing), opacity var(--product-duration) var(--product-easing); pointer-events: none; }
-.product__bottle--product1 { --bottle-x: 0px; --bottle-opacity: 1; }
+.product__bottle[aria-hidden='false'] { --bottle-x: 0px; --bottle-opacity: 1; }
 .product__bottle--product4 { top: 101px; }
 .product__bottle img { width: 100%; height: 100%; object-fit: contain; }
 /* Gentle contact shadow follows the bottle, including the previously floating Blanche. */
@@ -54,10 +57,14 @@
 .product__bottle--product3 { --bottle-optical-offset: -3.43px; }
 .product__bottle--product4 { --bottle-optical-offset: -5.15px; }
 .product__bottle img { position: relative; transform: translateX(var(--bottle-optical-offset, 0px)); }
+/* The cider source has a wider transparent canvas; retain the shared bottle height. */
+.product__bottle--cider { top: 101.68px; --bottle-optical-offset: -.31px; }
+.product__bottle--cider img { left: 50%; width: auto; transform: translateX(calc(-50% + var(--bottle-optical-offset))); }
+.product__bottle--cider::before { bottom: 36px; }
 .product__copy { position: absolute; left: 100px; top: 0; width: 400px; height: 962px; display: grid; align-items: center; background: none; z-index: 10; isolation: isolate; }
 .product__copy::before { content: ''; position: absolute; z-index: -1; left: -100px; top: -19px; width: 600px; height: 1000px; background: url('images/product/line/fade.webp') center / 100% 100% no-repeat; pointer-events: none; }
 .product__slide { --copy-x: -1600px; --copy-opacity: 0; position: relative; inset: auto; grid-area: 1 / 1; display: flex; flex-direction: column; align-items: flex-start; width: 400px; height: auto; padding: 0; gap: 0; visibility: visible; transform: translateX(var(--copy-x)); opacity: var(--copy-opacity); transition: transform var(--product-duration) var(--product-easing), opacity var(--product-duration) var(--product-easing); }
-.product__slide--product1 { --copy-x: 0px; --copy-opacity: 1; }
+.product__slide[aria-hidden='false'] { --copy-x: 0px; --copy-opacity: 1; }
 .product__slide[aria-hidden='true'] { pointer-events: none; }
 .product__title { display: block; width: 400px; max-width: 100%; margin: 0 0 20px; font: 500 50px/1 var(--product-title-font); text-transform: uppercase; letter-spacing: -.5px; color: #0d1d66; text-align: left; }
 .product__description { width: 380px; max-width: 100%; min-height: 0; margin: 0 0 32px; font: 400 22px/1.2 var(--product-body-font); color: var(--product-ink); text-align: left; }
