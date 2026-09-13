@@ -95,15 +95,6 @@
                 <div class="product__scene">
                     <!-- Фоны следуют тому же порядку, что бутылки и описания. -->
                     <div class="product__track" aria-hidden="true">
-                        <!-- Пневмо-сидр полусухой -->
-                        <div class="product__background product__background--cider">
-                            <img src="images/product/line/cider-scene.png" alt="" draggable="false">
-                        </div>
-
-                        <div class="product__bridge">
-                            <img src="images/product/bridge.png" alt="" draggable="false">
-                        </div>
-
                         <!-- Анти-лагер Кёльш -->
                         <div class="product__background product__background--product1">
                             <img src="images/product/line/amti-lager-1-bg.webp" alt="" draggable="false">
@@ -135,13 +126,19 @@
                         <div class="product__background product__background--product3">
                             <img src="images/product/line/kriek-scene.png" alt="" draggable="false">
                         </div>
+
+                        <div class="product__bridge">
+                            <img src="images/product/bridge.png" alt="" draggable="false">
+                        </div>
+
+                        <!-- Пневмо-сидр полусухой -->
+                        <div class="product__background product__background--cider">
+                            <img src="images/product/line/cider-scene.png" alt="" draggable="false">
+                        </div>
                     </div>
 
                     <!-- Бутылки анимируются отдельным слоем. -->
-                    <div class="product__bottle product__bottle--cider" aria-hidden="false">
-                        <img src="images/product/line/cider-bottle.png" alt="Пневмо-сидр полусухой" draggable="false">
-                    </div>
-                    <div class="product__bottle product__bottle--product1" aria-hidden="true">
+                    <div class="product__bottle product__bottle--product1" aria-hidden="false">
                         <img src="images/product/line/anti-lager-1.png" alt="Анти-лагер Кёльш" draggable="false">
                     </div>
                     <div class="product__bottle product__bottle--product2" aria-hidden="true">
@@ -152,6 +149,9 @@
                     </div>
                     <div class="product__bottle product__bottle--product3" aria-hidden="true">
                         <img src="images/product/line/kriek-bottle.png" alt="Заводной Крик" draggable="false">
+                    </div>
+                    <div class="product__bottle product__bottle--cider" aria-hidden="true">
+                        <img src="images/product/line/cider-bottle.png" alt="Пневмо-сидр полусухой" draggable="false">
                     </div>
 
                     <!-- CONTROLS -->
@@ -168,28 +168,7 @@
 
             <!-- COPY - текстовый контент (вне stage!) -->
             <div class="product__copy">
-                <article class="product__slide product__slide--cider product__info" role="group" aria-roledescription="слайд" aria-label="1 из 5" aria-hidden="false">
-                    <h2 class="product__title">Пневмо-сидр<br> Полусухой</h2>
-                    <p class="product__description">
-                        Внутри наших медных варочных чанов яблочный сок, добытый механическими усилиями пневомашин, превращается в искристый полусухой сидр. Баланс фруктовой сладости и освежающей приятной кислинки в нём выверен с инженерной точностью. И никакого сахара – лишь щепотка волшебства.
-                    </p>
-                    <div class="product__stats">
-                        <div class="product__stat">
-                            <span class="product__stat-value">5,3 %</span>
-                            <span class="product__stat-label">Алкоголь</span>
-                        </div>
-                        <div class="product__stat">
-                            <span class="product__stat-value">12,7 %</span>
-                            <span class="product__stat-label">Плотность</span>
-                        </div>
-                        <div class="product__stat">
-                            <span class="product__stat-value">23</span>
-                            <span class="product__stat-label">IBU</span>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="product__slide product__slide--product1 product__info" role="group" aria-roledescription="слайд" aria-label="2 из 5" aria-hidden="true" inert>
+                <article class="product__slide product__slide--product1 product__info" role="group" aria-roledescription="слайд" aria-label="1 из 5" aria-hidden="false">
                     <h2 class="product__title">Анти-лагер Кёльш</h2>
                     <p class="product__description">
                         Кёльш – гибридный стиль: светлый эль с солодовым вкусом, оттенками фруктовой сладости и мягкими пшеничными полутонами, стремящийся быть похожим на лагер, оставаясь при этом элем. Одним словом: Анти-лагер.
@@ -210,7 +189,7 @@
                     </div>
                 </article>
 
-                <article class="product__slide product__slide--product2 product__info" role="group" aria-roledescription="слайд" aria-label="3 из 5" aria-hidden="true" inert>
+                <article class="product__slide product__slide--product2 product__info" role="group" aria-roledescription="слайд" aria-label="2 из 5" aria-hidden="true" inert>
                     <h2 class="product__title">Техно IPA</h2>
                     <p class="product__description">
                         В этом IPA мы соединили индустриальные традиции викторианской эпохи с триумфом современных хмелевых технологий. Хмелевая горечь ощущается легкими электрическими покалываниями на языке. Яркий хвойно-цитрусовый аромат словно разряд пробуждает ваши рецепторы.
@@ -231,7 +210,7 @@
                     </div>
                 </article>
 
-                <article class="product__slide product__slide--product4 product__info" role="group" aria-roledescription="слайд" aria-label="4 из 5" aria-hidden="true" inert>
+                <article class="product__slide product__slide--product4 product__info" role="group" aria-roledescription="слайд" aria-label="3 из 5" aria-hidden="true" inert>
                     <h2 class="product__title">Аэронавт Бланш</h2>
                     <p class="product__description">
                         Попробуйте изысканный пшеничный напиток, доведённый до совершенства в нашей лаборатории. Мы взяли за основу проверенный временем подход к стилю «Бланш» и вывернули тумблер на полную мощность.Пышный, как облако, и освежающий, как дуновение цитрусово‑кориандрового вихря.
@@ -252,10 +231,31 @@
                     </div>
                 </article>
 
-                <article class="product__slide product__slide--product3 product__info" role="group" aria-roledescription="слайд" aria-label="5 из 5" aria-hidden="true" inert>
+                <article class="product__slide product__slide--product3 product__info" role="group" aria-roledescription="слайд" aria-label="4 из 5" aria-hidden="true" inert>
                     <h2 class="product__title">Заводной Крик</h2>
                     <p class="product__description">
                         Настоящая магия начинается, когда мы добавляем в наш ламбик натуральный сок вишни. Кислые, сладкие и терпкие ноты этого рубинового эля идеально гармонизируют друга друга, образуя эталонную формулу стиля. Никакого сахара — лишь щепотка волшебства.
+                    </p>
+                    <div class="product__stats">
+                        <div class="product__stat">
+                            <span class="product__stat-value">5,3 %</span>
+                            <span class="product__stat-label">Алкоголь</span>
+                        </div>
+                        <div class="product__stat">
+                            <span class="product__stat-value">12,7 %</span>
+                            <span class="product__stat-label">Плотность</span>
+                        </div>
+                        <div class="product__stat">
+                            <span class="product__stat-value">23</span>
+                            <span class="product__stat-label">IBU</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="product__slide product__slide--cider product__info" role="group" aria-roledescription="слайд" aria-label="5 из 5" aria-hidden="true" inert>
+                    <h2 class="product__title">Пневмо-сидр<br> Полусухой</h2>
+                    <p class="product__description">
+                        Внутри наших медных варочных чанов яблочный сок, добытый механическими усилиями пневомашин, превращается в искристый полусухой сидр. Баланс фруктовой сладости и освежающей приятной кислинки в нём выверен с инженерной точностью. И никакого сахара – лишь щепотка волшебства.
                     </p>
                     <div class="product__stats">
                         <div class="product__stat">
