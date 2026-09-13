@@ -422,7 +422,10 @@
         /* display: none; */
     }
     .about_wrapper {
-        padding: 60px 0;
+        min-height: 560px;
+        justify-content: flex-start;
+        gap: 0;
+        padding: clamp(32px, 8vw, 48px) 0 28px;
     }
     /* ============================================
        VIDEO
@@ -456,7 +459,8 @@
         position: relative;
         top: 0;
         font-size: 36px;
-        margin-bottom: 30px;
+        padding-top: 0;
+        margin-bottom: clamp(18px, 4vw, 28px);
     }
 
     .about__card {
@@ -486,8 +490,14 @@
 
     .about__content {
         position: relative;
-        width: 100%;
-        padding: 0 67px;
+        width: min(100%, 680px);
+        margin-inline: auto;
+        padding-inline: clamp(32px, calc(22.5vw - 26px), 112px);
+    }
+
+    .about__history-content {
+        max-width: 540px;
+        margin-inline: auto;
     }
 
     .about__brewers {
@@ -528,8 +538,14 @@
     }
 
     .about__content-text {
-        font-size: 16px;
-        line-height: 1.4;
+        font-size: clamp(15px, 2.4vw, 18px);
+        line-height: 1.38;
+        text-wrap: pretty;
+    }
+
+    .about__content-text + .about__content-text {
+        margin-top: 10px;
+        font-weight: 400;
     }
 
     /* Timeline */

@@ -1215,6 +1215,25 @@ body {
     }
 }
 
+/* Keep the desktop composition, but give the copy enough room while it scales down. */
+@media (min-width: 769px) and (max-width: 1439px) {
+    .about__content {
+        width: min(70%, 700px);
+        padding-inline: 32px;
+    }
+
+    .about__history-content {
+        max-width: 640px;
+        margin-inline: auto;
+    }
+
+    .about__content-text {
+        font-size: clamp(20px, 2vw, 24px);
+        line-height: 1.42;
+        text-wrap: pretty;
+    }
+}
+
 .about__panel {
     display: none;
 }
