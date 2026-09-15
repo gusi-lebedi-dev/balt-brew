@@ -18,4 +18,4 @@ Pushes to `dev` run on the GitHub Actions runner with labels `self-hosted` and `
 
 Create one repository secret named `ENV_DEV`. Its value must be a PHP file matching `.env.php.example`. For the current development server, use `dev-mysql:3306` as `db-host` and `http://v.gldev.pro:8196` as `home-url` until a reverse-proxy domain is configured.
 
-The workflow writes the secret to `/volumes/balt-brew-dev/.env.php`, mounts it read-only, and persists uploads in `/volumes/balt-brew-dev/uploads`.
+The workflow writes the secret to `/volumes/balt-brew-dev/.env.php` with read access for PHP-FPM, mounts it read-only, and persists writable uploads in `/volumes/balt-brew-dev/uploads`.

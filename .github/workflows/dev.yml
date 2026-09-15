@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: balt-brew-development
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -29,9 +29,10 @@ jobs:
           set -Eeuo pipefail
           : "${ENV_FILE:?GitHub Actions secret ENV_DEV is required}"
           install -d -m 700 /volumes/balt-brew-dev
+          install -o root -g 82 -m 640 /dev/null /volumes/balt-brew-dev/.env.php
           printf '%s\n' "$ENV_FILE" > /volumes/balt-brew-dev/.env.php
-          chmod 600 /volumes/balt-brew-dev/.env.php
           mkdir -p /volumes/balt-brew-dev/uploads
+          chown -R 82:82 /volumes/balt-brew-dev/uploads
           docker network inspect host-network >/dev/null 2>&1 || docker network create host-network
 
       - name: Build image
