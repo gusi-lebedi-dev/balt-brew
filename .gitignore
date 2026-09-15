@@ -1,0 +1,6 @@
+.env.php
+.env.php.development
+.DS_Store
+wp-content/uploads/*
+!wp-content/uploads/index.php
+wp-content/debug.log

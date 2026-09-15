@@ -1,0 +1,21 @@
+services:
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: balt-brew-dev
+    restart: unless-stopped
+    ports:
+      - "8196:80"
+    volumes:
+      - ./.env.php.development:/var/www/html/.env.php:ro
+      - balt-brew-uploads:/var/www/html/wp-content/uploads
+    networks:
+      - victor-network
+
+volumes:
+  balt-brew-uploads:
+
+networks:
+  victor-network:
+    external: true

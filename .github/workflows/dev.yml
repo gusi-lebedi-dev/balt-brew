@@ -1,0 +1,73 @@
+name: Build and deploy Baltika Brew development
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: balt-brew-development
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, dev]
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Prepare runtime configuration
+        env:
+          ENV_FILE: ${{ secrets.ENV_DEV }}
+        run: |
+          set -Eeuo pipefail
+          : "${ENV_FILE:?GitHub Actions secret ENV_DEV is required}"
+          install -d -m 700 /volumes/balt-brew-dev
+          printf '%s\n' "$ENV_FILE" > /volumes/balt-brew-dev/.env.php
+          chmod 600 /volumes/balt-brew-dev/.env.php
+          mkdir -p /volumes/balt-brew-dev/uploads
+          docker network inspect host-network >/dev/null 2>&1 || docker network create host-network
+
+      - name: Build image
+        run: |
+          set -Eeuo pipefail
+          docker build -t "balt-brew-dev:$GITHUB_SHA" .
+
+      - name: Deploy container
+        run: |
+          set -Eeuo pipefail
+          docker rm -f balt-brew-dev >/dev/null 2>&1 || true
+          docker run -d \
+            --restart=always \
+            --name balt-brew-dev \
+            --network=host-network \
+            -p 8196:80 \
+            -v /volumes/balt-brew-dev/.env.php:/var/www/html/.env.php:ro \
+            -v /volumes/balt-brew-dev/uploads:/var/www/html/wp-content/uploads \
+            "balt-brew-dev:$GITHUB_SHA"
+
+          healthy=false
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8196/healthz >/dev/null; then
+              healthy=true
+              break
+            fi
+            sleep 2
+          done
+          if [ "$healthy" != true ]; then
+            docker logs --tail 200 balt-brew-dev || true
+            exit 1
+          fi
+
+      - name: Remove old images
+        if: success()
+        run: |
+          docker images 'balt-brew-dev' --format '{{.Repository}}:{{.Tag}}' \
+            | grep -v ":$GITHUB_SHA$" \
+            | xargs -r docker rmi || true
