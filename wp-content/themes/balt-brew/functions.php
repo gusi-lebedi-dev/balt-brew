@@ -1,159 +1,219 @@
 <?php
 /**
- * Theme bootstrap and static route configuration.
- *
- * @package Balt_Brew
+ * Baltic theme helpers.
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (!defined('ABSPATH')) {
+    exit;
 }
 
-function balt_brew_asset( string $path ): string {
-	return get_theme_file_uri( ltrim( $path, '/' ) );
+add_action('after_setup_theme', static function () {
+    add_theme_support('title-tag');
+    add_theme_support('post-thumbnails');
+});
+
+add_action('init', static function () {
+    register_post_type('baltic_news', [
+        'labels' => [
+            'name' => 'Новости',
+            'singular_name' => 'Новость',
+            'menu_name' => 'Новости',
+            'add_new' => 'Добавить новость',
+            'add_new_item' => 'Добавить новость',
+            'edit_item' => 'Редактировать новость',
+            'new_item' => 'Новая новость',
+            'view_item' => 'Посмотреть новость',
+            'search_items' => 'Найти новости',
+            'not_found' => 'Новости не найдены',
+            'not_found_in_trash' => 'В корзине новостей нет',
+            'featured_image' => 'Изображение новости',
+            'set_featured_image' => 'Установить изображение новости',
+            'remove_featured_image' => 'Удалить изображение новости',
+        ],
+        'public' => true,
+        'show_ui' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'menu_icon' => 'dashicons-megaphone',
+        'menu_position' => 22,
+        'supports' => ['title', 'editor', 'excerpt', 'thumbnail'],
+        'has_archive' => 'news',
+        'rewrite' => [
+            'slug' => 'news',
+            'with_front' => false,
+        ],
+        'publicly_queryable' => true,
+        'exclude_from_search' => false,
+    ]);
+});
+
+add_action('init', static function () {
+    add_rewrite_rule('^articles/?$', 'index.php?baltic_page=articles', 'top');
+
+    $rewrite_version = '2';
+
+    if (get_option('baltic_news_rewrite_version') === $rewrite_version) {
+        return;
+    }
+
+    flush_rewrite_rules(false);
+    update_option('baltic_news_rewrite_version', $rewrite_version, false);
+}, 99);
+
+add_action('init', static function () {
+    if (get_option('baltic_initial_news_created')) {
+        return;
+    }
+
+    $existing_news = get_posts([
+        'post_type' => 'baltic_news',
+        'post_status' => 'any',
+        'posts_per_page' => 1,
+        'fields' => 'ids',
+        'no_found_rows' => true,
+    ]);
+
+    if ($existing_news) {
+        update_option('baltic_initial_news_created', 1, false);
+        return;
+    }
+
+    $title = (string) baltic_option('news_headline', 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД');
+    $excerpt = (string) baltic_option(
+        'news_excerpt',
+        'Эта цифра — отражение большой истории нашей уютной области, где каждый город по-своему уникален! Для нас большая честь представлять и прославлять Калининград и Калининградскую область.'
+    );
+    $date_value = (string) baltic_option('news_date', '22.08.2026');
+    $date = DateTime::createFromFormat('d.m.Y', $date_value);
+
+    $post_data = [
+        'post_type' => 'baltic_news',
+        'post_status' => 'publish',
+        'post_title' => $title,
+        'post_excerpt' => $excerpt,
+        'post_content' => $excerpt,
+    ];
+
+    if ($date instanceof DateTime) {
+        $post_data['post_date'] = $date->format('Y-m-d H:i:s');
+        $post_data['post_date_gmt'] = get_gmt_from_date($post_data['post_date']);
+    }
+
+    $post_id = wp_insert_post(wp_slash($post_data), true);
+
+    if (!is_wp_error($post_id)) {
+        update_option('baltic_initial_news_created', 1, false);
+    }
+}, 30);
+
+function baltic_asset(string $path): string
+{
+    $path = ltrim($path, '/');
+    $url = get_template_directory_uri() . '/' . $path;
+    $file = get_template_directory() . '/' . $path;
+
+    if (file_exists($file)) {
+        $url = add_query_arg('ver', (string) filemtime($file), $url);
+    }
+
+    return $url;
 }
 
-function balt_brew_view(): string {
-	return (string) get_query_var( 'balt_brew_view', '' );
+function baltic_option(string $field, $fallback = '')
+{
+    if (!function_exists('get_field')) {
+        return $fallback;
+    }
+
+    // The "Главная страница" options screen is the single editing location.
+    $value = get_field($field, 'option');
+
+    // Preserve values entered on a front page before the options screen existed.
+    if ($value === null || $value === false || $value === '') {
+        $front_page_id = (int) get_option('page_on_front');
+        if ($front_page_id > 0) {
+            $value = get_field($field, $front_page_id);
+        }
+    }
+
+    if ($value === null || $value === false || $value === '') {
+        return $fallback;
+    }
+
+    return $value;
 }
 
-function balt_brew_is_front_view(): bool {
-	return ! in_array( balt_brew_view(), array( 'news', 'age-gate' ), true );
+function baltic_option_text(string $field, string $fallback = ''): string
+{
+    return esc_html((string) baltic_option($field, $fallback));
 }
 
-function balt_brew_news_url(): string {
-	return home_url( '/news/' );
+function baltic_option_html(string $field, string $fallback = ''): string
+{
+    $value = (string) baltic_option($field, $fallback);
+
+    // ACF may already have inserted <br> tags; format each newline only once.
+    $value = preg_replace('/<br\s*\/?>\r?\n?/i', "\n", $value);
+    return wp_kses_post(nl2br($value));
 }
 
-function balt_brew_setup(): void {
-	add_theme_support( 'title-tag' );
-	add_theme_support( 'html5', array( 'style', 'script', 'gallery', 'caption' ) );
+function baltic_option_url(string $field, string $fallback = ''): string
+{
+    $value = baltic_option($field, $fallback);
+
+    if (is_array($value)) {
+        $value = $value['url'] ?? $fallback;
+    }
+
+    return esc_url((string) $value);
 }
-add_action( 'after_setup_theme', 'balt_brew_setup' );
 
-function balt_brew_asset_version( string $path ): string {
-	$file = get_theme_file_path( $path );
-	return is_file( $file ) ? (string) filemtime( $file ) : '1.0.0';
+function baltic_option_asset(string $field, string $fallback_path): string
+{
+    return baltic_option_url($field, baltic_asset($fallback_path));
 }
 
-function balt_brew_enqueue_assets(): void {
-	$is_age_gate = 'age-gate' === balt_brew_view();
+require_once get_template_directory() . '/inc/acf-home.php';
 
-	wp_enqueue_script(
-		'balt-brew-age-check',
-		balt_brew_asset( 'age-check.js' ),
-		array(),
-		balt_brew_asset_version( 'age-check.js' ),
-		false
-	);
+add_filter('query_vars', static function (array $vars): array {
+    $vars[] = 'baltic_page';
 
-	wp_add_inline_script(
-		'balt-brew-age-check',
-		'window.BaltBrewConfig = ' . wp_json_encode(
-			array(
-				'homeUrl'     => home_url( '/' ),
-				'newsUrl'     => balt_brew_news_url(),
-				'ageGateUrl'  => home_url( '/age-gate/' ),
-				'assetsBase'  => trailingslashit( get_template_directory_uri() ),
-				'isAgeGate'   => $is_age_gate,
-			)
-		) . ';',
-		'before'
-	);
+    return $vars;
+});
 
-	if ( $is_age_gate ) {
-		wp_enqueue_style( 'balt-brew-age-gate', balt_brew_asset( 'age-gate.css' ), array(), balt_brew_asset_version( 'age-gate.css' ) );
-		wp_enqueue_script( 'balt-brew-age-gate-page', balt_brew_asset( 'age-gate-page.js' ), array( 'balt-brew-age-check' ), balt_brew_asset_version( 'age-gate-page.js' ), true );
-		return;
-	}
+add_filter('template_include', static function (string $template): string {
+    $content_page = get_query_var('baltic_page');
 
-	$styles = array(
-		'balt-brew-main'              => 'styles.css',
-		'balt-brew-mobile'            => 'styles-mobile.css',
-		'balt-brew-product-animation' => 'product-animation.css',
-		'balt-brew-loader'            => 'loader.css',
-		'balt-brew-pages-fixes'       => 'pages-fixes.css',
-	);
-	$dependencies = array();
-	foreach ( $styles as $handle => $path ) {
-		wp_enqueue_style( $handle, balt_brew_asset( $path ), $dependencies, balt_brew_asset_version( $path ) );
-		$dependencies = array( $handle );
-	}
+    if ($content_page === 'news' || $content_page === 'articles') {
+        $page_template = get_template_directory() . '/page-' . $content_page . '.php';
 
-	wp_enqueue_script( 'balt-brew-main', balt_brew_asset( 'script.js' ), array(), balt_brew_asset_version( 'script.js' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
-	if ( balt_brew_is_front_view() ) {
-		wp_enqueue_script( 'balt-brew-product-animation', balt_brew_asset( 'product-animation.js' ), array( 'balt-brew-main' ), balt_brew_asset_version( 'product-animation.js' ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
-	}
+        if (file_exists($page_template)) {
+            if ($content_page === 'articles') {
+                // The archive is virtual; the main query may otherwise mark page 2 as 404.
+                global $wp_query;
+                $wp_query->is_404 = false;
+                status_header(200);
+            }
+            return $page_template;
+        }
+    }
+
+    return $template;
+});
+
+add_filter('document_title_parts', static function (array $parts): array {
+    $content_page = get_query_var('baltic_page');
+
+    if ($content_page === 'news' || is_post_type_archive('baltic_news')) {
+        $parts['title'] = 'Все новости';
+    } elseif ($content_page === 'articles') {
+        $parts['title'] = 'Все записи автора';
+    }
+
+    return $parts;
+});
+
+function baltic_content_index_url(string $type): string
+{
+    return home_url($type === 'baltic_news' ? '/news/' : '/articles/');
 }
-add_action( 'wp_enqueue_scripts', 'balt_brew_enqueue_assets' );
-
-function balt_brew_preload_fonts(): void {
-	foreach ( array( 'fonts/Inter-Regular.woff2', 'fonts/tt-backwardssans-regular.woff2', 'fonts/TTTricks-Regular.woff2' ) as $font ) {
-		printf( '<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>%s', esc_url( balt_brew_asset( $font ) ), "\n" );
-	}
-}
-add_action( 'wp_head', 'balt_brew_preload_fonts', 2 );
-
-function balt_brew_register_routes(): void {
-	add_rewrite_rule( '^news/?$', 'index.php?balt_brew_view=news', 'top' );
-	add_rewrite_rule( '^age-gate/?$', 'index.php?balt_brew_view=age-gate', 'top' );
-
-	if ( '1' !== get_option( 'balt_brew_routes_version' ) ) {
-		flush_rewrite_rules( false );
-		update_option( 'balt_brew_routes_version', '1', false );
-	}
-}
-add_action( 'init', 'balt_brew_register_routes' );
-
-/**
- * Keep the two static routes available before pretty permalinks are enabled.
- * A fresh WordPress installation uses the plain permalink structure.
- */
-function balt_brew_detect_static_route( WP $wp ): void {
-	$route = trim( (string) $wp->request, '/' );
-	if ( in_array( $route, array( 'news', 'age-gate' ), true ) ) {
-		$wp->query_vars['balt_brew_view'] = $route;
-	}
-}
-add_action( 'parse_request', 'balt_brew_detect_static_route' );
-
-function balt_brew_query_vars( array $vars ): array {
-	$vars[] = 'balt_brew_view';
-	return $vars;
-}
-add_filter( 'query_vars', 'balt_brew_query_vars' );
-
-function balt_brew_template( string $template ): string {
-	$view = balt_brew_view();
-	if ( 'news' === $view ) {
-		return get_theme_file_path( 'page-news.php' );
-	}
-	if ( 'age-gate' === $view ) {
-		return get_theme_file_path( 'age-gate.php' );
-	}
-	return $template;
-}
-add_filter( 'template_include', 'balt_brew_template' );
-
-function balt_brew_route_status(): void {
-	if ( in_array( balt_brew_view(), array( 'news', 'age-gate' ), true ) ) {
-		global $wp_query;
-		$wp_query->is_404 = false;
-		status_header( 200 );
-	}
-}
-add_action( 'template_redirect', 'balt_brew_route_status' );
-
-function balt_brew_body_classes( array $classes ): array {
-	if ( 'news' === balt_brew_view() ) {
-		$classes[] = 'news-page';
-	}
-	return $classes;
-}
-add_filter( 'body_class', 'balt_brew_body_classes' );
-
-function balt_brew_flush_routes(): void {
-	balt_brew_register_routes();
-	flush_rewrite_rules();
-}
-add_action( 'after_switch_theme', 'balt_brew_flush_routes' );

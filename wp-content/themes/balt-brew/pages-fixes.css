@@ -1,4 +1,21 @@
 /* Shared footer: keep artwork and contact details inside narrow viewports. */
+html,
+body {
+    overflow-x: clip;
+}
+
+@media (min-width: 1440px) {
+    body {
+        min-width: 320px;
+    }
+
+    div.page,
+    .section,
+    .footer {
+        width: 100%;
+    }
+}
+
 .footer_right {
     min-width: 0;
     max-width: 100%;
@@ -113,3 +130,435 @@
 .footer__legal[href] { text-decoration: none; }
 .footer__legal[href]:hover { text-decoration: underline; }
 .footer a:focus-visible { outline: 2px solid #fdd46d; outline-offset: 4px; }
+
+/* News and author publication pages from the dedicated content layouts. */
+.content-page {
+    background: #f5efe4;
+    color: #502c2c;
+}
+
+.content-page .page {
+    background: #f5efe4 url('images/news/article-bg.png') top center / 1440px auto repeat-y;
+}
+
+.content-header {
+    position: absolute;
+    z-index: 10;
+    top: 20px;
+    left: 50%;
+    width: 110px;
+    transform: translateX(-50%);
+}
+
+.content-header__logo-link,
+.content-header__logo {
+    display: block;
+    width: 100%;
+}
+
+.content-header__logo {
+    height: auto;
+}
+
+.content-page__back {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    color: #502c2c;
+    font-family: 'TT Backwards Sans', 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: opacity .2s ease;
+}
+
+.content-page__back:hover {
+    opacity: .65;
+}
+
+.content-page a:focus-visible {
+    outline: 3px solid #a57c4c;
+    outline-offset: 5px;
+}
+
+.content-index {
+    width: min(100% - 48px, 1060px);
+    min-height: 0;
+    margin: 0 auto;
+    padding: 112px 0 100px;
+}
+
+.content-index__title {
+    margin: 34px 0 30px;
+    color: #502c2c;
+    font-family: 'TT Tricks Variable', 'Inter', sans-serif;
+    font-size: clamp(38px, 3.5vw, 48px);
+    font-weight: 500;
+    line-height: 1.08;
+    text-transform: uppercase;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 66px 20px;
+}
+
+.content-card {
+    display: flex;
+    min-width: 0;
+    color: #502c2c;
+    flex-direction: column;
+    text-decoration: none;
+}
+
+.content-card__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 5 / 3;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #d7c5aa;
+}
+
+.content-card__image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .35s ease;
+}
+
+.content-card:hover .content-card__image img {
+    transform: scale(1.025);
+}
+
+.content-card__title {
+    display: -webkit-box;
+    min-height: 58px;
+    margin-top: 19px;
+    overflow: hidden;
+    font-family: 'TT Tricks Variable', 'Inter', sans-serif;
+    font-size: 25px;
+    font-weight: 500;
+    line-height: 1.15;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.content-card__excerpt {
+    display: -webkit-box;
+    min-height: 57px;
+    margin-top: 10px;
+    overflow: hidden;
+    font-family: 'TT Backwards Sans', 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.35;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.content-card__date {
+    margin-top: 10px;
+    font-family: 'TT Backwards Sans', 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.content-index__empty {
+    margin-top: 60px;
+    color: #502c2c;
+    font-size: 22px;
+}
+
+.content-pagination {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 64px;
+}
+
+.content-pagination a {
+    display: grid;
+    min-width: 40px;
+    min-height: 40px;
+    place-items: center;
+    color: #502c2c;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    text-decoration: none;
+}
+
+.content-pagination a[aria-current="page"] {
+    color: #fff;
+    background: #502c2c;
+}
+
+.content-document {
+    width: 100%;
+    min-height: 0;
+    padding: 112px 24px 100px;
+}
+
+.content-document__inner {
+    width: 100%;
+    max-width: 1068px;
+    margin: 0 auto;
+}
+
+.content-document__title {
+    margin: 36px 0 0;
+    color: #502c2c;
+    font-family: 'TT Tricks Variable', 'Inter', sans-serif;
+    font-size: clamp(40px, 4vw, 48px);
+    font-weight: 500;
+    line-height: 1.08;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+}
+
+.content-document__image {
+    width: 100%;
+    margin-top: 34px;
+    aspect-ratio: 1.65;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #d7c5aa;
+}
+
+.content-document__image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.content-document__body {
+    margin-top: 28px;
+    color: #502c2c;
+    font-family: 'TT Backwards Sans', 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.content-document__body > * + * {
+    margin-top: 1em;
+}
+
+.content-document__body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 14px;
+}
+
+.section__all-link {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    width: fit-content;
+    margin-top: 20px;
+    color: #502c2c;
+    font-family: 'TT Backwards Sans', 'Inter', sans-serif;
+    font-size: 17px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.news .section__all-link {
+    align-self: center;
+}
+
+.feature-actions {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    margin-top: auto;
+}
+
+.feature-actions__more {
+    color: #613800;
+    font-family: 'TT Backwards Sans', 'Inter', sans-serif;
+    font-size: 20px;
+    line-height: 1.2;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.feature-actions .section__all-link {
+    margin: 0 0 2px;
+    text-align: right;
+}
+
+.feature-actions .section__all-link:only-child {
+    margin-left: auto;
+}
+
+.news__text,
+.author__text {
+    max-height: 500px;
+    overflow-y: auto;
+    white-space: pre-line;
+}
+
+.news__text {
+    margin-bottom: 24px;
+}
+
+.author .container {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 769px) {
+    .news .container,
+    .author .container {
+        width: min(720px, calc(100% - 80px));
+    }
+
+    .author .container {
+        min-height: 600px;
+    }
+
+    .news__date,
+    .news__headline,
+    .news__text,
+    .author__heading,
+    .author__text {
+        text-align: center;
+    }
+
+    .author__text {
+        padding-right: 0;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+    .news .container {
+        width: 64%;
+        height: 640px;
+        min-height: 0;
+    }
+
+    .news__text {
+        flex: 1 1 0;
+        min-height: 0;
+        max-height: none;
+    }
+
+    .news .feature-actions {
+        margin-top: 0;
+    }
+}
+
+@media (min-width: 1024px) {
+    .news .container {
+        width: min(720px, 52%);
+        height: min(760px, 53vw);
+        min-height: 0;
+    }
+
+    .news__text {
+        flex: 1 1 0;
+        min-height: 0;
+        max-height: none;
+    }
+
+    .news .feature-actions {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .feature-actions__more {
+        font-size: 16px;
+    }
+
+    .feature-actions .section__all-link {
+        font-size: 15px;
+    }
+
+    .author .container {
+        min-height: 430px;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-page .page {
+        background-size: auto 2267px;
+    }
+
+    .content-header {
+        top: 18px;
+        width: 107px;
+    }
+
+    .content-page__back {
+        font-size: 18px;
+    }
+
+    .content-index {
+        width: 100%;
+        min-height: 0;
+        padding: 112px 16px 72px;
+    }
+
+    .content-index__title {
+        margin: 28px 0 28px;
+        font-size: 34px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .content-card__image {
+        border-radius: 12px;
+    }
+
+    .content-card__title {
+        min-height: 0;
+        margin-top: 16px;
+        font-size: 22px;
+    }
+
+    .content-card__excerpt {
+        min-height: 0;
+        font-size: 16px;
+    }
+
+    .content-card__date {
+        font-size: 16px;
+    }
+
+    .content-document {
+        min-height: 0;
+        padding: 112px 16px 80px;
+    }
+
+    .content-document__title {
+        margin-top: 28px;
+        font-size: 34px;
+    }
+
+    .content-document__image {
+        margin-top: 28px;
+        aspect-ratio: 1.64;
+        border-radius: 12px;
+    }
+
+    .content-document__body {
+        margin-top: 22px;
+        font-size: 18px;
+        line-height: 1.35;
+    }
+}

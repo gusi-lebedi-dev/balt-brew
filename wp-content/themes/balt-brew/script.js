@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const assetUrl = path => new URL(path, window.BaltBrewConfig?.assetsBase || document.baseURI).href;
     // Storage can be unavailable in private/restricted contexts; controls still work.
     const cookieBanner = document.getElementById('cookieBanner');
     const acceptCookie = document.getElementById('acceptCookie');
@@ -16,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('loader');
     const loaderProgress = document.getElementById('loaderProgress');
     const heroVideos = Array.from(document.querySelectorAll('.hero__video'));
+    const heroScrollButton = document.querySelector('[data-hero-scroll]');
     const mobileScreen = window.matchMedia('(max-width: 767px)');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const heroGroups = ['desktop', 'mobile'].map(format => ({
@@ -24,10 +24,37 @@ document.addEventListener('DOMContentLoaded', () => {
         loop: document.querySelector(`[data-hero-format="${format}"][data-hero-loop]`),
         loopStarted: false
     })).filter(group => group.intro && group.loop);
+
+    if (heroScrollButton) {
+        heroScrollButton.addEventListener('click', () => {
+            const target = document.querySelector(heroScrollButton.dataset.heroScroll);
+            if (!target) return;
+
+            target.scrollIntoView({
+                behavior: reducedMotion.matches ? 'auto' : 'smooth',
+                block: 'start'
+            });
+        });
+    }
     let activeGroup = null;
     let activeGeneration = 0;
     let loaderComplete = false;
     let loaderTimeout = 0;
+    let heroScrollTimeout = 0;
+    const scheduleHeroScroll = group => {
+        if (!heroScrollButton || !heroScrollButton.hidden || group !== activeGroup || heroScrollTimeout) return;
+        const generation = activeGeneration;
+        heroScrollTimeout = window.setTimeout(() => {
+            heroScrollTimeout = 0;
+            if (group !== activeGroup || generation !== activeGeneration) return;
+            heroScrollButton.hidden = false;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                if (group === activeGroup && generation === activeGeneration) {
+                    heroScrollButton.classList.add('hero__scroll--visible');
+                }
+            }));
+        }, 8000);
+    };
     const finishLoading = () => {
         if (loaderComplete) return;
         loaderComplete = true;
@@ -87,12 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     heroGroups.forEach(group => {
         group.intro.addEventListener('loadeddata', () => {
-            if (group === activeGroup) finishLoading();
+            if (group === activeGroup) {
+                finishLoading();
+                scheduleHeroScroll(group);
+            }
         });
         group.intro.addEventListener('ended', () => startLoop(group));
         group.intro.addEventListener('error', () => {
             if (group !== activeGroup) return;
             finishLoading();
+            scheduleHeroScroll(group);
             startLoop(group);
         });
     });
@@ -117,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         activeGeneration += 1;
+        window.clearTimeout(heroScrollTimeout);
+        heroScrollTimeout = 0;
+        if (heroScrollButton && !heroScrollButton.classList.contains('hero__scroll--visible')) {
+            heroScrollButton.hidden = true;
+        }
         activeGroup = nextGroup;
         heroVideos.forEach(video => {
             video.pause();
@@ -129,7 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (nextGroup.intro.readyState >= 1) nextGroup.intro.currentTime = 0;
         if (nextGroup.loop.readyState >= 1) nextGroup.loop.currentTime = 0;
         setVideoVisible(nextGroup.intro, true);
-        if (nextGroup.intro.readyState >= 2 || nextGroup.intro.error) finishLoading();
+        if (nextGroup.intro.readyState >= 2 || nextGroup.intro.error) {
+            finishLoading();
+            scheduleHeroScroll(nextGroup);
+        }
         if (reducedMotion.matches) nextGroup.intro.pause();
         else playVideo(nextGroup.intro);
     };
@@ -207,25 +246,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const tabs = document.querySelectorAll('.about__card');
-    const panels = document.querySelectorAll('.about__panel');
-    const timeline = document.querySelector('.timeline');
+    const aboutTabs = document.querySelectorAll('[data-about-tab]');
+    const aboutPanels = document.querySelectorAll('[data-about-panel]');
 
-    if (tabs.length && panels.length) {
-        tabs.forEach((tab) => {
+    if (aboutTabs.length && aboutPanels.length) {
+        const revealAboutTab = (tab) => {
+            const list = tab.parentElement;
+            const bounds = list.getBoundingClientRect();
+            const card = tab.getBoundingClientRect();
+            if (card.left < bounds.left || card.right > bounds.right) {
+                list.scrollLeft += card.left - bounds.left - (list.clientWidth - card.width) / 2;
+            }
+        };
+        aboutTabs.forEach((tab) => {
             tab.addEventListener('click', () => {
-                if (tab.dataset.pos === 'center') return;
+                const tabId = tab.dataset.aboutTab;
 
-                const centerTab = Array.from(tabs).find((t) => t.dataset.pos === 'center');
-                const clickedPos = tab.dataset.pos;
+                aboutTabs.forEach((button) => {
+                    const isActive = button === tab;
+                    button.classList.toggle('about__card--active', isActive);
+                    button.setAttribute('aria-selected', String(isActive));
+                    button.tabIndex = isActive ? 0 : -1;
+                });
 
-                tab.dataset.pos = 'center';
-                if (centerTab) centerTab.dataset.pos = clickedPos;
-
-                panels.forEach((p) => p.classList.toggle('about__panel--active', p.dataset.panel === tab.dataset.tab));
-                if (timeline) timeline.classList.toggle('timeline--visible', tab.dataset.tab === 'history');
+                aboutPanels.forEach((panel) => {
+                    panel.classList.toggle('about__panel--active', panel.dataset.aboutPanel === tabId);
+                });
+                requestAnimationFrame(() => revealAboutTab(tab));
+            });
+            tab.addEventListener('keydown', (event) => {
+                const index = Array.from(aboutTabs).indexOf(tab);
+                let target;
+                if (event.key === 'ArrowRight') target = (index + 1) % aboutTabs.length;
+                if (event.key === 'ArrowLeft') target = (index - 1 + aboutTabs.length) % aboutTabs.length;
+                if (event.key === 'Home') target = 0;
+                if (event.key === 'End') target = aboutTabs.length - 1;
+                if (target === undefined) return;
+                event.preventDefault();
+                aboutTabs[target].click();
+                aboutTabs[target].focus({ preventScroll: true });
             });
         });
+        requestAnimationFrame(() => revealAboutTab(Array.from(aboutTabs).find(tab => tab.getAttribute('aria-selected') === 'true') || aboutTabs[0]));
     }
 
     const brewerSlides = document.querySelectorAll('.about__brewers-slide');
@@ -250,27 +312,88 @@ document.addEventListener('DOMContentLoaded', () => {
         brewerNextBtn.addEventListener('click', () => showBrewerSlide(activeBrewerIndex() + 1));
     }
 
-    const timelineItems = document.querySelectorAll('.timeline__item');
-    const timelineTexts = document.querySelectorAll('.about__timeline-text');
+    const aboutTimelines = document.querySelectorAll('.about__panel');
 
-    if (timelineItems.length && timelineTexts.length) {
-        timelineItems.forEach((item) => {
+    aboutTimelines.forEach((panel) => {
+        const items = panel.querySelectorAll('[data-about-event-target]');
+        const texts = panel.querySelectorAll('[data-about-event]');
+
+        if (!items.length || !texts.length) return;
+
+        items.forEach((item) => {
             item.addEventListener('click', () => {
-                const year = item.dataset.year;
+                const eventId = item.dataset.aboutEventTarget;
 
-                timelineItems.forEach((i) => {
-                    const isActive = i === item;
-                    i.classList.toggle('timeline__item--active', isActive);
-                    const dotImg = i.querySelector('.timeline__dot');
-                    if (dotImg) {
-                        dotImg.src = isActive
-                            ? assetUrl('images/about/timeline-dot-active.png')
-                            : assetUrl('images/about/timeline-dot.png');
-                    }
+                items.forEach((button) => {
+                    button.classList.toggle('timeline__item--active', button === item);
                 });
 
-                timelineTexts.forEach((t) => t.classList.toggle('about__timeline-text--active', t.dataset.year === year));
+                texts.forEach((text) => {
+                    text.classList.toggle('about__timeline-text--active', text.dataset.aboutEvent === eventId);
+                });
             });
         });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const prepositions = [
+        'в', 'во',
+        'на',
+        'за',
+        'из', 'изо', 'и',
+        'к', 'ко',
+        'с', 'со',
+        'у',
+        'о', 'об', 'обо',
+        'от', 'ото',
+        'до',
+        'по',
+        'под', 'подо',
+        'над', 'надо',
+        'без',
+        'при',
+        'про',
+        'для',
+        'мы',
+        'через'
+    ];
+
+    const regexp = new RegExp(
+        `(^|\\s)(${prepositions.join('|')})\\s+`,
+        'gi'
+    );
+
+    function processTextNode(node) {
+        node.nodeValue = node.nodeValue.replace(
+            regexp,
+            '$1$2\u00A0'
+        );
     }
+
+    function walk(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            processTextNode(node);
+            return;
+        }
+
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
+
+        const excludedTags = [
+            'SCRIPT',
+            'STYLE',
+            'TEXTAREA',
+            'INPUT',
+            'SELECT',
+            'OPTION',
+            'CODE',
+            'PRE'
+        ];
+
+        if (excludedTags.includes(node.tagName)) return;
+
+        node.childNodes.forEach(walk);
+    }
+
+    walk(document.body);
 });
