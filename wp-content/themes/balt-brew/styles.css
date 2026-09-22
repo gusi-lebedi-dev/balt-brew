@@ -204,7 +204,7 @@ div.page {
 
 .header__nav-bar {
     height: 60px;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
@@ -2559,7 +2559,7 @@ div.page {
 
 .timeline__date {
     display: flex;
-    flex-direction: column;
+    flex-direction: row-reverse;
     align-items: center;
     gap: 4px;
     font-size: 16px;
@@ -2599,11 +2599,11 @@ div.page {
 }
 
 .timeline__item--active .timeline__year {
-    font-size: 36px;
+    font-size: 23px;
 }
 
 .timeline__item--active .timeline__month {
-    font-size: 24px;
+    font-size: 23px;
 }
 
 .timeline__item--active .timeline__dot {

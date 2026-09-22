@@ -397,3 +397,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     walk(document.body);
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const previews = document.querySelectorAll('.news__text, .author__text');
+    if (!previews.length) return;
+
+    const updatePreviewLines = () => {
+        previews.forEach((preview) => {
+            const styles = getComputedStyle(preview);
+            const lineHeight = parseFloat(styles.lineHeight) || parseFloat(styles.fontSize) * 1.2;
+            const availableHeight = Math.min(600, preview.getBoundingClientRect().height);
+            const lines = Math.max(1, Math.floor(availableHeight / lineHeight + 0.0001));
+            const value = String(lines);
+            if (preview.style.getPropertyValue('--preview-lines') !== value) {
+                preview.style.setProperty('--preview-lines', value);
+            }
+        });
+    };
+
+    let pendingFrame = 0;
+    const scheduleUpdate = () => {
+        if (pendingFrame) return;
+        pendingFrame = requestAnimationFrame(() => {
+            pendingFrame = 0;
+            updatePreviewLines();
+        });
+    };
+
+    if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(scheduleUpdate);
+        previews.forEach((preview) => observer.observe(preview.parentElement));
+    }
+    window.addEventListener('resize', scheduleUpdate);
+    if (document.fonts) document.fonts.ready.then(scheduleUpdate);
+    scheduleUpdate();
+});
