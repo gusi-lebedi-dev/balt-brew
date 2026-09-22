@@ -34,28 +34,16 @@ function baltic_register_home_acf(): void
     $registered = true;
 
     acf_add_options_page([
-        'page_title' => 'Главная страница',
-        'menu_title' => 'Главная страница',
+        'page_title' => 'Футер',
+        'menu_title' => 'Футер',
         'menu_slug'  => 'baltic-home',
         'capability' => 'edit_posts',
         'redirect'   => false,
         'position'   => 21,
-        'icon_url'   => 'dashicons-admin-home',
+        'icon_url'   => 'dashicons-editor-kitchensink',
     ]);
 
     $fields = [
-        [
-            'key' => 'field_baltic_tab_seo',
-            'label' => 'SEO и превью',
-            'name' => '',
-            'type' => 'tab',
-            'placement' => 'top',
-        ],
-        baltic_acf_text_field('meta_description', 'Описание страницы', 'Балтика Brew - крафтовая пивоварня. Познакомьтесь с нашими уникальными сортами пива.'),
-        baltic_acf_text_field('og_title', 'Заголовок Open Graph', 'Балтика Brew - Крафтовая пивоварня'),
-        baltic_acf_textarea_field('og_description', 'Описание Open Graph', 'Крафтовое пиво высокого качества. Регулярные и лимитированные линейки продукции.'),
-        baltic_acf_image_field('og_image', 'Картинка для соцсетей'),
-
         [
             'key' => 'field_baltic_tab_hero',
             'label' => 'Первый экран и шапка',
@@ -314,14 +302,9 @@ function baltic_register_home_acf(): void
         ],
         baltic_acf_text_field('author_heading', 'Заголовок', 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД'),
         baltic_acf_textarea_field('author_text', 'Текст', baltic_design_copy('author_text'), 8),
+    ];
 
-        [
-            'key' => 'field_baltic_tab_footer',
-            'label' => 'Футер и документы',
-            'name' => '',
-            'type' => 'tab',
-            'placement' => 'top',
-        ],
+    $footer_fields = [
         baltic_acf_image_field('footer_logo', 'Логотип футера'),
         baltic_acf_url_field('footer_vk_url', 'Ссылка VK', 'https://vk.ru/baltikabrew'),
         baltic_acf_text_field('footer_phone', 'Телефон', '8 (800) 700 28 80'),
@@ -339,9 +322,9 @@ function baltic_register_home_acf(): void
         'title' => 'Редактирование главной страницы',
         'fields' => $fields,
         'location' => [[[
-            'param' => 'options_page',
+            'param' => 'page_type',
             'operator' => '==',
-            'value' => 'baltic-home',
+            'value' => 'front_page',
         ]]],
         'menu_order' => 0,
         'position' => 'normal',
@@ -351,11 +334,32 @@ function baltic_register_home_acf(): void
         'active' => true,
     ]);
 
-    baltic_seed_home_options();
+    acf_add_local_field_group([
+        'key' => 'group_baltic_footer',
+        'title' => 'Футер',
+        'fields' => $footer_fields,
+        'location' => [[[
+            'param' => 'options_page',
+            'operator' => '==',
+            'value' => 'baltic-home',
+        ]]],
+        'menu_order' => 0,
+        'position' => 'normal',
+        'style' => 'seamless',
+        'label_placement' => 'top',
+        'active' => true,
+    ]);
+
+    baltic_migrate_home_fields($fields);
 }
 
 add_action('admin_enqueue_scripts', static function (string $hook): void {
-    if ($hook !== 'toplevel_page_baltic-home') {
+    $front_page_id = (int) get_option('page_on_front');
+    $is_front_page_editor = $front_page_id > 0
+        && in_array($hook, ['post.php', 'post-new.php'], true)
+        && isset($_GET['post']) && (int) $_GET['post'] === $front_page_id;
+
+    if ($hook !== 'toplevel_page_baltic-home' && !$is_front_page_editor) {
         return;
     }
 
@@ -594,136 +598,49 @@ function baltic_product_default(int $number, string $key): string
     return (string) $products[$index][$key];
 }
 
-function baltic_seed_home_options(): void
-{
-    if (get_option('baltic_home_acf_seeded')) {
-        return;
-    }
-
-    $values = [
-        'meta_description' => 'Балтика Brew - крафтовая пивоварня. Познакомьтесь с нашими уникальными сортами пива.',
-        'og_title' => 'Балтика Brew - Крафтовая пивоварня',
-        'og_description' => 'Крафтовое пиво высокого качества. Регулярные и лимитированные линейки продукции.',
-        'about_title' => 'о нас',
-        'about_tabs' => baltic_acf_about_tabs(),
-        'news_title' => 'новости',
-        'news_date' => '22.08.2026',
-        'news_headline' => 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД',
-        'news_excerpt' => baltic_design_copy('news_excerpt'),
-        'news_button' => 'подробнее',
-        'video_title' => 'Название видео',
-        'video_iframe_src' => 'https://vkvideo.ru/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3',
-        'video_description' => baltic_design_copy('video_description'),
-        'author_title' => 'Слово автора',
-        'author_heading' => 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД',
-        'author_text' => baltic_design_copy('author_text'),
-        'footer_vk_url' => 'https://vk.ru/baltikabrew',
-        'footer_phone' => '8 (800) 700 28 80',
-        'footer_phone_href' => '+78007002880',
-        'footer_phone_subtitle' => 'Бесплатно по всей России',
-        'footer_company' => 'ООО «ПИВОВАРЕННАЯ КОМПАНИЯ «БАЛТИКА»',
-        'cookie_text' => 'Мы используем файлы cookie, чтобы сайт работал лучше.',
-        'cookie_button' => 'ПРИНЯТЬ',
-    ];
-
-    foreach (baltic_acf_products() as $index => $product) {
-        $number = $index + 1;
-        $values['product_' . $number . '_title'] = $product['title'];
-        $values['product_' . $number . '_description'] = $product['description'];
-        $values['product_' . $number . '_alcohol'] = '5,3 %';
-        $values['product_' . $number . '_density'] = '12,7 %';
-        $values['product_' . $number . '_ibu'] = '23';
-        $values['product_items'][] = [
-            'title' => $product['title'],
-            'description' => $product['description'],
-            'alcohol' => '5,3 %',
-            'density' => '12,7 %',
-            'ibu' => '23',
-            'modifier' => $product['modifier'],
-            'background' => '',
-            'bottle' => '',
-        ];
-    }
-
-    foreach ($values as $field => $value) {
-        if (function_exists('get_field') && get_field($field, 'option')) {
-            continue;
-        }
-
-        update_field($field, $value, 'option');
-    }
-
-    update_option('baltic_home_acf_seeded', 1, false);
-}
-
-function baltic_home_seed_values(): array
-{
-    $values = [
-        'meta_description' => 'Балтика Brew - крафтовая пивоварня. Познакомьтесь с нашими уникальными сортами пива.',
-        'og_title' => 'Балтика Brew - Крафтовая пивоварня',
-        'og_description' => 'Крафтовое пиво высокого качества. Регулярные и лимитированные линейки продукции.',
-        'about_title' => 'о нас',
-        'about_tabs' => baltic_acf_about_tabs(),
-        'news_title' => 'новости',
-        'news_date' => '22.08.2026',
-        'news_headline' => 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД',
-        'news_excerpt' => baltic_design_copy('news_excerpt'),
-        'news_button' => 'подробнее',
-        'video_title' => 'Название видео',
-        'video_iframe_src' => 'https://vkvideo.ru/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3',
-        'video_description' => baltic_design_copy('video_description'),
-        'author_title' => 'Слово автора',
-        'author_heading' => 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД',
-        'author_text' => baltic_design_copy('author_text'),
-        'footer_vk_url' => 'https://vk.ru/baltikabrew',
-        'footer_phone' => '8 (800) 700 28 80',
-        'footer_phone_href' => '+78007002880',
-        'footer_phone_subtitle' => 'Бесплатно по всей России',
-        'footer_company' => 'ООО «ПИВОВАРЕННАЯ КОМПАНИЯ «БАЛТИКА»',
-        'cookie_text' => 'Мы используем файлы cookie, чтобы сайт работал лучше.',
-        'cookie_button' => 'ПРИНЯТЬ',
-    ];
-
-    foreach (baltic_acf_products() as $index => $product) {
-        $number = $index + 1;
-        $values['product_' . $number . '_title'] = $product['title'];
-        $values['product_' . $number . '_description'] = $product['description'];
-        $values['product_' . $number . '_alcohol'] = '5,3 %';
-        $values['product_' . $number . '_density'] = '12,7 %';
-        $values['product_' . $number . '_ibu'] = '23';
-        $values['product_items'][] = [
-            'title' => $product['title'],
-            'description' => $product['description'],
-            'alcohol' => '5,3 %',
-            'density' => '12,7 %',
-            'ibu' => '23',
-            'modifier' => $product['modifier'],
-            'background' => '',
-            'bottle' => '',
-        ];
-    }
-
-    return $values;
-}
-
-function baltic_seed_front_page_fields(): void
+/**
+ * Copy fields from the old options screen to the actual front page once.
+ * Existing page values, including intentionally empty values, always win.
+ */
+function baltic_migrate_home_fields(array $fields): void
 {
     $front_page_id = (int) get_option('page_on_front');
-
-    if ($front_page_id <= 0 || get_option('baltic_front_page_acf_seeded_' . $front_page_id)) {
+    if ($front_page_id <= 0 || get_option('baltic_front_page_acf_migrated_' . $front_page_id)) {
         return;
     }
 
-    foreach (baltic_home_seed_values() as $field => $value) {
-        if (get_field($field, $front_page_id)) {
+    foreach ($fields as $field) {
+        $name = $field['name'] ?? '';
+        if ($name === '' || metadata_exists('post', $front_page_id, $name)) {
             continue;
         }
 
-        $option_value = get_field($field, 'option');
-        update_field($field, $option_value ?: $value, $front_page_id);
+        if (get_option('options_' . $name, null) !== null) {
+            update_field($field['key'], get_field($field['key'], 'option', false), $front_page_id);
+        } elseif ($name === 'product_items') {
+            update_field($field['key'], baltic_default_product_rows(), $front_page_id);
+        } elseif ($name === 'about_tabs') {
+            update_field($field['key'], baltic_acf_about_tabs(), $front_page_id);
+        }
     }
 
-    update_option('baltic_front_page_acf_seeded_' . $front_page_id, 1, false);
+    update_option('baltic_front_page_acf_migrated_' . $front_page_id, 1, false);
+}
+
+function baltic_default_product_rows(): array
+{
+    return array_map(static function (array $product): array {
+        return [
+            'title' => $product['title'],
+            'description' => $product['description'],
+            'alcohol' => '5,3 %',
+            'density' => '12,7 %',
+            'ibu' => '23',
+            'modifier' => $product['modifier'],
+            'background' => '',
+            'bottle' => '',
+        ];
+    }, baltic_acf_products());
 }
 
 function baltic_acf_text_field(string $name, string $label, string $default = '', string $instructions = ''): array

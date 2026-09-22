@@ -125,14 +125,21 @@ function baltic_option(string $field, $fallback = '')
         return $fallback;
     }
 
-    // The "Главная страница" options screen is the single editing location.
-    $value = get_field($field, 'option');
+    $footer_fields = [
+        'footer_logo', 'footer_vk_url', 'footer_phone', 'footer_phone_href',
+        'footer_phone_subtitle', 'footer_company', 'personal_pdf', 'cookie_pdf',
+        'cookie_text', 'cookie_button',
+    ];
 
-    // Preserve values entered on a front page before the options screen existed.
-    if ($value === null || $value === false || $value === '') {
+    if (in_array($field, $footer_fields, true)) {
+        $value = get_field($field, 'option');
+    } else {
         $front_page_id = (int) get_option('page_on_front');
-        if ($front_page_id > 0) {
+        if ($front_page_id > 0 && metadata_exists('post', $front_page_id, $field)) {
             $value = get_field($field, $front_page_id);
+        } else {
+            // Read legacy options until the one-time field migration runs.
+            $value = get_field($field, 'option');
         }
     }
 

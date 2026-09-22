@@ -3,12 +3,12 @@
 <head>
 <meta charset="<?php bloginfo('charset'); ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="<?php echo baltic_option_text('meta_description', 'Балтика Brew - крафтовая пивоварня. Познакомьтесь с нашими уникальными сортами пива.'); ?>">
-<meta property="og:title" content="<?php echo baltic_option_text('og_title', 'Балтика Brew - Крафтовая пивоварня'); ?>">
-<meta property="og:description" content="<?php echo baltic_option_text('og_description', 'Крафтовое пиво высокого качества. Регулярные и лимитированные линейки продукции.'); ?>">
+<meta name="description" content="Балтика Brew - крафтовая пивоварня. Познакомьтесь с нашими уникальными сортами пива.">
+<meta property="og:title" content="Балтика Brew - Крафтовая пивоварня">
+<meta property="og:description" content="Крафтовое пиво высокого качества. Регулярные и лимитированные линейки продукции.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="<?php echo baltic_option_asset('og_image', 'images/header/logo.png'); ?>">
-<link rel="icon" type="image/png" href="<?php echo baltic_option_asset('og_image', 'images/header/logo.png'); ?>">
+<meta property="og:image" content="<?php echo esc_url(baltic_asset('images/header/logo.png')); ?>">
+<link rel="icon" type="image/png" href="<?php echo esc_url(baltic_asset('images/header/logo.png')); ?>">
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/Inter-Regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/tt-backwardssans-regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/TTTricks-Regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
