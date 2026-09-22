@@ -562,3 +562,270 @@ body {
         line-height: 1.35;
     }
 }
+
+/* Keep every timeline marker centered on the same rail. */
+.about {
+    padding-bottom: 160px;
+}
+
+.about__panel--active {
+    position: relative;
+}
+
+.timeline,
+.timeline.timeline--visible {
+    --timeline-rail-center: 124px;
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    height: 178px;
+    flex: 0 0 178px;
+    margin: auto 0 0;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.timeline::-webkit-scrollbar {
+    display: none;
+}
+
+.timeline__strip {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--timeline-total), minmax(0, 1fr));
+    width: 100%;
+    height: 100%;
+    padding-inline: 14%;
+    box-sizing: border-box;
+}
+
+.timeline__track {
+    top: calc(var(--timeline-rail-center) - 8px);
+    height: 16px;
+}
+
+.timeline__item,
+.timeline__item--active {
+    --timeline-dot-half: 16.5px;
+    position: relative;
+    inset: auto !important;
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    transform: none;
+}
+
+.timeline__item--active {
+    --timeline-dot-half: 41px;
+}
+
+.timeline__date {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% - var(--timeline-rail-center) + var(--timeline-dot-half) + 8px);
+    width: max-content;
+    max-width: 100%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.timeline__dot,
+.timeline__item--active .timeline__dot {
+    position: absolute;
+    top: var(--timeline-rail-center);
+    left: 50%;
+    display: block;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: translate(-50%, -50%);
+}
+
+.timeline__dot {
+    width: 33px;
+    height: 33px;
+    background: url('images/about-tabs/timeline-inactive.png') center / contain no-repeat;
+}
+
+.timeline__item--active .timeline__dot {
+    width: 78px;
+    height: 82px;
+    background: url('images/about-tabs/timeline-active.png') center / contain no-repeat;
+}
+
+.timeline__item--active .timeline__dot::after {
+    content: none;
+}
+
+/* The desktop news artwork already contains the frame. */
+@media (min-width: 769px) {
+    .news {
+        height: clamp(700px, 65.35vw, 941px);
+        min-height: 0;
+        padding: 0;
+        background: url('images/news/news-bg.png') center / cover no-repeat;
+    }
+
+    .news .container {
+        width: min(720px, 52%);
+        height: calc(100% - clamp(170px, 16vw, 230px));
+        min-height: 0;
+        padding: 85px clamp(22px, 3vw, 42px) clamp(28px, 3vw, 44px);
+        box-sizing: border-box;
+        background: none;
+    }
+
+    .news__title {
+        flex: 0 0 auto;
+        margin: 0 0 clamp(16px, 2vw, 30px);
+    }
+
+    .news__date,
+    .news__headline {
+        flex: 0 0 auto;
+    }
+
+    .news__headline {
+        max-height: 4em;
+        overflow-y: auto;
+    }
+
+    .news__text {
+        flex: 1 1 0;
+        min-height: 0;
+        max-height: none;
+        margin-bottom: 16px;
+        overflow-y: auto;
+    }
+
+    .news .feature-actions {
+        flex: 0 0 auto;
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .about {
+        padding-bottom: 130px;
+    }
+
+    .timeline,
+    .timeline.timeline--visible {
+        --timeline-rail-center: 112px;
+        width: calc(100% + 48px);
+        height: 150px;
+        flex-basis: 150px;
+        margin: 20px -24px 0;
+    }
+
+    .timeline__strip {
+        grid-template-columns: repeat(var(--timeline-total), minmax(112px, 1fr));
+        width: max-content;
+        min-width: 100%;
+        padding-inline: 16px;
+    }
+
+    .timeline__item,
+    .timeline__item--active {
+        --timeline-dot-half: 14px;
+    }
+
+    .timeline__item--active {
+        --timeline-dot-half: 33.5px;
+    }
+
+    .timeline__date {
+        gap: 3px;
+    }
+
+    .timeline__year {
+        font-size: 20px;
+    }
+
+    .timeline__month {
+        font-size: 13px;
+    }
+
+    .timeline__item--active .timeline__year {
+        font-size: 28px;
+    }
+
+    .timeline__item--active .timeline__month {
+        font-size: 18px;
+    }
+
+    .timeline__dot {
+        width: 28px;
+        height: 28px;
+    }
+
+    .timeline__item--active .timeline__dot {
+        width: 64px;
+        height: 67px;
+    }
+
+    .news {
+        min-height: 0;
+        padding: 24px 16px 36px;
+        box-sizing: border-box;
+    }
+
+    .news .container {
+        width: min(100%, 360px);
+        height: auto;
+        min-height: 0;
+        aspect-ratio: 301 / 862;
+        margin-inline: auto;
+        padding: clamp(138px, 40vw, 175px) clamp(28px, 8vw, 44px) 48px;
+        box-sizing: border-box;
+        background: url('images/news/news-mobile-bg.png') center / 100% 100% no-repeat;
+    }
+
+    .news__title {
+        flex: 0 0 auto;
+        margin: 0 0 18px;
+        font-size: clamp(28px, 8vw, 36px);
+        line-height: 1.1;
+    }
+
+    .news__date {
+        flex: 0 0 auto;
+        margin-bottom: 8px;
+    }
+
+    .news__headline {
+        flex: 0 1 auto;
+        max-height: 5.2em;
+        margin-bottom: 12px;
+        overflow-y: auto;
+        overflow-wrap: anywhere;
+        font-size: clamp(18px, 5vw, 23px);
+    }
+
+    .news__text {
+        flex: 1 1 0;
+        min-height: 0;
+        max-height: none;
+        margin-bottom: 12px;
+        overflow-y: auto;
+        overflow-wrap: anywhere;
+        font-size: 15px;
+        line-height: 1.35;
+    }
+
+    .news .feature-actions {
+        flex: 0 0 auto;
+        gap: 8px;
+        margin-top: 0;
+    }
+
+    .news .feature-actions a {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+}

@@ -152,22 +152,22 @@
 
                             <?php if ($events) : ?>
                                 <div class="timeline timeline--visible" style="--timeline-total: <?php echo esc_attr((string) count($events)); ?>;">
-                                    <div class="timeline__track" aria-hidden="true"></div>
-                                    <?php foreach ($events as $event_index => $event) : ?>
-                                        <?php $timeline_position = count($events) > 1 ? 22 + (56 / (count($events) - 1)) * $event_index : 50; ?>
-                                        <button
-                                            type="button"
-                                            class="timeline__item<?php echo $event_index === $active_event_index ? ' timeline__item--active' : ''; ?>"
-                                            style="--timeline-position: <?php echo esc_attr((string) $timeline_position); ?>%; --timeline-index: <?php echo esc_attr((string) $event_index); ?>;"
-                                            data-about-event-target="<?php echo esc_attr((string) $event_index); ?>"
-                                        >
-                                            <span class="timeline__date">
-                                                <span class="timeline__year"><?php echo esc_html($event['year']); ?></span>
-                                                <span class="timeline__month"><?php echo esc_html($event['month']); ?></span>
-                                            </span>
-                                            <span class="timeline__dot" aria-hidden="true"></span>
-                                        </button>
-                                    <?php endforeach; ?>
+                                    <div class="timeline__strip">
+                                        <div class="timeline__track" aria-hidden="true"></div>
+                                        <?php foreach ($events as $event_index => $event) : ?>
+                                            <button
+                                                type="button"
+                                                class="timeline__item<?php echo $event_index === $active_event_index ? ' timeline__item--active' : ''; ?>"
+                                                data-about-event-target="<?php echo esc_attr((string) $event_index); ?>"
+                                            >
+                                                <span class="timeline__date">
+                                                    <span class="timeline__year"><?php echo esc_html($event['year']); ?></span>
+                                                    <span class="timeline__month"><?php echo esc_html($event['month']); ?></span>
+                                                </span>
+                                                <span class="timeline__dot" aria-hidden="true"></span>
+                                            </button>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
                             <?php endif; ?>
                         </div>
