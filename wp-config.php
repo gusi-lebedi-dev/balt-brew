@@ -51,6 +51,8 @@ define( 'WP_DEBUG_DISPLAY', false );
 define( 'WP_DEBUG_LOG', WP_DEBUG );
 define( 'DISALLOW_FILE_EDIT', true );
 define( 'WP_DEFAULT_THEME', 'balt-brew' );
+define( 'FS_CHMOD_DIR', 0755 );
+define( 'FS_CHMOD_FILE', 0644 );
 
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );

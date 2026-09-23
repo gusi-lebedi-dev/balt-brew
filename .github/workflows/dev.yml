@@ -33,6 +33,8 @@ jobs:
           printf '%s\n' "$ENV_FILE" > /volumes/balt-brew-dev/.env.php
           mkdir -p /volumes/balt-brew-dev/uploads
           chown -R 82:82 /volumes/balt-brew-dev/uploads
+          find /volumes/balt-brew-dev/uploads -type d -exec chmod 755 {} +
+          find /volumes/balt-brew-dev/uploads -type f -exec chmod 644 {} +
           docker network inspect host-network >/dev/null 2>&1 || docker network create host-network
 
       - name: Build image
