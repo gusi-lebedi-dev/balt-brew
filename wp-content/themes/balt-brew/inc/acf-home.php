@@ -155,6 +155,8 @@ function baltic_register_home_acf(): void
             'placement' => 'top',
         ],
         baltic_acf_text_field('about_title', 'Заголовок блока', 'о нас'),
+        baltic_acf_image_field('about_background', 'Фон блока (компьютер)'),
+        baltic_acf_image_field('about_background_mobile', 'Фон блока (телефон)'),
         [
             'key' => 'field_baltic_about_tabs',
             'label' => 'Вкладки блока',
@@ -269,6 +271,8 @@ function baltic_register_home_acf(): void
         ],
         baltic_acf_text_field('news_title', 'Название секции', 'новости'),
         baltic_acf_text_field('news_button', 'Текст кнопки', 'подробнее'),
+        baltic_acf_image_field('news_background', 'Фон блока (компьютер)'),
+        baltic_acf_image_field('news_background_mobile', 'Фон блока (телефон)'),
 
         [
             'key' => 'field_baltic_tab_video',
@@ -277,7 +281,8 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
-        baltic_acf_image_field('video_background', 'Фон блока'),
+        baltic_acf_image_field('video_background', 'Фон блока (компьютер)'),
+        baltic_acf_image_field('video_background_mobile', 'Фон блока (телефон)'),
         baltic_acf_text_field('video_title', 'Название видео', 'Название видео'),
         baltic_acf_url_field('video_iframe_src', 'Ссылка iframe', 'https://vkvideo.ru/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3'),
         baltic_acf_textarea_field('video_description', 'Описание', baltic_design_copy('video_description'), 4),
@@ -289,7 +294,8 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
-        baltic_acf_image_field('author_background', 'Фон блока'),
+        baltic_acf_image_field('author_background', 'Фон блока (компьютер)'),
+        baltic_acf_image_field('author_background_mobile', 'Фон блока (телефон)'),
         baltic_acf_text_field('author_title', 'Название секции', 'Слово автора'),
         [
             'key' => 'field_baltic_author_admin_hint',

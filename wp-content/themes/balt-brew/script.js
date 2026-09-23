@@ -174,8 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     loaderTimeout = setTimeout(finishLoading, 5000);
     selectVideo();
-    mobileScreen.addEventListener('change', selectVideo);
-    reducedMotion.addEventListener('change', selectVideo);
+    if (typeof mobileScreen.addEventListener === 'function') {
+        mobileScreen.addEventListener('change', selectVideo);
+        reducedMotion.addEventListener('change', selectVideo);
+    } else {
+        mobileScreen.addListener(selectVideo);
+        reducedMotion.addListener(selectVideo);
+    }
     document.addEventListener('visibilitychange', () => {
         if (!activeGroup) return;
         if (document.hidden) {
@@ -329,24 +334,273 @@ document.addEventListener('DOMContentLoaded', () => {
     const aboutTimelines = document.querySelectorAll('.about__panel');
 
     aboutTimelines.forEach((panel) => {
-        const items = panel.querySelectorAll('[data-about-event-target]');
-        const texts = panel.querySelectorAll('[data-about-event]');
+        const timeline = panel.querySelector('.timeline');
+        const content = panel.querySelector('.about__history-content');
+        const items = Array.from(panel.querySelectorAll('[data-about-event-target]'));
+        const texts = Array.from(panel.querySelectorAll('[data-about-event]'));
 
-        if (!items.length || !texts.length) return;
+        if (!timeline || !content || !items.length || !texts.length) return;
 
-        items.forEach((item) => {
-            item.addEventListener('click', () => {
-                const eventId = item.dataset.aboutEventTarget;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let activeIndex = Math.max(0, items.findIndex((item) => item.classList.contains('timeline__item--active')));
+        let finishTextTransition = null;
+        let activeTextIncomingLayer = null;
+        let finishTimelineTransition = null;
+        let layoutFrame = 0;
 
-                items.forEach((button) => {
-                    button.classList.toggle('timeline__item--active', button === item);
-                });
+        timeline.classList.add('timeline--animated', 'timeline--reset');
+        timeline.scrollLeft = 0;
+        content.setAttribute('aria-live', 'polite');
+        content.setAttribute('aria-atomic', 'true');
 
-                texts.forEach((text) => {
-                    text.classList.toggle('about__timeline-text--active', text.dataset.aboutEvent === eventId);
-                });
+        const eventIdAt = (index) => items[index]?.dataset.aboutEventTarget;
+
+        const showText = (eventId) => {
+            texts.forEach((text) => {
+                const isActive = text.dataset.aboutEvent === eventId;
+                text.classList.toggle('about__timeline-text--active', isActive);
+                text.setAttribute('aria-hidden', String(!isActive));
+            });
+        };
+
+        const updateItems = () => {
+            items.forEach((item, index) => {
+                const isActive = index === activeIndex;
+                item.classList.toggle('timeline__item--active', isActive);
+                item.setAttribute('aria-pressed', String(isActive));
+                item.tabIndex = isActive ? 0 : -1;
+                if (isActive) item.setAttribute('aria-current', 'date');
+                else item.removeAttribute('aria-current');
+            });
+        };
+
+        const shiftForItem = (index) => {
+            const item = items[index];
+            if (!item || timeline.clientWidth === 0) return null;
+            return timeline.clientWidth / 2 - (item.offsetLeft + item.offsetWidth / 2);
+        };
+
+        const centerActiveItem = (instant = false) => {
+            const shift = shiftForItem(activeIndex);
+            if (shift === null) return;
+
+            if (instant) timeline.classList.add('timeline--reset');
+            timeline.scrollLeft = 0;
+            timeline.style.setProperty('--timeline-shift', `${Math.round(shift * 100) / 100}px`);
+
+            if (instant) {
+                void timeline.offsetWidth;
+                requestAnimationFrame(() => timeline.classList.remove('timeline--reset'));
+            }
+        };
+
+        const scheduleCenter = (instant = true) => {
+            cancelAnimationFrame(layoutFrame);
+            layoutFrame = requestAnimationFrame(() => centerActiveItem(instant));
+        };
+
+        const cloneTextLayer = (source, modifier) => {
+            const clone = source.cloneNode(true);
+            clone.classList.add('about__timeline-fx-layer', modifier);
+            clone.classList.remove('about__timeline-text--active');
+            clone.removeAttribute('data-about-event');
+            clone.setAttribute('aria-hidden', 'true');
+            clone.setAttribute('inert', '');
+            clone.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
+            return clone;
+        };
+
+        const animateText = (fromEventId, toEventId) => {
+            let outgoingVisual = null;
+            if (activeTextIncomingLayer?.isConnected) {
+                const style = getComputedStyle(activeTextIncomingLayer);
+                outgoingVisual = {
+                    opacity: style.opacity,
+                    transform: style.transform
+                };
+            }
+            if (finishTextTransition) finishTextTransition();
+
+            const outgoing = texts.find((text) => text.dataset.aboutEvent === fromEventId);
+            const incoming = texts.find((text) => text.dataset.aboutEvent === toEventId);
+            if (!outgoing || !incoming || outgoing === incoming || reducedMotion.matches) {
+                showText(toEventId);
+                return;
+            }
+
+            content.scrollTop = 0;
+            const effect = document.createElement('div');
+            effect.className = 'about__timeline-fx';
+            effect.setAttribute('aria-hidden', 'true');
+            const outgoingLayer = cloneTextLayer(outgoing, 'about__timeline-fx-layer--out');
+            const incomingLayer = cloneTextLayer(incoming, 'about__timeline-fx-layer--in');
+            if (outgoingVisual) {
+                outgoingLayer.style.setProperty('--timeline-copy-start-opacity', outgoingVisual.opacity);
+                outgoingLayer.style.setProperty('--timeline-copy-start-transform', outgoingVisual.transform);
+            }
+            effect.append(outgoingLayer, incomingLayer);
+            content.style.minHeight = `${content.getBoundingClientRect().height}px`;
+            showText(toEventId);
+            content.append(effect);
+            content.classList.add('about__history-content--switching');
+            activeTextIncomingLayer = incomingLayer;
+
+            let finished = false;
+            let timeout = 0;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                window.clearTimeout(timeout);
+                showText(toEventId);
+                content.classList.remove('about__history-content--switching');
+                content.style.removeProperty('min-height');
+                effect.remove();
+                if (activeTextIncomingLayer === incomingLayer) activeTextIncomingLayer = null;
+                if (finishTextTransition === finish) finishTextTransition = null;
+            };
+
+            finishTextTransition = finish;
+            incomingLayer.addEventListener('animationend', (event) => {
+                if (event.target === incomingLayer) finish();
+            });
+            timeout = window.setTimeout(finish, 650);
+        };
+
+        const animateTimeline = (previousIndex, nextIndex, nextShift) => {
+            if (finishTimelineTransition) finishTimelineTransition();
+            if (reducedMotion.matches || nextShift === null) return;
+
+            const previousDot = items[previousIndex]?.querySelector('.timeline__dot');
+            if (!previousDot) return;
+            const timelineBounds = timeline.getBoundingClientRect();
+            const dotBounds = previousDot.getBoundingClientRect();
+            const ghostStartX = dotBounds.left - timelineBounds.left + dotBounds.width / 2;
+            const previousItem = items[previousIndex];
+            const ghostEndX = previousItem.offsetLeft + previousItem.offsetWidth / 2 + nextShift;
+            const ghost = document.createElement('span');
+            ghost.className = 'timeline__dot timeline__active-ghost';
+            ghost.setAttribute('aria-hidden', 'true');
+            ghost.style.left = `${ghostStartX}px`;
+            ghost.style.top = `${dotBounds.top - timelineBounds.top + dotBounds.height / 2}px`;
+            ghost.style.setProperty('--timeline-ghost-shift', `${ghostEndX - ghostStartX}px`);
+            timeline.append(ghost);
+
+            const incomingItem = items[nextIndex];
+            incomingItem.classList.add('timeline__item--activating');
+            let finished = false;
+            let timeout = 0;
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                window.clearTimeout(timeout);
+                incomingItem.classList.remove('timeline__item--activating');
+                ghost.remove();
+                if (finishTimelineTransition === finish) finishTimelineTransition = null;
+            };
+
+            finishTimelineTransition = finish;
+            ghost.addEventListener('transitionend', (event) => {
+                if (event.target === ghost && event.propertyName === 'transform') finish();
+            });
+            void ghost.offsetWidth;
+            ghost.classList.add('timeline__active-ghost--leaving');
+            timeout = window.setTimeout(finish, 620);
+        };
+
+        const selectItem = (nextIndex, moveFocus = false) => {
+            if (nextIndex < 0 || nextIndex >= items.length) return;
+            if (nextIndex === activeIndex) {
+                if (moveFocus) items[nextIndex].focus({ preventScroll: true });
+                return;
+            }
+
+            if (finishTimelineTransition) finishTimelineTransition();
+            const previousIndex = activeIndex;
+            const previousEventId = eventIdAt(previousIndex);
+            const nextShift = shiftForItem(nextIndex);
+            animateTimeline(previousIndex, nextIndex, nextShift);
+            activeIndex = nextIndex;
+            const nextEventId = eventIdAt(activeIndex);
+
+            updateItems();
+            centerActiveItem(reducedMotion.matches);
+            animateText(previousEventId, nextEventId);
+
+            if (moveFocus) items[activeIndex].focus({ preventScroll: true });
+        };
+
+        items.forEach((item, index) => {
+            item.addEventListener('click', () => selectItem(index));
+            item.addEventListener('keydown', (event) => {
+                let nextIndex;
+                if (event.key === 'ArrowRight') nextIndex = Math.min(items.length - 1, index + 1);
+                if (event.key === 'ArrowLeft') nextIndex = Math.max(0, index - 1);
+                if (event.key === 'Home') nextIndex = 0;
+                if (event.key === 'End') nextIndex = items.length - 1;
+                if (nextIndex === undefined) return;
+                event.preventDefault();
+                selectItem(nextIndex, true);
             });
         });
+
+        let touchStart = null;
+        let suppressSwipeClick = false;
+        let suppressSwipeClickTimer = 0;
+        const allowTouchClick = () => {
+            suppressSwipeClick = false;
+            window.clearTimeout(suppressSwipeClickTimer);
+        };
+        timeline.addEventListener('touchstart', (event) => {
+            allowTouchClick();
+            if (event.touches.length !== 1) {
+                touchStart = null;
+                return;
+            }
+            const touch = event.touches[0];
+            touchStart = { id: touch.identifier, x: touch.clientX, y: touch.clientY };
+        }, { passive: true });
+        timeline.addEventListener('touchcancel', () => { touchStart = null; }, { passive: true });
+        timeline.addEventListener('touchend', (event) => {
+            if (!touchStart) return;
+            const touch = Array.from(event.changedTouches).find((item) => item.identifier === touchStart.id);
+            if (!touch) return;
+            const dx = touchStart.x - touch.clientX;
+            const dy = touchStart.y - touch.clientY;
+            touchStart = null;
+            if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy) * 1.3) return;
+            suppressSwipeClick = true;
+            suppressSwipeClickTimer = window.setTimeout(allowTouchClick, 450);
+            selectItem(Math.max(0, Math.min(items.length - 1, activeIndex + Math.sign(dx))));
+        }, { passive: true });
+        timeline.addEventListener('click', (event) => {
+            if (!suppressSwipeClick) return;
+            allowTouchClick();
+            event.preventDefault();
+            event.stopPropagation();
+        }, true);
+
+        updateItems();
+        showText(eventIdAt(activeIndex));
+        scheduleCenter(true);
+
+        if ('ResizeObserver' in window) {
+            new ResizeObserver(() => scheduleCenter(true)).observe(timeline);
+        } else {
+            window.addEventListener('resize', () => scheduleCenter(true), { passive: true });
+        }
+
+        new MutationObserver(() => {
+            if (panel.classList.contains('about__panel--active')) scheduleCenter(true);
+        }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+
+        document.fonts?.ready.then(() => scheduleCenter(true));
+        const handleMotionPreference = () => {
+            if (reducedMotion.matches && finishTextTransition) finishTextTransition();
+            if (reducedMotion.matches && finishTimelineTransition) finishTimelineTransition();
+            scheduleCenter(true);
+        };
+        if ('addEventListener' in reducedMotion) reducedMotion.addEventListener('change', handleMotionPreference);
+        else reducedMotion.addListener(handleMotionPreference);
     });
 });
 
