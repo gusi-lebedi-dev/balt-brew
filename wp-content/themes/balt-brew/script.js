@@ -345,11 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let activeIndex = Math.max(0, items.findIndex((item) => item.classList.contains('timeline__item--active')));
         let finishTextTransition = null;
         let activeTextIncomingLayer = null;
-        let finishTimelineTransition = null;
-        let layoutFrame = 0;
 
-        timeline.classList.add('timeline--animated', 'timeline--reset');
-        timeline.scrollLeft = 0;
+        timeline.classList.add('timeline--animated');
         content.setAttribute('aria-live', 'polite');
         content.setAttribute('aria-atomic', 'true');
 
@@ -372,31 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isActive) item.setAttribute('aria-current', 'date');
                 else item.removeAttribute('aria-current');
             });
-        };
-
-        const shiftForItem = (index) => {
-            const item = items[index];
-            if (!item || timeline.clientWidth === 0) return null;
-            return timeline.clientWidth / 2 - (item.offsetLeft + item.offsetWidth / 2);
-        };
-
-        const centerActiveItem = (instant = false) => {
-            const shift = shiftForItem(activeIndex);
-            if (shift === null) return;
-
-            if (instant) timeline.classList.add('timeline--reset');
-            timeline.scrollLeft = 0;
-            timeline.style.setProperty('--timeline-shift', `${Math.round(shift * 100) / 100}px`);
-
-            if (instant) {
-                void timeline.offsetWidth;
-                requestAnimationFrame(() => timeline.classList.remove('timeline--reset'));
-            }
-        };
-
-        const scheduleCenter = (instant = true) => {
-            cancelAnimationFrame(layoutFrame);
-            layoutFrame = requestAnimationFrame(() => centerActiveItem(instant));
         };
 
         const cloneTextLayer = (source, modifier) => {
@@ -466,47 +438,6 @@ document.addEventListener('DOMContentLoaded', () => {
             timeout = window.setTimeout(finish, 650);
         };
 
-        const animateTimeline = (previousIndex, nextIndex, nextShift) => {
-            if (finishTimelineTransition) finishTimelineTransition();
-            if (reducedMotion.matches || nextShift === null) return;
-
-            const previousDot = items[previousIndex]?.querySelector('.timeline__dot');
-            if (!previousDot) return;
-            const timelineBounds = timeline.getBoundingClientRect();
-            const dotBounds = previousDot.getBoundingClientRect();
-            const ghostStartX = dotBounds.left - timelineBounds.left + dotBounds.width / 2;
-            const previousItem = items[previousIndex];
-            const ghostEndX = previousItem.offsetLeft + previousItem.offsetWidth / 2 + nextShift;
-            const ghost = document.createElement('span');
-            ghost.className = 'timeline__dot timeline__active-ghost';
-            ghost.setAttribute('aria-hidden', 'true');
-            ghost.style.left = `${ghostStartX}px`;
-            ghost.style.top = `${dotBounds.top - timelineBounds.top + dotBounds.height / 2}px`;
-            ghost.style.setProperty('--timeline-ghost-shift', `${ghostEndX - ghostStartX}px`);
-            timeline.append(ghost);
-
-            const incomingItem = items[nextIndex];
-            incomingItem.classList.add('timeline__item--activating');
-            let finished = false;
-            let timeout = 0;
-            const finish = () => {
-                if (finished) return;
-                finished = true;
-                window.clearTimeout(timeout);
-                incomingItem.classList.remove('timeline__item--activating');
-                ghost.remove();
-                if (finishTimelineTransition === finish) finishTimelineTransition = null;
-            };
-
-            finishTimelineTransition = finish;
-            ghost.addEventListener('transitionend', (event) => {
-                if (event.target === ghost && event.propertyName === 'transform') finish();
-            });
-            void ghost.offsetWidth;
-            ghost.classList.add('timeline__active-ghost--leaving');
-            timeout = window.setTimeout(finish, 620);
-        };
-
         const selectItem = (nextIndex, moveFocus = false) => {
             if (nextIndex < 0 || nextIndex >= items.length) return;
             if (nextIndex === activeIndex) {
@@ -514,16 +445,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (finishTimelineTransition) finishTimelineTransition();
             const previousIndex = activeIndex;
             const previousEventId = eventIdAt(previousIndex);
-            const nextShift = shiftForItem(nextIndex);
-            animateTimeline(previousIndex, nextIndex, nextShift);
             activeIndex = nextIndex;
             const nextEventId = eventIdAt(activeIndex);
 
             updateItems();
-            centerActiveItem(reducedMotion.matches);
             animateText(previousEventId, nextEventId);
 
             if (moveFocus) items[activeIndex].focus({ preventScroll: true });
@@ -581,26 +508,247 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateItems();
         showText(eventIdAt(activeIndex));
-        scheduleCenter(true);
-
-        if ('ResizeObserver' in window) {
-            new ResizeObserver(() => scheduleCenter(true)).observe(timeline);
-        } else {
-            window.addEventListener('resize', () => scheduleCenter(true), { passive: true });
-        }
-
-        new MutationObserver(() => {
-            if (panel.classList.contains('about__panel--active')) scheduleCenter(true);
-        }).observe(panel, { attributes: true, attributeFilter: ['class'] });
-
-        document.fonts?.ready.then(() => scheduleCenter(true));
         const handleMotionPreference = () => {
             if (reducedMotion.matches && finishTextTransition) finishTextTransition();
-            if (reducedMotion.matches && finishTimelineTransition) finishTimelineTransition();
-            scheduleCenter(true);
         };
         if ('addEventListener' in reducedMotion) reducedMotion.addEventListener('change', handleMotionPreference);
         else reducedMotion.addListener(handleMotionPreference);
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.querySelector('[data-feedback-modal]');
+    const form = modal?.querySelector('[data-feedback-form]');
+    const dialog = modal?.querySelector('.feedback-modal__dialog');
+    const formView = modal?.querySelector('[data-feedback-form-view]');
+    const successView = modal?.querySelector('[data-feedback-success]');
+    const status = modal?.querySelector('[data-feedback-status]');
+    const submitButton = form?.querySelector('[type="submit"]');
+
+    if (!modal || !form || !dialog || !formView || !successView || !status || !submitButton) return;
+
+    const openButtons = Array.from(document.querySelectorAll('[data-feedback-open]'));
+    const closeButtons = Array.from(modal.querySelectorAll('[data-feedback-close]'));
+    const fieldErrors = new Map();
+    const formTitleId = dialog.getAttribute('aria-labelledby') || 'feedback-modal-title';
+    const successTitle = successView.querySelector('.feedback-modal__success-title');
+    const successTitleId = 'feedback-modal-success-title';
+    let opener = null;
+    let requestController = null;
+
+    if (successTitle) successTitle.id = successTitleId;
+    openButtons.forEach((button) => button.setAttribute('aria-expanded', 'false'));
+
+    modal.querySelectorAll('[data-feedback-error]').forEach((error, index) => {
+        const name = error.dataset.feedbackError;
+        const control = form.elements.namedItem(name);
+        if (!name || !(control instanceof HTMLElement)) return;
+
+        if (!error.id) error.id = `feedback-field-error-${index + 1}`;
+        const describedBy = new Set((control.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
+        describedBy.add(error.id);
+        control.setAttribute('aria-describedby', Array.from(describedBy).join(' '));
+        fieldErrors.set(name, { control, error });
+    });
+
+    const setStatus = (message = '', isError = false) => {
+        status.textContent = message;
+        status.classList.toggle('feedback-form__status--error', Boolean(message && isError));
+        if (message && isError) status.setAttribute('role', 'alert');
+        else status.removeAttribute('role');
+    };
+
+    const clearFieldError = (name) => {
+        const field = fieldErrors.get(name);
+        if (!field) return;
+        field.error.textContent = '';
+        field.control.removeAttribute('aria-invalid');
+        field.control.closest('.feedback-field')?.classList.remove('feedback-field--invalid');
+    };
+
+    const clearErrors = () => {
+        fieldErrors.forEach((_, name) => clearFieldError(name));
+        setStatus();
+    };
+
+    const setFieldError = (name, message) => {
+        const field = fieldErrors.get(name);
+        if (!field || !message) return false;
+        field.error.textContent = String(message);
+        field.control.setAttribute('aria-invalid', 'true');
+        field.control.closest('.feedback-field')?.classList.add('feedback-field--invalid');
+        return true;
+    };
+
+    const setSubmitting = (isSubmitting) => {
+        submitButton.disabled = isSubmitting;
+        submitButton.setAttribute('aria-busy', String(isSubmitting));
+        form.classList.toggle('feedback-form--submitting', isSubmitting);
+    };
+
+    const showFormView = (reset = false) => {
+        if (reset) form.reset();
+        clearErrors();
+        formView.hidden = false;
+        successView.hidden = true;
+        dialog.setAttribute('aria-labelledby', formTitleId);
+    };
+
+    const focusableElements = () => Array.from(dialog.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter((element) => !element.closest('[hidden]') && element.getClientRects().length > 0);
+
+    const openModal = (button) => {
+        if (!modal.hidden) return;
+        opener = button instanceof HTMLElement ? button : document.activeElement;
+        showFormView(true);
+        modal.hidden = false;
+        document.body.classList.add('feedback-modal-open');
+        openButtons.forEach((openButton) => openButton.setAttribute('aria-expanded', 'true'));
+        requestAnimationFrame(() => {
+            if (modal.hidden) return;
+            modal.classList.add('feedback-modal--open');
+            const firstControl = form.querySelector('input:not([type="hidden"]), select, textarea');
+            (firstControl || dialog).focus({ preventScroll: true });
+        });
+    };
+
+    const closeModal = () => {
+        if (modal.hidden) return;
+        if (requestController) {
+            requestController.abort();
+            requestController = null;
+        }
+        setSubmitting(false);
+        modal.classList.remove('feedback-modal--open');
+        modal.hidden = true;
+        document.body.classList.remove('feedback-modal-open');
+        openButtons.forEach((openButton) => openButton.setAttribute('aria-expanded', 'false'));
+
+        const focusTarget = opener;
+        opener = null;
+        if (focusTarget instanceof HTMLElement && focusTarget.isConnected) {
+            focusTarget.focus({ preventScroll: true });
+        }
+    };
+
+    const validateForm = () => {
+        clearErrors();
+        const valueOf = (name) => String(form.elements.namedItem(name)?.value || '').trim();
+        const errors = {};
+
+        ['name', 'phone', 'product', 'factory', 'message'].forEach((name) => {
+            if (!valueOf(name)) errors[name] = 'Заполните поле';
+        });
+
+        if (valueOf('phone') && valueOf('phone').replace(/\D/g, '').length < 7) {
+            errors.phone = 'Проверьте номер телефона';
+        }
+
+        const emailControl = form.elements.namedItem('email');
+        if (valueOf('email') && emailControl instanceof HTMLInputElement && emailControl.validity.typeMismatch) {
+            errors.email = 'Проверьте адрес почты';
+        }
+
+        let firstInvalid = null;
+        Object.entries(errors).forEach(([name, message]) => {
+            if (setFieldError(name, message) && !firstInvalid) firstInvalid = fieldErrors.get(name)?.control;
+        });
+
+        if (firstInvalid) {
+            setStatus('Проверьте заполнение формы.', true);
+            firstInvalid.focus({ preventScroll: true });
+            return false;
+        }
+        return true;
+    };
+
+    const showServerErrors = (data) => {
+        const errors = data && typeof data.fields === 'object' && data.fields ? data.fields : {};
+        let firstInvalid = null;
+        Object.entries(errors).forEach(([name, message]) => {
+            if (setFieldError(name, message) && !firstInvalid) firstInvalid = fieldErrors.get(name)?.control;
+        });
+        setStatus(data?.message || 'Не удалось отправить обращение. Попробуйте ещё раз позже.', true);
+        firstInvalid?.focus({ preventScroll: true });
+    };
+
+    openButtons.forEach((button) => button.addEventListener('click', () => openModal(button)));
+    closeButtons.forEach((button) => button.addEventListener('click', closeModal));
+
+    fieldErrors.forEach(({ control }, name) => {
+        const clear = () => clearFieldError(name);
+        control.addEventListener('input', clear);
+        control.addEventListener('change', clear);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (modal.hidden) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            closeModal();
+            return;
+        }
+        if (event.key !== 'Tab') return;
+
+        const focusable = focusableElements();
+        if (!focusable.length) {
+            event.preventDefault();
+            dialog.focus({ preventScroll: true });
+            return;
+        }
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+            event.preventDefault();
+            last.focus({ preventScroll: true });
+        } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+            event.preventDefault();
+            first.focus({ preventScroll: true });
+        }
+    });
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (submitButton.disabled || !validateForm()) return;
+
+        setSubmitting(true);
+        setStatus();
+        const controller = new AbortController();
+        requestController = controller;
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: controller.signal
+            });
+            const payload = await response.json();
+            const data = payload && typeof payload.data === 'object' && payload.data ? payload.data : {};
+
+            if (!response.ok || !payload?.success) {
+                showServerErrors(data);
+                return;
+            }
+
+            clearErrors();
+            formView.hidden = true;
+            successView.hidden = false;
+            dialog.setAttribute('aria-labelledby', successTitle ? successTitleId : formTitleId);
+            successView.querySelector('button')?.focus({ preventScroll: true });
+        } catch (error) {
+            if (error?.name !== 'AbortError') {
+                setStatus('Не удалось отправить обращение. Проверьте соединение и попробуйте ещё раз.', true);
+            }
+        } finally {
+            if (requestController === controller) {
+                requestController = null;
+                setSubmitting(false);
+            }
+        }
     });
 });
 

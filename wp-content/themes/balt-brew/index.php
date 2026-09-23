@@ -207,11 +207,19 @@
         'no_found_rows' => true,
     ]);
     $news_count = (int) $latest_news->post_count;
+    $news_desktop_fallback = $news_count >= 3
+        ? 'images/news/news-grid-desktop.png'
+        : 'images/news/news-grid-desktop-2.png';
+    $news_mobile_fallback = $news_count >= 3
+        ? 'images/news/news-grid-mobile.png'
+        : 'images/news/news-grid-mobile-2.png';
+    $news_background = baltic_option_asset('news_background', $news_desktop_fallback);
+    $news_background_mobile = baltic_option_asset('news_background_mobile', $news_mobile_fallback);
     ?>
     <section class="section news news--count-<?php echo esc_attr((string) $news_count); ?>" id="news">
         <picture class="news__artwork" aria-hidden="true">
-            <source media="(max-width: 768px)" srcset="<?php echo baltic_option_asset('news_background_mobile', 'images/news/news-grid-mobile.png'); ?>">
-            <img src="<?php echo baltic_option_asset('news_background', 'images/news/news-bg.png'); ?>" alt="">
+            <source media="(max-width: 768px)" srcset="<?php echo $news_background_mobile; ?>">
+            <img src="<?php echo $news_background; ?>" alt="">
         </picture>
 
         <div class="news__container">
@@ -243,7 +251,7 @@
             <?php else : ?>
                 <p class="news__empty">Новостей пока нет.</p>
             <?php endif; ?>
-            <a class="news__all-link" href="<?php echo esc_url(baltic_content_index_url('baltic_news')); ?>">Все новости →</a>
+            <a class="news__all-link" href="<?php echo esc_url(baltic_content_index_url('baltic_news')); ?>"><?php echo baltic_option_text('news_all_label', 'Все новости'); ?> →</a>
         </div>
     </section>
 
@@ -276,11 +284,16 @@
         'no_found_rows' => true,
     ]);
     $author_count = max(1, (int) $latest_author_post->post_count);
+    $author_mobile_fallback = $author_count >= 3
+        ? 'images/author/author-grid-mobile-3.png'
+        : 'images/author/author-grid-mobile.png';
+    $author_background = baltic_option_asset('author_background', 'images/author/author-grid-desktop.png');
+    $author_background_mobile = baltic_option_asset('author_background_mobile', $author_mobile_fallback);
     ?>
     <section class="section author author--count-<?php echo esc_attr((string) $author_count); ?>" id="author">
         <picture class="author__artwork" aria-hidden="true">
-            <source media="(max-width: 768px)" srcset="<?php echo baltic_option_asset('author_background_mobile', 'images/author/author-grid-mobile.png'); ?>">
-            <img src="<?php echo baltic_option_asset('author_background', 'images/author/author-grid-desktop.png'); ?>" alt="">
+            <source media="(max-width: 768px)" srcset="<?php echo $author_background_mobile; ?>">
+            <img src="<?php echo $author_background; ?>" alt="">
         </picture>
 
         <div class="author__container">
@@ -289,19 +302,37 @@
             <div class="author__grid">
             <?php if ($latest_author_post->have_posts()) : ?>
                 <?php while ($latest_author_post->have_posts()) : $latest_author_post->the_post(); ?>
+                    <?php
+                    $author_excerpt = has_excerpt()
+                        ? get_the_excerpt()
+                        : wp_strip_all_tags(strip_shortcodes(get_the_content()));
+                    $author_permalink = get_permalink();
+                    $author_image = get_the_post_thumbnail_url(get_the_ID(), 'large')
+                        ?: baltic_asset('images/news/default-card.png');
+                    ?>
                     <article class="author-card">
-                        <h3 class="author-card__title"><?php the_title(); ?></h3>
-                        <p class="author-card__text"><?php echo esc_html(has_excerpt() ? get_the_excerpt() : wp_strip_all_tags(strip_shortcodes(get_the_content()))); ?></p>
+                        <a class="author-card__image-link" href="<?php echo esc_url($author_permalink); ?>" aria-label="<?php echo esc_attr(sprintf('Открыть запись: %s', get_the_title())); ?>">
+                            <img class="author-card__image" src="<?php echo esc_url($author_image); ?>" alt="" loading="lazy">
+                        </a>
+                        <h3 class="author-card__title">
+                            <a href="<?php echo esc_url($author_permalink); ?>"><?php the_title(); ?></a>
+                        </h3>
+                        <p class="author-card__text"><?php echo esc_html($author_excerpt); ?></p>
+                        <time class="author-card__date" datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d.m.Y')); ?></time>
                     </article>
                 <?php endwhile; ?>
                 <?php wp_reset_postdata(); ?>
             <?php else : ?>
                 <article class="author-card">
+                    <span class="author-card__image-link" aria-hidden="true">
+                        <img class="author-card__image" src="<?php echo esc_url(baltic_asset('images/news/default-card.png')); ?>" alt="">
+                    </span>
                     <h3 class="author-card__title"><?php echo baltic_option_text('author_heading', 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД'); ?></h3>
                     <p class="author-card__text"><?php echo baltic_option_html('author_text', 'Текст авторского обращения.'); ?></p>
                 </article>
             <?php endif; ?>
             </div>
+            <a class="author__all-link" href="<?php echo esc_url(baltic_content_index_url('post')); ?>"><?php echo baltic_option_text('author_all_label', 'Все записи'); ?> →</a>
         </div>
     </section>
 

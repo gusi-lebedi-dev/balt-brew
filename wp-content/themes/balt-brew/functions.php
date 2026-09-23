@@ -127,8 +127,9 @@ function baltic_option(string $field, $fallback = '')
 
     $footer_fields = [
         'footer_logo', 'footer_vk_url', 'footer_phone', 'footer_phone_href',
-        'footer_phone_subtitle', 'footer_company', 'personal_pdf', 'cookie_pdf',
-        'cookie_text', 'cookie_button',
+        'footer_phone_subtitle', 'footer_company', 'footer_feedback_label',
+        'feedback_recipient_email', 'personal_pdf', 'cookie_pdf', 'cookie_text',
+        'cookie_button',
     ];
 
     if (in_array($field, $footer_fields, true)) {
@@ -224,3 +225,106 @@ function baltic_content_index_url(string $type): string
 {
     return home_url($type === 'baltic_news' ? '/news/' : '/articles/');
 }
+
+function baltic_feedback_limit(string $value, int $length): string
+{
+    return function_exists('mb_substr')
+        ? mb_substr($value, 0, $length)
+        : substr($value, 0, $length);
+}
+
+function baltic_feedback_post_value(string $key): string
+{
+    if (!isset($_POST[$key]) || !is_string($_POST[$key])) {
+        return '';
+    }
+
+    return wp_unslash($_POST[$key]);
+}
+
+function baltic_handle_feedback(): void
+{
+    if (!isset($_POST['nonce']) || !is_string($_POST['nonce']) || !check_ajax_referer('baltic_feedback', 'nonce', false)) {
+        wp_send_json_error(['message' => 'Сессия формы истекла. Обновите страницу и попробуйте снова.'], 403);
+    }
+
+    if (baltic_feedback_post_value('website') !== '') {
+        wp_send_json_success(['message' => 'Обращение принято.']);
+    }
+
+    $raw_email = baltic_feedback_post_value('email');
+
+    $values = [
+        'name' => baltic_feedback_limit(sanitize_text_field(baltic_feedback_post_value('name')), 160),
+        'phone' => baltic_feedback_limit(sanitize_text_field(baltic_feedback_post_value('phone')), 80),
+        'email' => baltic_feedback_limit(sanitize_email($raw_email), 160),
+        'product' => baltic_feedback_limit(sanitize_text_field(baltic_feedback_post_value('product')), 200),
+        'production_date' => baltic_feedback_limit(sanitize_text_field(baltic_feedback_post_value('production_date')), 80),
+        'factory' => baltic_feedback_limit(sanitize_text_field(baltic_feedback_post_value('factory')), 120),
+        'message' => baltic_feedback_limit(sanitize_textarea_field(baltic_feedback_post_value('message')), 5000),
+    ];
+
+    $errors = [];
+    foreach (['name', 'phone', 'product', 'factory', 'message'] as $required_field) {
+        if ($values[$required_field] === '') {
+            $errors[$required_field] = 'Заполните поле';
+        }
+    }
+
+    if ($values['phone'] !== '' && strlen(preg_replace('/\D+/', '', $values['phone'])) < 7) {
+        $errors['phone'] = 'Проверьте номер телефона';
+    }
+    if ($raw_email !== '' && !is_email($values['email'])) {
+        $errors['email'] = 'Проверьте адрес почты';
+    }
+
+    if ($errors) {
+        wp_send_json_error([
+            'message' => 'Проверьте заполнение формы.',
+            'fields' => $errors,
+        ], 422);
+    }
+
+    $remote_address = isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR'])
+        ? $_SERVER['REMOTE_ADDR']
+        : 'unknown';
+    $rate_key = 'baltic_feedback_' . substr(hash_hmac('sha256', $remote_address, wp_salt('nonce')), 0, 32);
+    $attempts = (int) get_transient($rate_key);
+    if ($attempts >= 8) {
+        wp_send_json_error([
+            'message' => 'Слишком много обращений. Попробуйте снова через 15 минут.',
+        ], 429);
+    }
+    set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
+
+    $recipient = (string) baltic_option('feedback_recipient_email', (string) get_option('admin_email'));
+    if (!is_email($recipient)) {
+        $recipient = (string) get_option('admin_email');
+    }
+
+    $subject = sprintf('Новое обращение с сайта %s', wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES));
+    $body = implode("\n", [
+        'ФИО: ' . $values['name'],
+        'Телефон: ' . $values['phone'],
+        'Почта: ' . ($values['email'] ?: 'не указана'),
+        'Продукция: ' . $values['product'],
+        'Дата розлива: ' . ($values['production_date'] ?: 'не указана'),
+        'Завод-изготовитель: ' . $values['factory'],
+        '',
+        'Сообщение:',
+        $values['message'],
+    ]);
+    $headers = ['Content-Type: text/plain; charset=UTF-8'];
+    if ($values['email'] !== '') {
+        $headers[] = sprintf('Reply-To: %s <%s>', $values['name'], $values['email']);
+    }
+
+    if (!wp_mail($recipient, $subject, $body, $headers)) {
+        wp_send_json_error(['message' => 'Не удалось отправить обращение. Попробуйте ещё раз позже.'], 500);
+    }
+
+    wp_send_json_success(['message' => 'Обращение принято.']);
+}
+
+add_action('wp_ajax_baltic_submit_feedback', 'baltic_handle_feedback');
+add_action('wp_ajax_nopriv_baltic_submit_feedback', 'baltic_handle_feedback');
