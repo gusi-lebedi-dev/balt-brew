@@ -202,6 +202,11 @@
     $news_count = (int) $latest_news->post_count;
     ?>
     <section class="section news news--count-<?php echo esc_attr((string) $news_count); ?>" id="news">
+        <picture class="news__artwork" aria-hidden="true">
+            <source media="(max-width: 768px)" srcset="<?php echo esc_url(baltic_asset('images/news/news-grid-mobile.png')); ?>">
+            <img src="<?php echo esc_url(baltic_asset('images/news/news-grid-desktop.png')); ?>" alt="">
+        </picture>
+
         <div class="news__container">
             <h2 class="news__title gold-title"><?php echo baltic_option_text('news_title', 'новости'); ?></h2>
             <?php if ($latest_news->have_posts()) : ?>
@@ -263,6 +268,11 @@
     $author_count = max(1, (int) $latest_author_post->post_count);
     ?>
     <section class="section author author--count-<?php echo esc_attr((string) $author_count); ?>" id="author">
+        <picture class="author__artwork" aria-hidden="true">
+            <source media="(max-width: 768px)" srcset="<?php echo esc_url(baltic_asset('images/author/author-grid-mobile.png')); ?>">
+            <img src="<?php echo baltic_option_asset('author_background', 'images/author/author-grid-desktop.png'); ?>" alt="">
+        </picture>
+
         <div class="author__container">
             <h2 class="author__title gold-title"><?php echo baltic_option_text('author_title', 'Слово автора'); ?></h2>
 
