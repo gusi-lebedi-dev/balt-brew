@@ -55,8 +55,6 @@ function baltic_register_home_acf(): void
         baltic_acf_file_field('hero_desktop_loop', 'Видео для компьютера: повтор'),
         baltic_acf_file_field('hero_mobile_intro', 'Видео для телефона: начало'),
         baltic_acf_file_field('hero_mobile_loop', 'Видео для телефона: повтор'),
-        baltic_acf_image_field('header_logo', 'Логотип шапки'),
-        baltic_acf_image_field('header_logo_mobile', 'Логотип шапки на телефоне'),
 
         [
             'key' => 'field_baltic_tab_products',

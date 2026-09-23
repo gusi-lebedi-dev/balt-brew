@@ -49,15 +49,15 @@
     <header class="header" id="home">
         <div class="container">
             <!-- Desktop Navigation -->
-            <div class="header__nav-bar header__nav-bar--desktop">
+            <!-- <div class="header__nav-bar header__nav-bar--desktop"> -->
                 <!-- <nav class="header__links">
                     <a href="#assortment" class="header__link">Ассортимент</a>
                     <a href="#about" class="header__link">О нас</a>
                 </nav> -->
 
-                <a class="logo_header" href="#home">
+                <!-- <a class="logo_header" href="#home">
                     <img src="<?php echo baltic_option_asset('header_logo', 'images/header/logo.png'); ?>" alt="Логотип" class="header__logo">
-                </a>
+                </a> -->
 
                 <!-- <nav class="header__links">
                     <div class="header__lang">
@@ -65,23 +65,23 @@
                         <a href="#" class="header__lang-link">EN</a>
                     </div>
                 </nav> -->
-            </div>
+            <!-- </div> -->
 
             <!-- Mobile Navigation -->
-            <div class="header__nav-bar header__nav-bar--mobile">
+            <!-- <div class="header__nav-bar header__nav-bar--mobile"> -->
                 <!-- <div class="header__lang header__lang--mobile">
                     <a href="#" class="header__lang-link header__lang-link--active">RU</a>
                     <a href="#" class="header__lang-link">EN</a>
                 </div> -->
 
-                <a href="#home" style="margin: 0 auto;">
+                <!-- <a href="#home" style="margin: 0 auto;">
                     <img src="<?php echo baltic_option_asset('header_logo_mobile', 'images/header/logo-mobile.png'); ?>" alt="Логотип" class="header__logo header__logo--mobile">
-                </a>
+                </a> -->
 
                 <!-- <button class="header__burger" aria-label="Открыть меню">
                     <img src="<?php echo esc_url(baltic_asset('images/header/menu-icon.svg')); ?>" alt="" class="header__burger-icon">
                 </button> -->
-            </div>
+            <!-- </div> -->
         </div>
 
         <!-- Mobile Menu -->
@@ -107,24 +107,34 @@
             <h2 class="about__title gold-title"><?php echo baltic_option_text('about_title', 'о нас'); ?></h2>
 
             <?php if ($about_tabs) : ?>
-                <div class="about__tabs" role="tablist" aria-label="О нас" style="--about-tab-count: <?php echo esc_attr((string) count($about_tabs)); ?>;">
-                    <?php foreach ($about_tabs as $tab_index => $tab) : ?>
-                        <?php
-                        $is_active = $tab_index === $about_active_tab;
-                        ?>
-                        <button
-                            type="button"
-                            class="about__card<?php echo $is_active ? ' about__card--active' : ''; ?>"
-                            data-about-tab="<?php echo esc_attr((string) $tab_index); ?>"
-                            role="tab"
-                            id="about-tab-<?php echo esc_attr((string) $tab_index); ?>"
-                            aria-controls="about-panel-<?php echo esc_attr((string) $tab_index); ?>"
-                            tabindex="<?php echo $is_active ? '0' : '-1'; ?>"
-                            aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>"
-                        >
-                            <span class="about__card-label"><?php echo esc_html($tab['label']); ?></span>
-                        </button>
-                    <?php endforeach; ?>
+                <div class="about__tabs-shell">
+                    <button type="button" class="about__tabs-arrow about__tabs-arrow--prev" aria-label="Предыдущий раздел">
+                        <img src="<?php echo esc_url(baltic_asset('images/left-arrow.png')); ?>" alt="">
+                    </button>
+
+                    <div class="about__tabs" role="tablist" aria-label="О нас" style="--about-tab-count: <?php echo esc_attr((string) count($about_tabs)); ?>;">
+                        <?php foreach ($about_tabs as $tab_index => $tab) : ?>
+                            <?php
+                            $is_active = $tab_index === $about_active_tab;
+                            ?>
+                            <button
+                                type="button"
+                                class="about__card<?php echo $is_active ? ' about__card--active' : ''; ?>"
+                                data-about-tab="<?php echo esc_attr((string) $tab_index); ?>"
+                                role="tab"
+                                id="about-tab-<?php echo esc_attr((string) $tab_index); ?>"
+                                aria-controls="about-panel-<?php echo esc_attr((string) $tab_index); ?>"
+                                tabindex="<?php echo $is_active ? '0' : '-1'; ?>"
+                                aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>"
+                            >
+                                <span class="about__card-label"><?php echo esc_html($tab['label']); ?></span>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <button type="button" class="about__tabs-arrow about__tabs-arrow--next" aria-label="Следующий раздел">
+                        <img src="<?php echo esc_url(baltic_asset('images/right-arrow.png')); ?>" alt="">
+                    </button>
                 </div>
 
                 <div class="about__content">
@@ -133,7 +143,8 @@
                         $events = $tab['timeline_items'] ?: [];
                         $active_event_index = $events ? max(0, min(count($events) - 1, ((int) ($tab['active_timeline_item'] ?? 1)) - 1)) : 0;
                         ?>
-                        <div class="about__panel<?php echo $tab_index === $about_active_tab ? ' about__panel--active' : ''; ?>" data-about-panel="<?php echo esc_attr((string) $tab_index); ?>" id="about-panel-<?php echo esc_attr((string) $tab_index); ?>" role="tabpanel" aria-labelledby="about-tab-<?php echo esc_attr((string) $tab_index); ?>">
+                        <?php $is_history_tab = trim((string) $tab['label']) === 'История'; ?>
+                        <div class="about__panel<?php echo $tab_index === $about_active_tab ? ' about__panel--active' : ''; ?><?php echo $is_history_tab ? ' about__panel--history' : ''; ?>" data-about-panel="<?php echo esc_attr((string) $tab_index); ?>" id="about-panel-<?php echo esc_attr((string) $tab_index); ?>" role="tabpanel" aria-labelledby="about-tab-<?php echo esc_attr((string) $tab_index); ?>">
                             <div class="about__history-content">
                                 <?php if ($events) : ?>
                                     <?php foreach ($events as $event_index => $event) : ?>
@@ -183,38 +194,44 @@
     $latest_news = new WP_Query([
         'post_type' => 'baltic_news',
         'post_status' => 'publish',
-        'posts_per_page' => 1,
+        'posts_per_page' => 3,
         'orderby' => 'date',
         'order' => 'DESC',
         'no_found_rows' => true,
     ]);
-    $news_permalink = '';
+    $news_count = (int) $latest_news->post_count;
     ?>
-    <section class="section news" id="news">
-        <div class="container">
+    <section class="section news news--count-<?php echo esc_attr((string) $news_count); ?>" id="news">
+        <div class="news__container">
             <h2 class="news__title gold-title"><?php echo baltic_option_text('news_title', 'новости'); ?></h2>
             <?php if ($latest_news->have_posts()) : ?>
-                <?php while ($latest_news->have_posts()) : $latest_news->the_post(); ?>
-                    <?php
-                    $news_excerpt = has_excerpt()
-                        ? get_the_excerpt()
-                        : wp_strip_all_tags(strip_shortcodes(get_the_content()));
-                    $news_permalink = get_permalink();
-                    ?>
-                    <p class="news__date"><?php echo esc_html(get_the_date('d.m.Y')); ?></p>
-                    <h3 class="news__headline"><?php the_title(); ?></h3>
-                    <p class="news__text"><?php echo esc_html($news_excerpt); ?></p>
-                <?php endwhile; ?>
+                <div class="news__grid">
+                    <?php while ($latest_news->have_posts()) : $latest_news->the_post(); ?>
+                        <?php
+                        $news_excerpt = has_excerpt()
+                            ? get_the_excerpt()
+                            : wp_strip_all_tags(strip_shortcodes(get_the_content()));
+                        $news_permalink = get_permalink();
+                        $news_image = get_the_post_thumbnail_url(get_the_ID(), 'large')
+                            ?: baltic_asset('images/news/default-card.png');
+                        ?>
+                        <article class="news-card">
+                            <a class="news-card__image-link" href="<?php echo esc_url($news_permalink); ?>" aria-label="<?php echo esc_attr(sprintf('Открыть новость: %s', get_the_title())); ?>">
+                                <img class="news-card__image" src="<?php echo esc_url($news_image); ?>" alt="" loading="lazy">
+                            </a>
+                            <h3 class="news-card__title">
+                                <a href="<?php echo esc_url($news_permalink); ?>"><?php the_title(); ?></a>
+                            </h3>
+                            <p class="news-card__excerpt"><?php echo esc_html($news_excerpt); ?></p>
+                            <time class="news-card__date" datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d.m.Y')); ?></time>
+                        </article>
+                    <?php endwhile; ?>
+                </div>
                 <?php wp_reset_postdata(); ?>
             <?php else : ?>
-                <p class="news__text">Новостей пока нет.</p>
+                <p class="news__empty">Новостей пока нет.</p>
             <?php endif; ?>
-            <div class="feature-actions">
-                <?php if ($news_permalink) : ?>
-                    <a href="<?php echo esc_url($news_permalink); ?>" class="feature-actions__more"><?php echo baltic_option_text('news_button', 'подробнее'); ?></a>
-                <?php endif; ?>
-                <a class="section__all-link" href="<?php echo esc_url(baltic_content_index_url('baltic_news')); ?>">Все новости →</a>
-            </div>
+            <a class="news__all-link" href="<?php echo esc_url(baltic_content_index_url('baltic_news')); ?>">Все новости →</a>
         </div>
     </section>
 
@@ -238,34 +255,32 @@
     $latest_author_post = new WP_Query([
         'post_type' => 'post',
         'post_status' => 'publish',
-        'posts_per_page' => 1,
+        'posts_per_page' => 3,
         'orderby' => 'date',
         'order' => 'DESC',
         'no_found_rows' => true,
     ]);
-    $author_permalink = '';
+    $author_count = max(1, (int) $latest_author_post->post_count);
     ?>
-    <section class="section author" id="author">
-        <img src="<?php echo baltic_option_asset('author_background', 'images/author/bg-author.png'); ?>" alt="" class="author__bg">
+    <section class="section author author--count-<?php echo esc_attr((string) $author_count); ?>" id="author">
+        <div class="author__container">
+            <h2 class="author__title gold-title"><?php echo baltic_option_text('author_title', 'Слово автора'); ?></h2>
 
-        <h2 class="author__title gold-title"><?php echo baltic_option_text('author_title', 'Слово автора'); ?></h2>
-
-        <div class="container">
+            <div class="author__grid">
             <?php if ($latest_author_post->have_posts()) : ?>
                 <?php while ($latest_author_post->have_posts()) : $latest_author_post->the_post(); ?>
-                    <?php $author_permalink = get_permalink(); ?>
-                    <h3 class="author__heading"><?php the_title(); ?></h3>
-                    <p class="author__text"><?php echo esc_html(has_excerpt() ? get_the_excerpt() : wp_strip_all_tags(strip_shortcodes(get_the_content()))); ?></p>
-                <?php endwhile; wp_reset_postdata(); ?>
+                    <article class="author-card">
+                        <h3 class="author-card__title"><?php the_title(); ?></h3>
+                        <p class="author-card__text"><?php echo esc_html(has_excerpt() ? get_the_excerpt() : wp_strip_all_tags(strip_shortcodes(get_the_content()))); ?></p>
+                    </article>
+                <?php endwhile; ?>
+                <?php wp_reset_postdata(); ?>
             <?php else : ?>
-                <h3 class="author__heading"><?php echo baltic_option_text('author_heading', 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД'); ?></h3>
-                <p class="author__text"><?php echo baltic_option_html('author_text', 'Текст авторского обращения.'); ?></p>
+                <article class="author-card">
+                    <h3 class="author-card__title"><?php echo baltic_option_text('author_heading', 'С ДНЁМ ГОРОДА, КАЛИНИНГРАД'); ?></h3>
+                    <p class="author-card__text"><?php echo baltic_option_html('author_text', 'Текст авторского обращения.'); ?></p>
+                </article>
             <?php endif; ?>
-            <div class="feature-actions">
-                <?php if ($author_permalink) : ?>
-                    <a class="feature-actions__more" href="<?php echo esc_url($author_permalink); ?>">Подробнее</a>
-                <?php endif; ?>
-                <a class="section__all-link" href="<?php echo esc_url(baltic_content_index_url('post')); ?>">Все статьи →</a>
             </div>
         </div>
     </section>

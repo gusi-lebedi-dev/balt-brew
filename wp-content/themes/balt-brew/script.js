@@ -248,8 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const aboutTabs = document.querySelectorAll('[data-about-tab]');
     const aboutPanels = document.querySelectorAll('[data-about-panel]');
+    const aboutPrevButton = document.querySelector('.about__tabs-arrow--prev');
+    const aboutNextButton = document.querySelector('.about__tabs-arrow--next');
 
     if (aboutTabs.length && aboutPanels.length) {
+        const tabs = Array.from(aboutTabs);
         const revealAboutTab = (tab) => {
             const list = tab.parentElement;
             const bounds = list.getBoundingClientRect();
@@ -258,6 +261,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 list.scrollLeft += card.left - bounds.left - (list.clientWidth - card.width) / 2;
             }
         };
+
+        const cycleAboutTab = (step) => {
+            const currentIndex = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
+            const nextIndex = ((currentIndex === -1 ? 0 : currentIndex) + step + tabs.length) % tabs.length;
+            tabs[nextIndex].click();
+        };
+
         aboutTabs.forEach((tab) => {
             tab.addEventListener('click', () => {
                 const tabId = tab.dataset.aboutTab;
@@ -275,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 requestAnimationFrame(() => revealAboutTab(tab));
             });
             tab.addEventListener('keydown', (event) => {
-                const index = Array.from(aboutTabs).indexOf(tab);
+                const index = tabs.indexOf(tab);
                 let target;
                 if (event.key === 'ArrowRight') target = (index + 1) % aboutTabs.length;
                 if (event.key === 'ArrowLeft') target = (index - 1 + aboutTabs.length) % aboutTabs.length;
@@ -287,7 +297,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 aboutTabs[target].focus({ preventScroll: true });
             });
         });
-        requestAnimationFrame(() => revealAboutTab(Array.from(aboutTabs).find(tab => tab.getAttribute('aria-selected') === 'true') || aboutTabs[0]));
+
+        aboutPrevButton?.addEventListener('click', () => cycleAboutTab(-1));
+        aboutNextButton?.addEventListener('click', () => cycleAboutTab(1));
+
+        requestAnimationFrame(() => revealAboutTab(tabs.find(tab => tab.getAttribute('aria-selected') === 'true') || aboutTabs[0]));
     }
 
     const brewerSlides = document.querySelectorAll('.about__brewers-slide');
