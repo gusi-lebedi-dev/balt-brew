@@ -46,15 +46,15 @@ function baltic_register_home_acf(): void
     $fields = [
         [
             'key' => 'field_baltic_tab_hero',
-            'label' => 'Первый экран и шапка',
+            'label' => 'Первый экран',
             'name' => '',
             'type' => 'tab',
             'placement' => 'top',
         ],
-        baltic_acf_file_field('hero_desktop_intro', 'Видео для компьютера: начало'),
-        baltic_acf_file_field('hero_desktop_loop', 'Видео для компьютера: повтор'),
-        baltic_acf_file_field('hero_mobile_intro', 'Видео для телефона: начало'),
-        baltic_acf_file_field('hero_mobile_loop', 'Видео для телефона: повтор'),
+        baltic_acf_file_field('hero_desktop_intro', 'Видео для компьютера: начало', 'mp4,webm'),
+        baltic_acf_file_field('hero_desktop_loop', 'Видео для компьютера: повтор', 'mp4,webm'),
+        baltic_acf_file_field('hero_mobile_intro', 'Видео для телефона: начало', 'mp4,webm'),
+        baltic_acf_file_field('hero_mobile_loop', 'Видео для телефона: повтор', 'mp4,webm'),
 
         [
             'key' => 'field_baltic_tab_products',
@@ -103,7 +103,7 @@ function baltic_register_home_acf(): void
                     'name' => 'description',
                     'type' => 'textarea',
                     'rows' => 5,
-                    'new_lines' => 'br',
+                    'new_lines' => '',
                 ],
                 [
                     'key' => 'field_baltic_product_item_alcohol',
@@ -155,12 +155,14 @@ function baltic_register_home_acf(): void
             'placement' => 'top',
         ],
         baltic_acf_text_field('about_title', 'Заголовок блока', 'о нас'),
+        baltic_acf_image_field('about_background', 'Фон блока (компьютер)', 'Рекомендуемый размер: 1765 × 891 px. Если изображение не выбрано, используется встроенный фон.'),
+        baltic_acf_image_field('about_background_mobile', 'Фон блока (телефон)', 'Рекомендуемый размер: 460 × 560 px. Если изображение не выбрано, используется встроенный фон.'),
         [
             'key' => 'field_baltic_about_tabs',
             'label' => 'Вкладки блока',
             'name' => 'about_tabs',
             'type' => 'repeater',
-            'instructions' => 'Добавляйте любое количество вкладок и меняйте их порядок. Чекбокс «Скрыть вкладку» убирает её с сайта, сохраняя содержимое. Длинная строка карточек прокручивается горизонтально.',
+            'instructions' => 'Редактируйте содержимое вкладок. Стандартные вкладки выводятся в порядке: «Концепция», «История», «Пивовары», «Пивоварни»; дополнительные — после них. Чекбокс «Скрыть вкладку» убирает её с сайта, сохраняя содержимое.',
             'layout' => 'block',
             'button_label' => 'Добавить вкладку',
             'min' => 0,
@@ -176,18 +178,35 @@ function baltic_register_home_acf(): void
                     'default_value' => 0,
                 ],
                 [
+                    'key' => 'field_baltic_about_tab_kind',
+                    'label' => 'Тип вкладки',
+                    'name' => 'kind',
+                    'type' => 'select',
+                    'instructions' => 'Тип определяет поведение вкладки. Таймлайн доступен только для типа «История».',
+                    'choices' => [
+                        'concept' => 'Концепция',
+                        'history' => 'История с таймлайном',
+                        'brewers' => 'Пивовары',
+                        'breweries' => 'Пивоварни',
+                        'custom' => 'Обычная вкладка',
+                    ],
+                    'default_value' => 'custom',
+                    'return_format' => 'value',
+                    'wrapper' => ['width' => '25'],
+                ],
+                [
                     'key' => 'field_baltic_about_tab_label',
                     'label' => 'Название вкладки',
                     'name' => 'label',
                     'type' => 'text',
-                    'wrapper' => ['width' => '50'],
+                    'wrapper' => ['width' => '35'],
                 ],
                 [
                     'key' => 'field_baltic_about_tab_heading',
                     'label' => 'Заголовок текста',
                     'name' => 'heading',
                     'type' => 'text',
-                    'wrapper' => ['width' => '50'],
+                    'wrapper' => ['width' => '40'],
                 ],
                 [
                     'key' => 'field_baltic_about_tab_text',
@@ -207,6 +226,11 @@ function baltic_register_home_acf(): void
                     'min' => 1,
                     'step' => 1,
                     'wrapper' => ['width' => '50'],
+                    'conditional_logic' => [[[
+                        'field' => 'field_baltic_about_tab_kind',
+                        'operator' => '==',
+                        'value' => 'history',
+                    ]]],
                 ],
                 [
                     'key' => 'field_baltic_about_tab_timeline',
@@ -218,6 +242,11 @@ function baltic_register_home_acf(): void
                     'button_label' => 'Добавить событие',
                     'min' => 0,
                     'collapsed' => 'field_baltic_about_timeline_heading',
+                    'conditional_logic' => [[[
+                        'field' => 'field_baltic_about_tab_kind',
+                        'operator' => '==',
+                        'value' => 'history',
+                    ]]],
                     'sub_fields' => [
                         [
                             'key' => 'field_baltic_about_timeline_year',
@@ -268,10 +297,9 @@ function baltic_register_home_acf(): void
             'message' => 'Добавление и редактирование новостей находится в отдельном разделе «Новости» в левом меню. На главной автоматически показываются до трёх последних опубликованных новостей.',
         ],
         baltic_acf_text_field('news_title', 'Название секции', 'новости'),
-        baltic_acf_text_field('news_button', 'Текст кнопки', 'подробнее'),
         baltic_acf_text_field('news_all_label', 'Текст ссылки на все новости', 'Все новости'),
-        baltic_acf_image_field('news_background', 'Фон блока (компьютер)'),
-        baltic_acf_image_field('news_background_mobile', 'Фон блока (телефон)'),
+        baltic_acf_image_field('news_background', 'Фон блока (компьютер)', 'Рекомендуемая ширина: 1920 px. Пустое поле оставляет встроенный фон, подходящий под количество новостей.'),
+        baltic_acf_image_field('news_background_mobile', 'Фон блока (телефон)', 'Рекомендуемая ширина: 460 px. Пустое поле оставляет встроенный фон, подходящий под количество новостей.'),
 
         [
             'key' => 'field_baltic_tab_video',
@@ -280,9 +308,15 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
-        baltic_acf_image_field('video_background', 'Фон блока (компьютер)'),
+        baltic_acf_image_field('video_background', 'Фон блока (компьютер)', 'Рекомендуемый размер: 1535 × 1024 px. Если изображение не выбрано, используется встроенный фон.'),
+        baltic_acf_image_field('video_background_mobile', 'Фон блока (телефон)', 'Рекомендуемый размер: 375 × 566 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_text_field('video_title', 'Название видео', 'Название видео'),
-        baltic_acf_url_field('video_iframe_src', 'Ссылка iframe', 'https://vkvideo.ru/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3'),
+        baltic_acf_url_field(
+            'video_iframe_src',
+            'Ссылка на видео для iframe',
+            'https://vkvideo.ru/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3',
+            'Вставьте только адрес из атрибута src, а не весь HTML-код iframe.'
+        ),
         baltic_acf_textarea_field('video_description', 'Описание', baltic_design_copy('video_description'), 4),
 
         [
@@ -292,8 +326,8 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
-        baltic_acf_image_field('author_background', 'Фон блока (компьютер)'),
-        baltic_acf_image_field('author_background_mobile', 'Фон блока (телефон)'),
+        baltic_acf_image_field('author_background', 'Фон блока (компьютер)', 'Рекомендуемая ширина: 1920 px. Если изображение не выбрано, используется встроенный фон.'),
+        baltic_acf_image_field('author_background_mobile', 'Фон блока (телефон)', 'Рекомендуемая ширина: 460 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_text_field('author_title', 'Название секции', 'Слово автора'),
         baltic_acf_text_field('author_all_label', 'Текст ссылки на все записи', 'Все записи'),
         [
@@ -322,8 +356,8 @@ function baltic_register_home_acf(): void
             'type' => 'message',
             'message' => 'Заявки из формы отправляются на <strong>bsite.robot@dialogforce.tech</strong>.',
         ],
-        baltic_acf_file_field('personal_pdf', 'PDF: персональные данные'),
-        baltic_acf_file_field('cookie_pdf', 'PDF: cookie'),
+        baltic_acf_file_field('personal_pdf', 'PDF: персональные данные', 'pdf'),
+        baltic_acf_file_field('cookie_pdf', 'PDF: cookie', 'pdf'),
         baltic_acf_textarea_field('cookie_text', 'Текст cookie-баннера', 'Мы используем файлы cookie, чтобы сайт работал лучше.', 3),
         baltic_acf_text_field('cookie_button', 'Кнопка cookie-баннера', 'ПРИНЯТЬ'),
     ];
@@ -362,6 +396,7 @@ function baltic_register_home_acf(): void
     ]);
 
     baltic_migrate_home_fields($fields);
+    baltic_migrate_about_tab_kinds();
 }
 
 add_action('admin_enqueue_scripts', static function (string $hook): void {
@@ -491,6 +526,7 @@ function baltic_acf_about_tabs(): array
     return [
         [
             'label' => 'Концепция',
+            'kind' => 'concept',
             'heading' => 'Концепция пивоварни',
             'text' => $concept_text,
             'active_timeline_item' => 1,
@@ -498,6 +534,7 @@ function baltic_acf_about_tabs(): array
         ],
         [
             'label' => 'История',
+            'kind' => 'history',
             'heading' => baltic_design_copy('history_heading'),
             'text' => baltic_design_copy('history_text'),
             'active_timeline_item' => 4,
@@ -512,6 +549,7 @@ function baltic_acf_about_tabs(): array
         ],
         [
             'label' => 'Пивовары',
+            'kind' => 'brewers',
             'heading' => 'Пивовары',
             'text' => 'Расскажите о команде пивоваров, их опыте, подходе к рецептурам и авторском взгляде на линейку Балтики Brew.',
             'active_timeline_item' => 1,
@@ -519,6 +557,7 @@ function baltic_acf_about_tabs(): array
         ],
         [
             'label' => 'Пивоварни',
+            'kind' => 'breweries',
             'heading' => 'Наши пивоварни',
             'text' => 'Добавьте описание пивоварен, производственных площадок и особенностей технологического процесса.',
             'active_timeline_item' => 1,
@@ -557,12 +596,19 @@ function baltic_home_about_tabs(): array
 
         $label = trim((string) ($row['label'] ?? ''));
         $label = $label_aliases[$label] ?? $label;
-        $kind = [
+        $kind_from_label = [
             'Концепция' => 'concept',
             'История' => 'history',
             'Пивовары' => 'brewers',
             'Пивоварни' => 'breweries',
         ][$label] ?? 'custom';
+        $kind = (string) ($row['kind'] ?? '');
+        if (
+            !in_array($kind, ['concept', 'history', 'brewers', 'breweries', 'custom'], true)
+            || ($kind === 'custom' && $kind_from_label !== 'custom')
+        ) {
+            $kind = $kind_from_label;
+        }
 
         $events = [];
         $event_rows = $kind === 'history' ? ($row['timeline_items'] ?? []) : [];
@@ -593,27 +639,6 @@ function baltic_home_about_tabs(): array
             'active_timeline_item' => $active_timeline_item,
             'timeline_items' => $events,
         ];
-    }
-
-    $has_concept = false;
-    foreach ($tabs as $tab) {
-        if ($tab['kind'] === 'concept') {
-            $has_concept = true;
-            break;
-        }
-    }
-
-    if (!$has_concept && $tabs) {
-        $defaults = baltic_acf_about_tabs();
-        array_unshift($tabs, [
-            'label' => $defaults[0]['label'],
-            'kind' => 'concept',
-            'heading' => $defaults[0]['heading'],
-            'text' => $defaults[0]['text'],
-            'initially_active' => false,
-            'active_timeline_item' => 1,
-            'timeline_items' => [],
-        ]);
     }
 
     $tab_order = ['concept' => 0, 'history' => 1, 'brewers' => 2, 'breweries' => 3, 'custom' => 4];
@@ -683,6 +708,58 @@ function baltic_migrate_home_fields(array $fields): void
     update_option('baltic_front_page_acf_migrated_' . $front_page_id, 1, false);
 }
 
+/**
+ * Add stable behavior types to About rows created before the field existed.
+ */
+function baltic_migrate_about_tab_kinds(): void
+{
+    $front_page_id = (int) get_option('page_on_front');
+    $migration_key = 'baltic_about_tab_kinds_migrated_1_' . $front_page_id;
+
+    if ($front_page_id <= 0 || get_option($migration_key)) {
+        return;
+    }
+
+    $rows = get_field('about_tabs', $front_page_id);
+    if (!is_array($rows) || !$rows) {
+        return;
+    }
+
+    $kind_by_label = [
+        'Концепция' => 'concept',
+        'История' => 'history',
+        'Пивовары' => 'brewers',
+        'Наши пивовары' => 'brewers',
+        'Пивоварни' => 'breweries',
+        'Наши пивоварни' => 'breweries',
+    ];
+    $valid_kinds = ['concept', 'history', 'brewers', 'breweries', 'custom'];
+    $changed = false;
+
+    foreach ($rows as $row_index => &$row) {
+        if (!is_array($row)) {
+            continue;
+        }
+
+        $kind = (string) ($row['kind'] ?? '');
+        $kind_was_saved = metadata_exists('post', $front_page_id, 'about_tabs_' . $row_index . '_kind');
+        if ($kind_was_saved && in_array($kind, $valid_kinds, true)) {
+            continue;
+        }
+
+        $label = trim((string) ($row['label'] ?? ''));
+        $row['kind'] = $kind_by_label[$label] ?? 'custom';
+        $changed = true;
+    }
+    unset($row);
+
+    if ($changed) {
+        update_field('field_baltic_about_tabs', $rows, $front_page_id);
+    }
+
+    update_option($migration_key, 1, false);
+}
+
 function baltic_default_product_rows(): array
 {
     return array_map(static function (array $product): array {
@@ -725,25 +802,27 @@ function baltic_acf_textarea_field(string $name, string $label, string $default 
     ];
 }
 
-function baltic_acf_url_field(string $name, string $label, string $default = ''): array
+function baltic_acf_url_field(string $name, string $label, string $default = '', string $instructions = ''): array
 {
     return [
         'key' => 'field_baltic_' . $name,
         'label' => $label,
         'name' => $name,
         'type' => 'url',
+        'instructions' => $instructions,
         'default_value' => $default,
         'wrapper' => ['width' => '50'],
     ];
 }
 
-function baltic_acf_image_field(string $name, string $label): array
+function baltic_acf_image_field(string $name, string $label, string $instructions = ''): array
 {
     return [
         'key' => 'field_baltic_' . $name,
         'label' => $label,
         'name' => $name,
         'type' => 'image',
+        'instructions' => $instructions,
         'return_format' => 'url',
         'preview_size' => 'medium',
         'library' => 'all',
@@ -751,13 +830,14 @@ function baltic_acf_image_field(string $name, string $label): array
     ];
 }
 
-function baltic_acf_file_field(string $name, string $label): array
+function baltic_acf_file_field(string $name, string $label, string $mime_types = ''): array
 {
     return [
         'key' => 'field_baltic_' . $name,
         'label' => $label,
         'name' => $name,
         'type' => 'file',
+        'mime_types' => $mime_types,
         'return_format' => 'url',
         'library' => 'all',
         'wrapper' => ['width' => '50'],

@@ -100,8 +100,8 @@
     $about_tabs = function_exists('baltic_home_about_tabs') ? baltic_home_about_tabs() : [];
     $about_active_tab = array_search(true, array_column($about_tabs, 'initially_active'), true);
     $about_active_tab = $about_active_tab === false ? 0 : $about_active_tab;
-    $about_background = baltic_asset('images/about/about-desktop-bg.png');
-    $about_background_mobile = baltic_asset('images/about/about-mobile-bg.png');
+    $about_background = baltic_option_asset('about_background', 'images/about/about-desktop-bg.png');
+    $about_background_mobile = baltic_option_asset('about_background_mobile', 'images/about/about-mobile-bg.png');
     $about_background_style = sprintf(
         '--about-background-desktop: url("%s"); --about-background-mobile: url("%s");',
         $about_background,
@@ -261,10 +261,14 @@
     </section>
 
     <!-- ================= VIDEO ================= -->
+    <?php
+    $video_background = baltic_option_asset('video_background', 'images/video/bg.png');
+    $video_background_mobile = baltic_option_asset('video_background_mobile', 'images/video/video-mobile-bg.png');
+    ?>
     <section class="section video">
         <picture class="video__artwork" aria-hidden="true">
-            <source media="(max-width: 768px)" srcset="<?php echo esc_url(baltic_asset('images/video/video-mobile-bg.png')); ?>">
-            <img src="<?php echo baltic_option_asset('video_background', 'images/video/bg.png'); ?>" alt="" class="video__bg">
+            <source media="(max-width: 768px)" srcset="<?php echo $video_background_mobile; ?>">
+            <img src="<?php echo $video_background; ?>" alt="" class="video__bg">
         </picture>
 
         <div class="container">
