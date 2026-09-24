@@ -1801,7 +1801,7 @@ body {
 }
 
 .news__artwork img,
-.author__artwork img
+.author__artwork img,
 .video__artwork img {
     position: absolute;
     top: 0;
