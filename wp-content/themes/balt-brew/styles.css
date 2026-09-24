@@ -1574,8 +1574,11 @@ div.page {
 
 .about__timeline-text--active {
     display: block;
-        max-width: 280px;
+
+    @media screen and (max-width: 768px) {
+             max-width: 280px;
     margin: 0 auto;
+    }
 }
 
 /* ============================================
