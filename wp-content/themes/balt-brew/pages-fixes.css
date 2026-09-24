@@ -2942,7 +2942,7 @@ body.feedback-modal-open {
         width: 100%;
         max-width: none;
         height: auto;
-        max-height: min(25.694444vw, 400px);
+        max-height: min(95.694444vw, 910px);
         margin: 0;
         padding: 0;
         left: auto;
@@ -2966,13 +2966,21 @@ body.feedback-modal-open {
     .about__content-text {
         width: min(44.444444vw, 640px);
         max-width: 100%;
-        max-height: min(21.25vw, 330px);
+        max-height: min(20.25vw, 475px);
         margin: 0 auto;
         font-weight: 400;
         font-size: min(1.666667vw, 24px);
         line-height: 1.2;
         text-align: center;
         overflow-y: auto;
+    }
+
+    /* Extra scroll range lets the last lines move completely above the fade. */
+    .about__timeline-text--active .about__content-text::after {
+        content: '';
+        display: block;
+        height: min(6.944444vw, 100px);
+        pointer-events: none;
     }
 
     .about__panel--concept .about__content-text {
