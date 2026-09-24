@@ -923,6 +923,7 @@ body {
         min-width: 0;
         height: 100%;
         max-width: 460px;
+        margin: 0 auto;
     }
 
     .about::after {
@@ -1787,7 +1788,8 @@ body {
 }
 
 .news__artwork,
-.author__artwork {
+.author__artwork,
+.video__artwork {
     position: absolute;
     z-index: 0;
     inset: 0;
@@ -1799,7 +1801,8 @@ body {
 }
 
 .news__artwork img,
-.author__artwork img {
+.author__artwork img
+.video__artwork img {
     position: absolute;
     top: 0;
     left: 50%;
