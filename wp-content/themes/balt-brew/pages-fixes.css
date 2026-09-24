@@ -2376,7 +2376,7 @@ body.feedback-modal-open {
 .feedback-modal__title,
 .feedback-modal__success-title {
     margin: 0;
-    color: #502c2c;
+    color: linear-gradient(90deg, #07153A 0%, #0D1D66 34.8%, #091A47 100%), #502C2C;
     font-family: 'TT Tricks Variable', 'Inter', sans-serif;
     font-size: 24px;
     font-weight: 500;
@@ -2387,7 +2387,7 @@ body.feedback-modal-open {
 .feedback-modal__intro,
 .feedback-modal__success-text {
     margin: 4px 0 0;
-    color: #502c2c;
+    color: #0D1D6699;
     font-family: 'TT Backwards Sans', 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 300;
@@ -2441,6 +2441,7 @@ body.feedback-modal-open {
     background: #fff;
     font: 400 16px/20px 'TT Backwards Sans', 'Inter', sans-serif;
     box-sizing: border-box;
+    border-radius: 4px;
 }
 
 .feedback-field input,
@@ -2514,7 +2515,7 @@ body.feedback-modal-open {
     margin: 16px 0 0;
     padding: 0 24px;
     border: 0;
-    color: #fdd46d;
+    color: #FFFFFF;
     background: linear-gradient(90deg, #07153a 0%, #0d1d66 34.8%, #091a47 100%);
     font: 400 20px/24px 'TT Backwards Sans', 'Inter', sans-serif;
     cursor: pointer;
