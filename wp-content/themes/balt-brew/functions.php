@@ -128,8 +128,7 @@ function baltic_option(string $field, $fallback = '')
     $footer_fields = [
         'footer_logo', 'footer_vk_url', 'footer_phone', 'footer_phone_href',
         'footer_phone_subtitle', 'footer_company', 'footer_feedback_label',
-        'feedback_recipient_email', 'personal_pdf', 'cookie_pdf', 'cookie_text',
-        'cookie_button',
+        'personal_pdf', 'cookie_pdf', 'cookie_text', 'cookie_button',
     ];
 
     if (in_array($field, $footer_fields, true)) {
@@ -228,8 +227,20 @@ function baltic_content_index_url(string $type): string
 
 function baltic_feedback_limit(string $value, int $length): string
 {
-    return function_exists('mb_substr')
-        ? mb_substr($value, 0, $length)
+    if (function_exists('mb_substr')) {
+        return mb_substr($value, 0, $length);
+    }
+
+    if (function_exists('grapheme_substr')) {
+        $limited_value = grapheme_substr($value, 0, $length);
+        if ($limited_value !== false) {
+            return $limited_value;
+        }
+    }
+
+    $characters = preg_split('//u', $value, -1, PREG_SPLIT_NO_EMPTY);
+    return is_array($characters)
+        ? implode('', array_slice($characters, 0, $length))
         : substr($value, 0, $length);
 }
 
@@ -240,6 +251,116 @@ function baltic_feedback_post_value(string $key): string
     }
 
     return wp_unslash($_POST[$key]);
+}
+
+function baltic_feedback_email_body(array $values): string
+{
+    $site_name = sanitize_text_field(wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES));
+    $site_name = $site_name !== '' ? $site_name : 'Балтика Brew';
+    $site_url = home_url('/');
+    $submitted_at = wp_date('d.m.Y, H:i');
+    $empty_value = '<span style="color:#8c8378;">Не указано</span>';
+
+    $fields = [
+        'name' => 'ФИО',
+        'phone' => 'Телефон',
+        'email' => 'Почта',
+        'product' => 'Наименование продукции',
+        'production_date' => 'Дата розлива',
+        'factory' => 'Завод-изготовитель',
+    ];
+    $rows = '';
+
+    foreach ($fields as $key => $label) {
+        $value = (string) ($values[$key] ?? '');
+        $display_value = $value === '' ? $empty_value : nl2br(esc_html($value), false);
+
+        if ($key === 'email' && is_email($value)) {
+            $display_value = sprintf(
+                '<a href="%s" style="color:#0d1d66;text-decoration:underline;">%s</a>',
+                esc_url('mailto:' . $value),
+                esc_html($value)
+            );
+        } elseif ($key === 'phone' && $value !== '') {
+            $phone_href = preg_replace('/[^\d+]/', '', $value);
+            $display_value = sprintf(
+                '<a href="%s" style="color:#0d1d66;text-decoration:underline;">%s</a>',
+                esc_url('tel:' . $phone_href),
+                esc_html($value)
+            );
+        }
+
+        $rows .= sprintf(
+            '<tr><td style="width:42%%;padding:14px 16px;border-bottom:1px solid #eadfce;color:#756758;font:600 13px/1.4 Arial,sans-serif;vertical-align:top;">%s</td><td style="padding:14px 16px;border-bottom:1px solid #eadfce;color:#281f19;font:400 15px/1.5 Arial,sans-serif;vertical-align:top;word-break:break-word;">%s</td></tr>',
+            esc_html($label),
+            $display_value
+        );
+    }
+
+    $safe_site_name = esc_html($site_name);
+    $safe_site_url = esc_url($site_url);
+    $safe_submitted_at = esc_html($submitted_at);
+    $message = nl2br(esc_html((string) ($values['message'] ?? '')), false);
+    $reply_button = '';
+
+    if (is_email((string) ($values['email'] ?? ''))) {
+        $reply_button = sprintf(
+            '<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0 0;"><tr><td style="border-radius:4px;background:#0d1d66;"><a href="%s" style="display:inline-block;padding:12px 20px;color:#ffffff;font:600 14px/1 Arial,sans-serif;text-decoration:none;">Ответить заявителю</a></td></tr></table>',
+            esc_url('mailto:' . $values['email'])
+        );
+    }
+
+    return <<<HTML
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новое обращение с сайта {$safe_site_name}</title>
+</head>
+<body style="margin:0;padding:0;background:#f3eadc;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f3eadc;">
+        <tr>
+            <td align="center" style="padding:32px 12px;">
+                <table role="presentation" width="680" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:680px;background:#ffffff;border:1px solid #dfcfb8;border-radius:12px;overflow:hidden;">
+                    <tr>
+                        <td style="padding:28px 32px;background:#0d1d66;background-image:linear-gradient(90deg,#07153a 0%,#0d1d66 45%,#091a47 100%);">
+                            <div style="margin:0 0 8px;color:#e0b55a;font:600 12px/1.3 Arial,sans-serif;letter-spacing:1.6px;text-transform:uppercase;">Балтика Brew</div>
+                            <h1 style="margin:0;color:#ffffff;font:700 25px/1.25 Arial,sans-serif;">Новое обращение с сайта</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:28px 32px 12px;">
+                            <p style="margin:0;color:#502c2c;font:400 16px/1.55 Arial,sans-serif;">Посетитель заполнил форму обратной связи. Контактные данные и информация о продукции собраны ниже.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px 16px 0;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;border:1px solid #eadfce;border-radius:8px;border-collapse:separate;border-spacing:0;overflow:hidden;">
+                                {$rows}
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:28px 32px 32px;">
+                            <h2 style="margin:0 0 10px;color:#502c2c;font:700 17px/1.3 Arial,sans-serif;">Сообщение</h2>
+                            <div style="padding:18px 20px;background:#fbf6ee;border-left:4px solid #d1a34b;color:#281f19;font:400 15px/1.6 Arial,sans-serif;word-break:break-word;">{$message}</div>
+                            {$reply_button}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:20px 32px;background:#f8f2e8;border-top:1px solid #eadfce;color:#756758;font:400 12px/1.5 Arial,sans-serif;">
+                            Отправлено {$safe_submitted_at} через форму на <a href="{$safe_site_url}" style="color:#0d1d66;text-decoration:underline;">{$safe_site_name}</a>.<br>
+                            Это автоматическое уведомление — отвечать на него можно только при указанной заявителем почте.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+HTML;
 }
 
 function baltic_handle_feedback(): void
@@ -297,26 +418,17 @@ function baltic_handle_feedback(): void
     }
     set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
 
-    $recipient = (string) baltic_option('feedback_recipient_email', (string) get_option('admin_email'));
-    if (!is_email($recipient)) {
-        $recipient = (string) get_option('admin_email');
-    }
-
-    $subject = sprintf('Новое обращение с сайта %s', wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES));
-    $body = implode("\n", [
-        'ФИО: ' . $values['name'],
-        'Телефон: ' . $values['phone'],
-        'Почта: ' . ($values['email'] ?: 'не указана'),
-        'Продукция: ' . $values['product'],
-        'Дата розлива: ' . ($values['production_date'] ?: 'не указана'),
-        'Завод-изготовитель: ' . $values['factory'],
-        '',
-        'Сообщение:',
-        $values['message'],
-    ]);
-    $headers = ['Content-Type: text/plain; charset=UTF-8'];
+    $recipient = 'bsite.robot@dialogforce.tech';
+    $site_name = sanitize_text_field(wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES));
+    $subject = sprintf(
+        '[%s] Новое обращение — %s',
+        $site_name !== '' ? $site_name : 'Балтика Brew',
+        baltic_feedback_limit($values['product'], 100)
+    );
+    $body = baltic_feedback_email_body($values);
+    $headers = ['Content-Type: text/html; charset=UTF-8'];
     if ($values['email'] !== '') {
-        $headers[] = sprintf('Reply-To: %s <%s>', $values['name'], $values['email']);
+        $headers[] = 'Reply-To: ' . $values['email'];
     }
 
     if (!wp_mail($recipient, $subject, $body, $headers)) {

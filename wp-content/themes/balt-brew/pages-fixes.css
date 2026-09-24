@@ -909,16 +909,16 @@ body {
     }
 }
 
-/* Mobile about carousel from the approved 460 x 1000 composition. */
+/* Mobile about carousel aligned to the supplied 460 x 850 artwork. */
 @media (max-width: 768px) {
     .about {
-        min-height: 1000px;
+        min-height: 850px;
         padding-bottom: 0;
         background-color: #f5e8d9;
-        background-image: url('images/about/about-mobile-bg.jpg');
+        background-image: url('images/about/about-mobile-bg.png');
         background-repeat: no-repeat;
         background-position: center top;
-        background-size: 460px 1000px;
+        background-size: 460px 850px;
     }
 
     .about::after {
@@ -926,12 +926,12 @@ body {
     }
 
     .about_wrapper {
-        min-height: 1000px;
-        padding: 70px 0 32px;
+        min-height: 850px;
+        padding: 48px 0 24px;
     }
 
     .about__title {
-        margin: 0 0 30px;
+        margin: 0 0 24px;
         font-size: 36px;
     }
 
@@ -940,7 +940,7 @@ body {
         align-items: center;
         justify-content: center;
         width: max-content;
-        margin: 0 auto 34px;
+        margin: 0 auto 24px;
     }
 
     .about__tabs {
@@ -1009,13 +1009,13 @@ body {
     }
 
     .about__panel--active {
-        min-height: 710px;
+        min-height: 560px;
     }
 
     .about__history-content {
         width: 100%;
         max-width: none;
-        max-height: 500px;
+        max-height: 350px;
         padding: 0;
     }
 
@@ -1515,7 +1515,7 @@ body {
 
 @media (max-width: 768px) {
     .about {
-        background-image: var(--about-background-mobile, url('images/about/about-mobile-bg.jpg'));
+        background-image: var(--about-background-mobile, url('images/about/about-mobile-bg.png'));
     }
 }
 
@@ -2775,5 +2775,171 @@ body.feedback-modal-open {
     .feedback-modal__success {
         width: min(330px, 100%);
         min-height: 788px;
+    }
+}
+
+/* Desktop About composition from the supplied 1440 x 1324 Figma frame. */
+@media (min-width: 769px) {
+    .about {
+        width: 100%;
+        height: min(91.944444vw, 1324px);
+        min-height: 0;
+        padding: 0;
+        background-color: #f5e8d9;
+        background-repeat: no-repeat;
+        background-position: center top;
+        background-size: 100% 100%;
+    }
+
+    .about::after {
+        display: none;
+    }
+
+    .about_wrapper {
+        position: relative;
+        min-height: 0;
+        height: 100%;
+        padding: min(8.055556vw, 116px) 0 0;
+        justify-content: flex-start;
+    }
+
+    .about__title {
+        flex: none;
+        margin: 0 0 min(3.819444vw, 55px);
+        font-size: min(4.166667vw, 60px);
+        line-height: 1;
+    }
+
+    .about__tabs {
+        flex: none;
+        width: min(68.333333vw, 984px);
+        height: min(9.305556vw, 134px);
+        margin: 0 auto min(2.916667vw, 42px);
+        gap: min(1.145833vw, 16.5px);
+    }
+
+    .about__card,
+    .about__card[data-pos="center"],
+    .about__card[data-pos="left"],
+    .about__card[data-pos="right"] {
+        flex: 0 0 min(18.333333vw, 264px);
+        width: min(18.333333vw, 264px);
+        height: min(5.833333vw, 84px);
+        padding: 0 min(2.083333vw, 30px);
+    }
+
+    .about__card--active,
+    .about__card.about__card--active[data-pos] {
+        flex-basis: min(29.375vw, 423px);
+        width: min(29.375vw, 423px);
+        height: min(9.305556vw, 134px);
+    }
+
+    .about__card-label,
+    .about__card[data-pos="center"] .about__card-label,
+    .about__card[data-pos="left"] .about__card-label,
+    .about__card[data-pos="right"] .about__card-label {
+        font-size: min(1.388889vw, 20px);
+    }
+
+    .about__card--active .about__card-label {
+        font-size: min(2.777778vw, 40px);
+    }
+
+    .about__content {
+        flex: none;
+        width: min(58.472222vw, 842px);
+        margin: 0 auto;
+        padding: 0;
+    }
+
+    .about__panel--active {
+        min-height: min(63.680556vw, 917px);
+    }
+
+    .about__history-content {
+        width: 100%;
+        max-width: none;
+        height: min(43.958333vw, 633px);
+        max-height: min(43.958333vw, 633px);
+        margin: 0;
+        padding: 0;
+        left: min(0.138889vw, 2px);
+    }
+
+    .about__timeline-text {
+        text-align: left;
+    }
+
+    .about__content-title {
+        min-height: min(4.097222vw, 59px);
+        margin: 0 0 min(1.597222vw, 23px);
+        font-size: min(3.333333vw, 48px);
+        line-height: min(4.097222vw, 59px);
+        text-align: left;
+        text-transform: none;
+    }
+
+    .about__content-text {
+        max-height: min(38.263889vw, 551px);
+        font-size: min(1.666667vw, 24px);
+        line-height: 1.2;
+        text-align: left;
+    }
+
+    .about__panel--history .timeline,
+    .about__panel--history .timeline.timeline--visible {
+        --timeline-rail-center: min(10.173611vw, 146.5px);
+        width: min(100vw, 1440px);
+        height: min(16.736111vw, 241px);
+        flex-basis: min(16.736111vw, 241px);
+        margin-top: auto;
+    }
+
+    .about__panel--history .timeline__strip {
+        left: max(-3px, -0.208333vw);
+        padding-inline: 13.75%;
+    }
+
+    .about__panel--history .timeline__track {
+        top: calc(var(--timeline-rail-center) - min(0.590278vw, 8.5px));
+        height: min(1.180556vw, 17px);
+        border: 0;
+        background: url('images/about/timeline-progress.png') center / 100% 100% no-repeat;
+        box-shadow: none;
+    }
+
+    .about__panel--history .timeline__date {
+        bottom: calc(100% - var(--timeline-rail-center) + var(--timeline-dot-half) + min(1.388889vw, 20px));
+        gap: min(0.277778vw, 4px);
+        font-size: min(1.666667vw, 24px);
+        line-height: min(2.083333vw, 30px);
+    }
+
+    .about__panel--history .timeline__year,
+    .about__panel--history .timeline__month,
+    .about__panel--history .timeline__item--active .timeline__year,
+    .about__panel--history .timeline__item--active .timeline__month {
+        font-size: min(1.666667vw, 24px);
+        line-height: min(2.083333vw, 30px);
+    }
+
+    .about__panel--history .timeline__item,
+    .about__panel--history .timeline__item--active {
+        --timeline-dot-half: min(1.145833vw, 16.5px);
+    }
+
+    .about__panel--history .timeline__item--active {
+        --timeline-dot-half: min(2.847222vw, 41px);
+    }
+
+    .about__panel--history .timeline__dot {
+        width: min(2.291667vw, 33px);
+        height: min(2.291667vw, 33px);
+    }
+
+    .about__panel--history .timeline__item--active .timeline__dot {
+        width: min(5.416667vw, 78px);
+        height: min(5.694444vw, 82px);
     }
 }

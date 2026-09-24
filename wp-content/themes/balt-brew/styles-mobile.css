@@ -443,7 +443,7 @@
         width: 100%;
         height: auto;
         min-height: 560px;
-        background: url('images/about/about-mobile-bg.jpg') center/cover no-repeat;
+        background: url('images/about/about-mobile-bg.png') center/cover no-repeat;
     }
     .about__bg {
         left: 50%;
