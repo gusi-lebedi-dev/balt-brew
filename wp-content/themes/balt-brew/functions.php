@@ -418,7 +418,7 @@ function baltic_handle_feedback(): void
     }
     set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
 
-    $recipient = 'nr@gusi-lebedi.com';
+    $recipient = 'bsite.robot@dialogforce.tech';
     $site_name = sanitize_text_field(
     wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES)
 );
