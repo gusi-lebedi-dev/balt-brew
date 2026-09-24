@@ -162,7 +162,7 @@ function baltic_register_home_acf(): void
             'label' => 'Вкладки блока',
             'name' => 'about_tabs',
             'type' => 'repeater',
-            'instructions' => 'Редактируйте содержимое вкладок. Стандартные вкладки выводятся в порядке: «Концепция», «История», «Пивовары», «Пивоварни»; дополнительные — после них. Чекбокс «Скрыть вкладку» убирает её с сайта, сохраняя содержимое.',
+            'instructions' => 'Редактируйте содержимое вкладок. Стандартные вкладки выводятся в порядке: «Концепция», «История», «Пивовары», «Пивоварни»; дополнительные — после них. Чекбокс «Скрыть вкладку» убирает её с сайта, сохраняя содержимое. Отметьте одну вкладку как активную после загрузки; если отмечено несколько, используется первая видимая.',
             'layout' => 'block',
             'button_label' => 'Добавить вкладку',
             'min' => 0,
@@ -175,6 +175,14 @@ function baltic_register_home_acf(): void
                     'name' => 'hidden',
                     'type' => 'true_false',
                     'message' => 'Не показывать эту вкладку на сайте',
+                    'default_value' => 0,
+                ],
+                [
+                    'key' => 'field_baltic_about_tab_initially_active',
+                    'label' => 'Активная вкладка после загрузки',
+                    'name' => 'initially_active',
+                    'type' => 'true_false',
+                    'message' => 'Показывать эту вкладку активной после загрузки страницы',
                     'default_value' => 0,
                 ],
                 [
@@ -529,6 +537,7 @@ function baltic_acf_about_tabs(): array
             'kind' => 'concept',
             'heading' => 'Концепция пивоварни',
             'text' => $concept_text,
+            'initially_active' => true,
             'active_timeline_item' => 1,
             'timeline_items' => [],
         ],
@@ -537,6 +546,7 @@ function baltic_acf_about_tabs(): array
             'kind' => 'history',
             'heading' => baltic_design_copy('history_heading'),
             'text' => baltic_design_copy('history_text'),
+            'initially_active' => false,
             'active_timeline_item' => 4,
             'timeline_items' => array_map(static function (array $date): array {
                 return [
@@ -552,6 +562,7 @@ function baltic_acf_about_tabs(): array
             'kind' => 'brewers',
             'heading' => 'Пивовары',
             'text' => 'Расскажите о команде пивоваров, их опыте, подходе к рецептурам и авторском взгляде на линейку Балтики Brew.',
+            'initially_active' => false,
             'active_timeline_item' => 1,
             'timeline_items' => [],
         ],
@@ -560,6 +571,7 @@ function baltic_acf_about_tabs(): array
             'kind' => 'breweries',
             'heading' => 'Наши пивоварни',
             'text' => 'Добавьте описание пивоварен, производственных площадок и особенностей технологического процесса.',
+            'initially_active' => false,
             'active_timeline_item' => 1,
             'timeline_items' => [],
         ],
@@ -635,7 +647,7 @@ function baltic_home_about_tabs(): array
             'kind' => $kind,
             'heading' => (string) ($row['heading'] ?? ''),
             'text' => (string) ($row['text'] ?? ''),
-            'initially_active' => false,
+            'initially_active' => !empty($row['initially_active']),
             'active_timeline_item' => $active_timeline_item,
             'timeline_items' => $events,
         ];
@@ -646,8 +658,11 @@ function baltic_home_about_tabs(): array
         return ($tab_order[$left['kind']] ?? 4) <=> ($tab_order[$right['kind']] ?? 4);
     });
 
+    $active_tab_index = array_search(true, array_column($tabs, 'initially_active'), true);
+    $active_tab_index = $active_tab_index === false ? 0 : $active_tab_index;
+
     foreach ($tabs as $tab_index => &$tab) {
-        $tab['initially_active'] = $tab_index === 0;
+        $tab['initially_active'] = $tab_index === $active_tab_index;
     }
     unset($tab);
 

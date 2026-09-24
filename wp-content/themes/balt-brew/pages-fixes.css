@@ -627,6 +627,9 @@ body {
 .timeline__track {
     top: calc(var(--timeline-rail-center) - 8px);
     height: 16px;
+    border: 0;
+    background: url('images/about-tabs/timeline-rail.png?v=2') center / 100% 100% no-repeat;
+    box-shadow: none;
 }
 
 .timeline__item,
@@ -2984,7 +2987,7 @@ body.feedback-modal-open {
         width: min(100vw, 1440px);
         height: min(1.180556vw, 17px);
         border: 0;
-        background: url('images/about-tabs/timeline-rail.png') center / 100% 100% no-repeat;
+        background: url('images/about-tabs/timeline-rail.png?v=2') center / 100% 100% no-repeat;
         box-shadow: none;
         transform: translateX(-50%);
     }
