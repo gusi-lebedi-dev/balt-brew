@@ -161,6 +161,17 @@ function baltic_option(string $field, $fallback = '')
     return $value;
 }
 
+function baltic_home_section_hidden(string $section): bool
+{
+    $sections = ['hero', 'products', 'about', 'news', 'video', 'author'];
+
+    if (!in_array($section, $sections, true)) {
+        return false;
+    }
+
+    return (bool) baltic_option('hide_' . $section, false);
+}
+
 function baltic_option_text(string $field, string $fallback = ''): string
 {
     return esc_html((string) baltic_option($field, $fallback));

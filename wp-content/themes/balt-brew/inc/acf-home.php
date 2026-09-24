@@ -51,6 +51,7 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
+        baltic_acf_hide_section_field('hero'),
         baltic_acf_file_field('hero_desktop_intro', 'Видео для компьютера: начало', 'mp4,webm'),
         baltic_acf_file_field('hero_desktop_loop', 'Видео для компьютера: повтор', 'mp4,webm'),
         baltic_acf_file_field('hero_mobile_intro', 'Видео для телефона: начало', 'mp4,webm'),
@@ -63,6 +64,7 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
+        baltic_acf_hide_section_field('products'),
         [
             'key' => 'field_baltic_product_items',
             'label' => 'Товары',
@@ -154,6 +156,7 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
+        baltic_acf_hide_section_field('about'),
         baltic_acf_text_field('about_title', 'Заголовок блока', 'о нас'),
         baltic_acf_image_field('about_background', 'Фон блока (компьютер)', 'Рекомендуемый размер: 1765 × 891 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_image_field('about_background_mobile', 'Фон блока (телефон)', 'Рекомендуемый размер: 460 × 560 px. Если изображение не выбрано, используется встроенный фон.'),
@@ -297,6 +300,7 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
+        baltic_acf_hide_section_field('news'),
         [
             'key' => 'field_baltic_news_admin_hint',
             'label' => 'Содержание новостей',
@@ -316,6 +320,7 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
+        baltic_acf_hide_section_field('video'),
         baltic_acf_image_field('video_background', 'Фон блока (компьютер)', 'Рекомендуемый размер: 1535 × 1024 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_image_field('video_background_mobile', 'Фон блока (телефон)', 'Рекомендуемый размер: 375 × 566 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_text_field('video_title', 'Название видео', 'Название видео'),
@@ -334,6 +339,7 @@ function baltic_register_home_acf(): void
             'type' => 'tab',
             'placement' => 'top',
         ],
+        baltic_acf_hide_section_field('author'),
         baltic_acf_image_field('author_background', 'Фон блока (компьютер)', 'Рекомендуемая ширина: 1920 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_image_field('author_background_mobile', 'Фон блока (телефон)', 'Рекомендуемая ширина: 460 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_text_field('author_title', 'Название секции', 'Слово автора'),
@@ -789,6 +795,18 @@ function baltic_default_product_rows(): array
             'bottle' => '',
         ];
     }, baltic_acf_products());
+}
+
+function baltic_acf_hide_section_field(string $section): array
+{
+    return [
+        'key' => 'field_baltic_hide_' . $section,
+        'label' => 'Скрыть с главной страницы',
+        'name' => 'hide_' . $section,
+        'type' => 'true_false',
+        'message' => 'Не показывать эту секцию на главной',
+        'default_value' => 0,
+    ];
 }
 
 function baltic_acf_text_field(string $name, string $label, string $default = '', string $instructions = ''): array

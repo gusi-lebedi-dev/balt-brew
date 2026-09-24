@@ -24,16 +24,37 @@
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
-        <!-- ================= HERO ================= -->
+<?php
+$home_sections_hidden = [];
+foreach (['hero', 'products', 'about', 'news', 'video', 'author'] as $home_section) {
+    $home_sections_hidden[$home_section] = baltic_home_section_hidden($home_section);
+}
+
+$about_tabs = function_exists('baltic_home_about_tabs') ? baltic_home_about_tabs() : [];
+$home_sections_hidden['about'] = $home_sections_hidden['about'] || !$about_tabs;
+
+$hero_scroll_target = '';
+foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', 'video' => '#video', 'author' => '#author'] as $home_section => $target) {
+    if (!$home_sections_hidden[$home_section]) {
+        $hero_scroll_target = $target;
+        break;
+    }
+}
+?>
+    <!-- ================= HERO ================= -->
+    <?php if (!$home_sections_hidden['hero']) : ?>
     <div class="hero">
         <video class="hero__bg hero__video hero__video--desktop hero__video--intro" playsinline muted preload="none" data-hero-format="desktop" data-hero-intro data-src="<?php echo baltic_option_asset('hero_desktop_intro', 'video/OPEN.mp4'); ?>" aria-hidden="true"></video>
         <video class="hero__bg hero__video hero__video--desktop hero__video--loop" playsinline muted preload="none" loop data-hero-format="desktop" data-hero-loop data-src="<?php echo baltic_option_asset('hero_desktop_loop', 'video/LOOP.mp4'); ?>" aria-hidden="true"></video>
         <video class="hero__bg hero__video hero__video--mobile hero__video--intro" playsinline muted preload="none" data-hero-format="mobile" data-hero-intro data-src="<?php echo baltic_option_asset('hero_mobile_intro', 'video/FINAL 9-16_OPEN.mp4'); ?>" aria-hidden="true"></video>
         <video class="hero__bg hero__video hero__video--mobile hero__video--loop" playsinline muted preload="none" loop data-hero-format="mobile" data-hero-loop data-src="<?php echo baltic_option_asset('hero_mobile_loop', 'video/FINAL 9-16_LOOP.mp4'); ?>" aria-hidden="true"></video>
-        <button class="hero__scroll" type="button" data-hero-scroll="#assortment" aria-label="Перейти к следующему разделу" hidden>
+        <?php if ($hero_scroll_target !== '') : ?>
+        <button class="hero__scroll" type="button" data-hero-scroll="<?php echo esc_attr($hero_scroll_target); ?>" aria-label="Перейти к следующему разделу" hidden>
             <img class="hero__scroll-icon" src="<?php echo esc_url(baltic_asset('assets/hero-arrow-finish.png')); ?>" alt="" aria-hidden="true">
         </button>
+        <?php endif; ?>
     </div>
+    <?php endif; ?>
 <div class="page">
 
     <!-- ================= LOADER ================= -->
@@ -87,17 +108,22 @@
         <!-- Mobile Menu -->
         <nav class="header__mobile-menu">
             <div class="container">
+                <?php if (!$home_sections_hidden['products']) : ?>
                 <a href="#assortment" class="header__mobile-link">Ассортимент</a>
+                <?php endif; ?>
+                <?php if (!$home_sections_hidden['about']) : ?>
                 <a href="#about" class="header__mobile-link">О нас</a>
+                <?php endif; ?>
             </div>
         </nav>
     </header>
     <!-- ================= PRODUCT ================= -->
+    <?php if (!$home_sections_hidden['products']) : ?>
     <?php get_template_part('template-parts/home-products'); ?>
+    <?php endif; ?>
 
     <!-- ================= ABOUT / HISTORY ================= -->
     <?php
-    $about_tabs = function_exists('baltic_home_about_tabs') ? baltic_home_about_tabs() : [];
     $about_active_tab = array_search(true, array_column($about_tabs, 'initially_active'), true);
     $about_active_tab = $about_active_tab === false ? 0 : $about_active_tab;
     $about_background = baltic_option_asset('about_background', 'images/about/about-desktop-bg.png');
@@ -108,7 +134,7 @@
         $about_background_mobile
     );
     ?>
-    <?php if ($about_tabs) : ?>
+    <?php if (!$home_sections_hidden['about'] && $about_tabs) : ?>
     <section class="section about" id="about" style="<?php echo esc_attr($about_background_style); ?>">
         <div class="about_wrapper">
             <h2 class="about__title gold-title"><?php echo baltic_option_text('about_title', 'о нас'); ?></h2>
@@ -202,6 +228,7 @@
 
     <?php endif; ?>
     <!-- ================= NEWS ================= -->
+    <?php if (!$home_sections_hidden['news']) : ?>
     <?php
     $latest_news = new WP_Query([
         'post_type' => 'baltic_news',
@@ -259,13 +286,15 @@
             <a class="news__all-link" href="<?php echo esc_url(baltic_content_index_url('baltic_news')); ?>"><?php echo baltic_option_text('news_all_label', 'Все новости'); ?> →</a>
         </div>
     </section>
+    <?php endif; ?>
 
     <!-- ================= VIDEO ================= -->
+    <?php if (!$home_sections_hidden['video']) : ?>
     <?php
     $video_background = baltic_option_asset('video_background', 'images/video/bg.png');
     $video_background_mobile = baltic_option_asset('video_background_mobile', 'images/video/video-mobile-bg.png');
     ?>
-    <section class="section video">
+    <section class="section video" id="video">
         <picture class="video__artwork" aria-hidden="true">
             <source media="(max-width: 768px)" srcset="<?php echo $video_background_mobile; ?>">
             <img src="<?php echo $video_background; ?>" alt="" class="video__bg">
@@ -281,8 +310,10 @@
             <p class="video__description"><?php echo baltic_option_html('video_description', 'Возможно короткое описание'); ?></p>
         </div>
     </section>
+    <?php endif; ?>
 
     <!-- ================= AUTHOR ================= -->
+    <?php if (!$home_sections_hidden['author']) : ?>
     <?php
     $latest_author_post = new WP_Query([
         'post_type' => 'post',
@@ -344,6 +375,7 @@
             <a class="author__all-link" href="<?php echo esc_url(baltic_content_index_url('post')); ?>"><?php echo baltic_option_text('author_all_label', 'Все записи'); ?> →</a>
         </div>
     </section>
+    <?php endif; ?>
 
     <!-- ================= FOOTER ================= -->
     <?php get_template_part('template-parts/site-footer'); ?>

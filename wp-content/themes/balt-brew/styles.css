@@ -310,8 +310,12 @@ div.page {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translate(-50%, 0);
+    transform: translate(-47%, -70%);
     transition: opacity 600ms ease, transform 600ms ease, visibility 0s;
+
+    @media screen and (max-width: 768px) {
+        transform: translate(-51%, -85%)
+    }
 }
 
 .hero__scroll-icon {
