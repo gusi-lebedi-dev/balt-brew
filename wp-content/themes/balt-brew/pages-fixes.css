@@ -2923,6 +2923,7 @@ body.feedback-modal-open {
 
     .about__content {
         position: static;
+        z-index: auto;
         flex: none;
         width: min(58.333333vw, 840px);
         margin: 0 auto;
@@ -2982,7 +2983,7 @@ body.feedback-modal-open {
     .about__panel--history .timeline.timeline--visible {
         --timeline-rail-center: min(7.8125vw, 112.5px);
         position: absolute;
-        z-index: 3;
+        z-index: 10;
         left: 50%;
         right: auto;
         bottom: 0;
