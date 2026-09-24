@@ -2841,7 +2841,7 @@ body.feedback-modal-open {
         z-index: 1;
         min-height: 0;
         height: 100%;
-        padding: min(5.972222vw, 86px) 0 0;
+        padding: min(5.972222vw, 125px) 0 0;
         justify-content: flex-start;
         gap: 0;
     }
