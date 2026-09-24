@@ -2474,8 +2474,7 @@ body.feedback-modal-open {
 .feedback-field input:focus,
 .feedback-field select:focus,
 .feedback-field textarea:focus {
-    border-color: #07153a;
-    box-shadow: 0 0 0 1px #07153a;
+    border-color: #0D1D66;
 }
 
 .feedback-field [aria-invalid='true'] {

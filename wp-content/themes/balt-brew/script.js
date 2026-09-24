@@ -719,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestController = controller;
 
         try {
-            const response = await fetch(form.action, {
+            const response = await fetch('/wp-admin/admin-ajax.php', {
                 method: 'POST',
                 body: new FormData(form),
                 credentials: 'same-origin',
