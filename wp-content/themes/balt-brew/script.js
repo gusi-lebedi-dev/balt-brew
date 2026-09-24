@@ -352,6 +352,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const eventIdAt = (index) => items[index]?.dataset.aboutEventTarget;
 
+        const centerTimelineItem = (item, smooth = false) => {
+            if (!item || !window.matchMedia('(max-width: 768px)').matches) return;
+
+            const itemCenter = item.offsetLeft + item.offsetWidth / 2;
+            const maxScrollLeft = Math.max(0, timeline.scrollWidth - timeline.clientWidth);
+            const nextScrollLeft = Math.max(
+                0,
+                Math.min(maxScrollLeft, itemCenter - timeline.clientWidth / 2)
+            );
+
+            timeline.scrollTo({
+                left: nextScrollLeft,
+                behavior: smooth && !reducedMotion.matches ? 'smooth' : 'auto'
+            });
+        };
+
         const showText = (eventId) => {
             texts.forEach((text) => {
                 const isActive = text.dataset.aboutEvent === eventId;
@@ -452,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateItems();
             animateText(previousEventId, nextEventId);
+            centerTimelineItem(items[activeIndex], true);
 
             if (moveFocus) items[activeIndex].focus({ preventScroll: true });
         };
@@ -508,6 +525,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateItems();
         showText(eventIdAt(activeIndex));
+        window.requestAnimationFrame(() => centerTimelineItem(items[activeIndex]));
+        window.addEventListener('resize', () => centerTimelineItem(items[activeIndex]));
         const handleMotionPreference = () => {
             if (reducedMotion.matches && finishTextTransition) finishTextTransition();
         };
