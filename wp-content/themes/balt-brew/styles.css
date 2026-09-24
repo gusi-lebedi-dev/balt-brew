@@ -310,11 +310,17 @@ div.page {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translate(-47%, -70%);
+    transform: translate(-46%, -70%);
     transition: opacity 600ms ease, transform 600ms ease, visibility 0s;
 
+    @media screen and (max-width: 1600px) {
+        transform: translate(-47%, -70%)
+    }
     @media screen and (max-width: 768px) {
-        transform: translate(-51%, -85%)
+        transform: translate(-52%, -85%)
+    }
+    @media screen and (max-width: 500px) {
+        transform: translate(-52%, -85%)
     }
 }
 
