@@ -419,23 +419,68 @@ function baltic_handle_feedback(): void
     set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
 
     $recipient = 'nr@gusi-lebedi.com';
-    $site_name = sanitize_text_field(wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES));
-    $subject = sprintf(
-        '[%s] Новое обращение — %s',
-        $site_name !== '' ? $site_name : 'Балтика Brew',
-        baltic_feedback_limit($values['product'], 100)
-    );
-    $body = baltic_feedback_email_body($values);
-    $headers = ['Content-Type: text/html; charset=UTF-8'];
-    if ($values['email'] !== '') {
-        $headers[] = 'Reply-To: ' . $values['email'];
-    }
+    $site_name = sanitize_text_field(
+    wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES)
+);
 
-    if (!wp_mail($recipient, $subject, $body, $headers)) {
-        wp_send_json_error(['message' => 'Не удалось отправить обращение. Попробуйте ещё раз позже.'], 500);
-    }
+$subject = sprintf(
+    '[%s] Новое обращение — %s',
+    $site_name !== '' ? $site_name : 'Балтика Brew',
+    baltic_feedback_limit($values['product'], 100)
+);
 
-    wp_send_json_success(['message' => 'Обращение принято.']);
+$body = baltic_feedback_email_body($values);
+
+$headers = [
+    'Content-Type: text/html; charset=UTF-8',
+];
+
+// Reply-To оставляем только если пользователь ввёл корректную почту
+if ($values['email'] !== '' && is_email($values['email'])) {
+    $headers[] = 'Reply-To: ' . $values['email'];
+}
+
+
+// Ловим реальную ошибку PHPMailer
+$mail_error = '';
+
+$mail_failed_callback = function ($wp_error) use (&$mail_error) {
+    if (is_wp_error($wp_error)) {
+        $mail_error = $wp_error->get_error_message();
+
+        error_log(
+            'Baltic feedback wp_mail_failed: ' .
+            $wp_error->get_error_message()
+        );
+
+        error_log(
+            'Baltic feedback wp_mail_failed data: ' .
+            print_r($wp_error->get_error_data(), true)
+        );
+    }
+};
+
+add_action('wp_mail_failed', $mail_failed_callback);
+
+$mail_sent = wp_mail(
+    $recipient,
+    $subject,
+    $body,
+    $headers
+);
+
+remove_action('wp_mail_failed', $mail_failed_callback);
+
+if (!$mail_sent) {
+    wp_send_json_error([
+        'message' => 'Не удалось отправить обращение. Попробуйте ещё раз позже.',
+        'debug'   => $mail_error !== '' ? $mail_error : 'wp_mail() returned false',
+    ], 500);
+}
+
+wp_send_json_success([
+    'message' => 'Обращение принято.'
+]);
 }
 
 add_action('wp_ajax_baltic_submit_feedback', 'baltic_handle_feedback');
