@@ -3092,3 +3092,11 @@ body.feedback-modal-open {
         height: min(5.922222vw, 85.28px);
     }
 }
+@media (max-width: 1023px) {
+    .video__description {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+    }
+}
