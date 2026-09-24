@@ -147,13 +147,18 @@
                 <div class="about__content">
                     <?php foreach ($about_tabs as $tab_index => $tab) : ?>
                         <?php
-                        $events = $tab['timeline_items'] ?: [];
+                        $tab_kind = (string) ($tab['kind'] ?? 'custom');
+                        $events = $tab_kind === 'history' ? ($tab['timeline_items'] ?: []) : [];
                         $active_event_index = $events ? max(0, min(count($events) - 1, ((int) ($tab['active_timeline_item'] ?? 1)) - 1)) : 0;
+                        $is_history_tab = $tab_kind === 'history';
+                        $panel_classes = 'about__panel about__panel--' . $tab_kind;
+                        if ($tab_index === $about_active_tab) {
+                            $panel_classes .= ' about__panel--active';
+                        }
                         ?>
-                        <?php $is_history_tab = trim((string) $tab['label']) === 'История'; ?>
-                        <div class="about__panel<?php echo $tab_index === $about_active_tab ? ' about__panel--active' : ''; ?><?php echo $is_history_tab ? ' about__panel--history' : ''; ?>" data-about-panel="<?php echo esc_attr((string) $tab_index); ?>" id="about-panel-<?php echo esc_attr((string) $tab_index); ?>" role="tabpanel" aria-labelledby="about-tab-<?php echo esc_attr((string) $tab_index); ?>">
+                        <div class="<?php echo esc_attr($panel_classes); ?>" data-about-panel="<?php echo esc_attr((string) $tab_index); ?>" id="about-panel-<?php echo esc_attr((string) $tab_index); ?>" role="tabpanel" aria-labelledby="about-tab-<?php echo esc_attr((string) $tab_index); ?>">
                             <div class="about__history-content">
-                                <?php if ($events) : ?>
+                                <?php if ($is_history_tab && $events) : ?>
                                     <?php foreach ($events as $event_index => $event) : ?>
                                         <div class="about__timeline-text<?php echo $event_index === $active_event_index ? ' about__timeline-text--active' : ''; ?>" data-about-event="<?php echo esc_attr((string) $event_index); ?>">
                                             <h3 class="about__content-title"><?php echo esc_html($event['heading'] ?: $tab['heading']); ?></h3>
@@ -168,7 +173,7 @@
                                 <?php endif; ?>
                             </div>
 
-                            <?php if ($events) : ?>
+                            <?php if ($is_history_tab && $events) : ?>
                                 <div class="timeline timeline--visible" style="--timeline-total: <?php echo esc_attr((string) count($events)); ?>;">
                                     <div class="timeline__strip">
                                         <div class="timeline__track" aria-hidden="true"></div>

@@ -486,25 +486,21 @@ function baltic_home_products(): array
 
 function baltic_acf_about_tabs(): array
 {
-    $event_text = 'В декабре 2010 года был сварен первый шоколадный стаут - Old New Year Chocolate Stout совместно с Дейвом Кларком (Tetley’s) и Евгением Толстовым (Victory ArtB).';
+    $concept_text = 'В нашей пивоваренной лаборатории многолетний опыт соединяется с технологическим прогрессом и щепоткой пивоваренного волшебства. При помощи магических машин мы довели рецептурные формулы до совершенства. Так, в союзе мастерства и волшебства рождается вкус Балтики Brew.' . "\n" . 'Это магия пива. Это Балтика Brew.';
 
     return [
         [
-            'label' => 'Наши пивовары',
-            'heading' => 'Наши пивовары',
-            'text' => 'Расскажите о команде пивоваров, их опыте, подходе к рецептурам и авторском взгляде на линейку Балтики Brew.',
+            'label' => 'Концепция',
+            'heading' => 'Концепция пивоварни',
+            'text' => $concept_text,
             'active_timeline_item' => 1,
-            'timeline_items' => [
-                ['year' => '2011', 'month' => 'сентябрь', 'heading' => 'Команда пивоваров', 'text' => $event_text],
-                ['year' => '2012', 'month' => 'апрель', 'heading' => 'Новые рецептуры', 'text' => $event_text],
-                ['year' => '2013', 'month' => 'июнь', 'heading' => 'Первые эксперименты', 'text' => $event_text],
-            ],
+            'timeline_items' => [],
         ],
         [
             'label' => 'История',
             'heading' => baltic_design_copy('history_heading'),
             'text' => baltic_design_copy('history_text'),
-            'active_timeline_item' => 2,
+            'active_timeline_item' => 4,
             'timeline_items' => array_map(static function (array $date): array {
                 return [
                     'year' => $date[0],
@@ -512,18 +508,21 @@ function baltic_acf_about_tabs(): array
                     'heading' => baltic_design_copy('history_heading'),
                     'text' => baltic_design_copy('history_text'),
                 ];
-            }, [['2010', 'декабрь'], ['2011', 'декабрь'], ['2011', 'май'], ['2011', 'июнь'], ['2012', 'апрель'], ['2012', 'август']]),
+            }, [['2010', 'декабрь'], ['2011', 'май'], ['2011', 'июнь'], ['2011', 'декабрь'], ['2012', 'апрель'], ['2012', 'август']]),
         ],
         [
-            'label' => 'Наши пивоварни',
+            'label' => 'Пивовары',
+            'heading' => 'Пивовары',
+            'text' => 'Расскажите о команде пивоваров, их опыте, подходе к рецептурам и авторском взгляде на линейку Балтики Brew.',
+            'active_timeline_item' => 1,
+            'timeline_items' => [],
+        ],
+        [
+            'label' => 'Пивоварни',
             'heading' => 'Наши пивоварни',
             'text' => 'Добавьте описание пивоварен, производственных площадок и особенностей технологического процесса.',
             'active_timeline_item' => 1,
-            'timeline_items' => [
-                ['year' => '2014', 'month' => 'май', 'heading' => 'Пивоварни', 'text' => $event_text],
-                ['year' => '2016', 'month' => 'август', 'heading' => 'Расширение', 'text' => $event_text],
-                ['year' => '2020', 'month' => 'декабрь', 'heading' => 'Современный этап', 'text' => $event_text],
-            ],
+            'timeline_items' => [],
         ],
     ];
 }
@@ -546,13 +545,27 @@ function baltic_home_about_tabs(): array
     }
 
     $tabs = [];
+    $label_aliases = [
+        'Наши пивовары' => 'Пивовары',
+        'Наши пивоварни' => 'Пивоварни',
+    ];
 
-    foreach ($rows as $index => $row) {
+    foreach ($rows as $row) {
         if (!is_array($row) || !empty($row['hidden'])) {
             continue;
         }
+
+        $label = trim((string) ($row['label'] ?? ''));
+        $label = $label_aliases[$label] ?? $label;
+        $kind = [
+            'Концепция' => 'concept',
+            'История' => 'history',
+            'Пивовары' => 'brewers',
+            'Пивоварни' => 'breweries',
+        ][$label] ?? 'custom';
+
         $events = [];
-        $event_rows = $row['timeline_items'] ?? [];
+        $event_rows = $kind === 'history' ? ($row['timeline_items'] ?? []) : [];
 
         foreach ((array) $event_rows as $event) {
             if (!is_array($event)) {
@@ -572,14 +585,46 @@ function baltic_home_about_tabs(): array
         }
 
         $tabs[] = [
-            'label' => (string) ($row['label'] ?? ''),
+            'label' => $label,
+            'kind' => $kind,
             'heading' => (string) ($row['heading'] ?? ''),
             'text' => (string) ($row['text'] ?? ''),
-            'initially_active' => $index === 1,
+            'initially_active' => false,
             'active_timeline_item' => $active_timeline_item,
             'timeline_items' => $events,
         ];
     }
+
+    $has_concept = false;
+    foreach ($tabs as $tab) {
+        if ($tab['kind'] === 'concept') {
+            $has_concept = true;
+            break;
+        }
+    }
+
+    if (!$has_concept && $tabs) {
+        $defaults = baltic_acf_about_tabs();
+        array_unshift($tabs, [
+            'label' => $defaults[0]['label'],
+            'kind' => 'concept',
+            'heading' => $defaults[0]['heading'],
+            'text' => $defaults[0]['text'],
+            'initially_active' => false,
+            'active_timeline_item' => 1,
+            'timeline_items' => [],
+        ]);
+    }
+
+    $tab_order = ['concept' => 0, 'history' => 1, 'brewers' => 2, 'breweries' => 3, 'custom' => 4];
+    usort($tabs, static function (array $left, array $right) use ($tab_order): int {
+        return ($tab_order[$left['kind']] ?? 4) <=> ($tab_order[$right['kind']] ?? 4);
+    });
+
+    foreach ($tabs as $tab_index => &$tab) {
+        $tab['initially_active'] = $tab_index === 0;
+    }
+    unset($tab);
 
     return $tabs;
 }
