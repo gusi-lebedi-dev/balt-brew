@@ -3008,7 +3008,7 @@ body.feedback-modal-open {
         --timeline-anchor: 75px;
         --timeline-item-width: 120px;
         --timeline-item-half: 40px;
-        --timeline-frame-width: min(calc(100vw - 32px), 768px);
+        --timeline-frame-width: min(53.333333vw, 768px);
         --timeline-viewport-width: var(--timeline-frame-width);
         position: absolute;
         z-index: 10;
