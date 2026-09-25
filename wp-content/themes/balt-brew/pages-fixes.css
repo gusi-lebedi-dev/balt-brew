@@ -2961,6 +2961,13 @@ body.feedback-modal-open {
         text-align: center;
         max-width: 620px;
         margin: 0 auto;
+
+        @media screen and (max-width: 1140px) {
+             max-width: 450px;
+        }
+        @media screen and (max-width: 830px) {
+             max-width: 350px;
+        }
     }
 
     .about__content-title {
