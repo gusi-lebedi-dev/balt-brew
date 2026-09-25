@@ -2946,7 +2946,7 @@ body.feedback-modal-open {
     }
 
     .about__history-content {
-        width: 100%;
+        width: max-content;
         max-width: none;
         height: auto;
         max-height: min(95.694444vw, 990px);
