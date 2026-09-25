@@ -2849,7 +2849,7 @@ body.feedback-modal-open {
             padding: 100px;
         }
         @media screen and (max-width: 1250px) {
-            padding: 65px;
+            padding: 100px;
         }
     }
 
