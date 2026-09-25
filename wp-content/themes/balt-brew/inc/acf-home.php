@@ -327,8 +327,8 @@ function baltic_register_home_acf(): void
         baltic_acf_url_field(
             'video_iframe_src',
             'Ссылка на видео для iframe',
-            'https://vkvideo.ru/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3',
-            'Вставьте только адрес из атрибута src, а не весь HTML-код iframe.'
+            'https://vk.com/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3',
+            'Вставьте только адрес из атрибута src, а не весь HTML-код iframe. Ссылки vkvideo.ru автоматически открываются через совместимый с мобильными устройствами домен vk.com.'
         ),
         baltic_acf_textarea_field('video_description', 'Описание', baltic_design_copy('video_description'), 4),
 

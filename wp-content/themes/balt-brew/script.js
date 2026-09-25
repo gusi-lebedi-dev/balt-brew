@@ -352,14 +352,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const eventIdAt = (index) => items[index]?.dataset.aboutEventTarget;
 
-        const centerTimelineItem = (item, smooth = false) => {
-            if (!item || !window.matchMedia('(max-width: 768px)').matches) return;
+        const updateTimelineViewport = () => {
+            timeline.style.setProperty('--timeline-viewport-width', `${timeline.clientWidth}px`);
+        };
+
+        const alignTimelineItem = (item, smooth = false) => {
+            if (!item) return;
 
             const itemCenter = item.offsetLeft + item.offsetWidth / 2;
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            const desktopAnchor = Number.parseFloat(
+                getComputedStyle(timeline).getPropertyValue('--timeline-anchor')
+            );
+            const targetAnchor = isMobile
+                ? timeline.clientWidth / 2
+                : (Number.isFinite(desktopAnchor) ? desktopAnchor : 64);
             const maxScrollLeft = Math.max(0, timeline.scrollWidth - timeline.clientWidth);
             const nextScrollLeft = Math.max(
                 0,
-                Math.min(maxScrollLeft, itemCenter - timeline.clientWidth / 2)
+                Math.min(maxScrollLeft, itemCenter - targetAnchor)
             );
 
             timeline.scrollTo({
@@ -468,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateItems();
             animateText(previousEventId, nextEventId);
-            centerTimelineItem(items[activeIndex], true);
+            alignTimelineItem(items[activeIndex], true);
 
             if (moveFocus) items[activeIndex].focus({ preventScroll: true });
         };
@@ -523,10 +534,83 @@ document.addEventListener('DOMContentLoaded', () => {
             event.stopPropagation();
         }, true);
 
+        let pointerDrag = null;
+        let suppressPointerClick = false;
+        let suppressPointerClickTimer = 0;
+        const finishPointerDrag = (event) => {
+            if (!pointerDrag || event.pointerId !== pointerDrag.id) return;
+            if (timeline.hasPointerCapture(event.pointerId)) {
+                timeline.releasePointerCapture(event.pointerId);
+            }
+            suppressPointerClick = pointerDrag.moved;
+            window.clearTimeout(suppressPointerClickTimer);
+            if (suppressPointerClick) {
+                suppressPointerClickTimer = window.setTimeout(() => {
+                    suppressPointerClick = false;
+                }, 100);
+            }
+            pointerDrag = null;
+            timeline.classList.remove('timeline--dragging');
+        };
+
+        timeline.addEventListener('pointerdown', (event) => {
+            if (event.pointerType === 'touch' || event.button !== 0) return;
+            pointerDrag = {
+                id: event.pointerId,
+                x: event.clientX,
+                scrollLeft: timeline.scrollLeft,
+                moved: false
+            };
+        });
+        timeline.addEventListener('pointermove', (event) => {
+            if (!pointerDrag || event.pointerId !== pointerDrag.id) return;
+            const distance = event.clientX - pointerDrag.x;
+            if (!pointerDrag.moved && Math.abs(distance) < 4) return;
+            pointerDrag.moved = true;
+            if (!timeline.hasPointerCapture(event.pointerId)) {
+                timeline.setPointerCapture(event.pointerId);
+            }
+            timeline.classList.add('timeline--dragging');
+            timeline.scrollLeft = pointerDrag.scrollLeft - distance;
+            event.preventDefault();
+        });
+        timeline.addEventListener('pointerup', finishPointerDrag);
+        timeline.addEventListener('pointercancel', finishPointerDrag);
+        timeline.addEventListener('pointerleave', (event) => {
+            if (!pointerDrag || pointerDrag.moved || event.pointerId !== pointerDrag.id) return;
+            pointerDrag = null;
+        });
+        timeline.addEventListener('click', (event) => {
+            if (!suppressPointerClick) return;
+            suppressPointerClick = false;
+            window.clearTimeout(suppressPointerClickTimer);
+            event.preventDefault();
+            event.stopPropagation();
+        }, true);
+
+        timeline.addEventListener('wheel', (event) => {
+            if (window.matchMedia('(max-width: 768px)').matches) return;
+            const distance = Math.abs(event.deltaX) > Math.abs(event.deltaY)
+                ? event.deltaX
+                : event.deltaY;
+            if (!distance) return;
+
+            const maxScrollLeft = Math.max(0, timeline.scrollWidth - timeline.clientWidth);
+            const nextScrollLeft = Math.max(0, Math.min(maxScrollLeft, timeline.scrollLeft + distance));
+            if (nextScrollLeft === timeline.scrollLeft) return;
+
+            timeline.scrollLeft = nextScrollLeft;
+            event.preventDefault();
+        }, { passive: false });
+
         updateItems();
         showText(eventIdAt(activeIndex));
-        window.requestAnimationFrame(() => centerTimelineItem(items[activeIndex]));
-        window.addEventListener('resize', () => centerTimelineItem(items[activeIndex]));
+        updateTimelineViewport();
+        window.requestAnimationFrame(() => alignTimelineItem(items[activeIndex]));
+        window.addEventListener('resize', () => {
+            updateTimelineViewport();
+            alignTimelineItem(items[activeIndex]);
+        });
         const handleMotionPreference = () => {
             if (reducedMotion.matches && finishTextTransition) finishTextTransition();
         };

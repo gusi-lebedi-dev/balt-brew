@@ -335,7 +335,7 @@ body {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: unset;
 }
 
 .content-document__body {
@@ -1890,7 +1890,7 @@ body {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: unset;
     transition: transform 250ms ease;
 }
 
@@ -2942,7 +2942,7 @@ body.feedback-modal-open {
         width: 100%;
         max-width: none;
         height: auto;
-        max-height: min(95.694444vw, 910px);
+        max-height: min(95.694444vw, 990px);
         margin: 0;
         padding: 0;
         left: auto;
@@ -2966,7 +2966,7 @@ body.feedback-modal-open {
     .about__content-text {
         width: min(44.444444vw, 640px);
         max-width: 100%;
-        max-height: min(20.25vw, 475px);
+        max-height: 400px;
         margin: 0 auto;
         font-weight: 400;
         font-size: min(1.666667vw, 24px);
@@ -2990,42 +2990,67 @@ body.feedback-modal-open {
     .about__panel--history .timeline,
     .about__panel--history .timeline.timeline--visible {
         --timeline-rail-center: min(7.8125vw, 112.5px);
+        --timeline-anchor: 64px;
+        --timeline-item-width: 112px;
+        --timeline-item-half: 56px;
+        --timeline-frame-width: min(calc(100vw - 32px), 768px);
+        --timeline-viewport-width: var(--timeline-frame-width);
         position: absolute;
         z-index: 10;
         left: 50%;
         right: auto;
         bottom: 0;
-        width: min(100vw, 1440px);
+        width: var(--timeline-frame-width);
         height: min(11.666667vw, 168px);
         flex-basis: min(11.666667vw, 168px);
         margin: 0;
         padding: 0;
-        overflow: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        cursor: grab;
+        user-select: none;
         transform: translateX(-50%);
+    }
+
+    .about__panel--history .timeline::-webkit-scrollbar {
+        display: none;
+    }
+
+    .about__panel--history .timeline.timeline--dragging {
+        cursor: grabbing;
+        scroll-behavior: auto;
     }
 
     .about__panel--history .timeline__strip {
         position: relative;
         left: auto;
         display: grid;
-        grid-template-columns: repeat(var(--timeline-total), minmax(0, 1fr));
+        grid-template-columns: repeat(var(--timeline-total), var(--timeline-item-width));
         align-items: stretch;
-        width: min(55.694444vw, 802px);
+        width: max-content;
+        min-width: 100%;
+        max-width: none;
         height: 100%;
-        margin: 0 auto;
+        margin: 0;
         gap: 0;
-        padding: 0;
+        padding-top: 0;
+        padding-right: max(0px, calc(var(--timeline-viewport-width) - var(--timeline-anchor) - var(--timeline-item-half)));
+        padding-bottom: 0;
+        padding-left: max(0px, calc(var(--timeline-anchor) - var(--timeline-item-half)));
+        box-sizing: border-box;
     }
 
     .about__panel--history .timeline__track {
         top: calc(var(--timeline-rail-center) - min(0.590278vw, 8.5px));
-        left: 50%;
-        width: min(100vw, 1440px);
+        left: 0;
+        width: 100%;
         height: min(1.180556vw, 17px);
         border: 0;
         background: url('images/about-tabs/timeline-rail.png?v=2') center / 100% 100% no-repeat;
         box-shadow: none;
-        transform: translateX(-50%);
+        transform: none;
     }
 
     .about__panel--history .timeline__item,

@@ -293,6 +293,17 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
     <?php
     $video_background = baltic_option_asset('video_background', 'images/video/bg.png');
     $video_background_mobile = baltic_option_asset('video_background_mobile', 'images/video/video-mobile-bg.png');
+    $video_iframe_src = (string) baltic_option(
+        'video_iframe_src',
+        'https://vk.com/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3'
+    );
+    // The vkvideo.ru embed endpoint loops through redirects for mobile user agents.
+    // Keep existing ACF values working by serving VK embeds through vk.com instead.
+    $video_iframe_src = preg_replace(
+        '#^https?://(?:www\.)?vkvideo\.ru/video_ext\.php#i',
+        'https://vk.com/video_ext.php',
+        trim($video_iframe_src)
+    );
     ?>
     <section class="section video" id="video">
         <picture class="video__artwork" aria-hidden="true">
@@ -304,7 +315,7 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
             <h3 class="video__title"><?php echo baltic_option_text('video_title', 'Название видео'); ?></h3>
 
             <div class="video__frame">
-                <iframe title="Видео Балтика Brew" loading="lazy" src="<?php echo baltic_option_url('video_iframe_src', 'https://vkvideo.ru/video_ext.php?oid=-206889227&id=456240392&hash=fbe8cad821c65ff9&hd=3'); ?>" width="1280" height="720" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>
+                <iframe title="Видео Балтика Brew" loading="lazy" src="<?php echo esc_url($video_iframe_src); ?>" width="1280" height="720" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" frameborder="0" allowfullscreen></iframe>
             </div>
 
             <p class="video__description"><?php echo baltic_option_html('video_description', 'Возможно короткое описание'); ?></p>
