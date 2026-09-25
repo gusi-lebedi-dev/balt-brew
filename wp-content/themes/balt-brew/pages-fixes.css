@@ -3023,6 +3023,26 @@ body.feedback-modal-open {
         scroll-behavior: auto;
     }
 
+    /* Keep the rail full-width while the dates scroll inside their narrow frame. */
+    .about__panel--history.about__panel--active::after {
+        content: '';
+        position: absolute;
+        z-index: 9;
+        left: 50%;
+        bottom: calc(
+            min(11.666667vw, 168px)
+            - min(7.8125vw, 112.5px)
+            - min(0.590278vw, 8.5px)
+        );
+        width: min(100vw, 1440px);
+        height: min(1.180556vw, 17px);
+        border: 0;
+        background: url('images/about-tabs/timeline-rail.png?v=2') center / 100% 100% no-repeat;
+        box-shadow: none;
+        pointer-events: none;
+        transform: translateX(-50%);
+    }
+
     .about__panel--history .timeline__strip {
         position: relative;
         left: auto;
@@ -3043,14 +3063,7 @@ body.feedback-modal-open {
     }
 
     .about__panel--history .timeline__track {
-        top: calc(var(--timeline-rail-center) - min(0.590278vw, 8.5px));
-        left: 0;
-        width: 100%;
-        height: min(1.180556vw, 17px);
-        border: 0;
-        background: url('images/about-tabs/timeline-rail.png?v=2') center / 100% 100% no-repeat;
-        box-shadow: none;
-        transform: none;
+        display: none;
     }
 
     .about__panel--history .timeline__item,
