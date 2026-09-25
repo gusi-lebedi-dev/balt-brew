@@ -3103,6 +3103,7 @@ body.feedback-modal-open {
         flex-direction: row-reverse;
         gap: min(0.277778vw, 4px);
         line-height: 1;
+        min-height: 23px;
     }
 
     .about__panel--history .timeline__year {
