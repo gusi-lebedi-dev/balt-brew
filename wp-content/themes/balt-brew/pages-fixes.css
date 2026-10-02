@@ -3078,6 +3078,7 @@ body.feedback-modal-open {
 
     .about__panel--history .timeline,
     .about__panel--history .timeline.timeline--visible {
+        --timeline-rail-center: min(9.236111vw, 133px);
         --timeline-anchor: 50%;
         --timeline-item-width: min(8.333333vw, 120px);
         --timeline-active-item-width: min(9.861111vw, 142px);
@@ -3117,9 +3118,9 @@ body.feedback-modal-open {
     .about__panel--history .timeline__fade {
         position: absolute;
         z-index: 2;
-        bottom: min(1.666667vw, 24px);
+        bottom: 0;
         display: block;
-        height: min(8.333333vw, 120px);
+        height: min(10vw, 144px);
         background-position: center;
         background-repeat: no-repeat;
         background-size: 100% 100%;
@@ -3134,7 +3135,7 @@ body.feedback-modal-open {
 
     .about__panel--history .timeline__fade--right {
         right: 0;
-        width: min(8.958333vw, 129px);
+        width: min(7.916667vw, 114px);
         background-image: url('images/about-tabs/timeline-fade-right.svg');
     }
 
@@ -3241,6 +3242,28 @@ body.feedback-modal-open {
         height: min(5.922222vw, 85.28px);
     }
 }
+
+@media (min-width: 769px) {
+    .hero__scroll {
+        right: 60px;
+        bottom: 60px;
+        left: auto;
+        width: 100px;
+        height: 100px;
+        background-size: 100px 100px;
+        transform: translateY(12px);
+    }
+
+    .hero__scroll--visible {
+        transform: none;
+    }
+
+    .hero__scroll-icon {
+        width: 100px;
+        height: 100px;
+    }
+}
+
 @media (min-width: 769px) and (max-width: 1023px) {
     .video__description {
         display: -webkit-box;
