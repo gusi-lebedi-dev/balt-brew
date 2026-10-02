@@ -287,7 +287,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 aboutPanels.forEach((panel) => {
                     panel.classList.toggle('about__panel--active', panel.dataset.aboutPanel === tabId);
                 });
-                requestAnimationFrame(() => revealAboutTab(tab));
+                requestAnimationFrame(() => {
+                    revealAboutTab(tab);
+                    const activePanel = Array.from(aboutPanels).find((panel) => panel.dataset.aboutPanel === tabId);
+                    activePanel?.dispatchEvent(new Event('about:panel-visible'));
+                });
             });
             tab.addEventListener('keydown', (event) => {
                 const index = tabs.indexOf(tab);
@@ -357,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const alignTimelineItem = (item, smooth = false) => {
-            if (!item) return;
+            if (!item || timeline.clientWidth === 0) return;
 
             const itemCenter = item.offsetLeft + item.offsetWidth / 2;
             const targetAnchor = timeline.clientWidth / 2;
@@ -599,12 +603,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateItems();
         showText(eventIdAt(activeIndex));
-        updateTimelineViewport();
-        window.requestAnimationFrame(() => alignTimelineItem(items[activeIndex]));
-        window.addEventListener('resize', () => {
-            updateTimelineViewport();
-            alignTimelineItem(items[activeIndex]);
-        });
+        let alignmentFrame = 0;
+        const syncTimelineAlignment = () => {
+            window.cancelAnimationFrame(alignmentFrame);
+            alignmentFrame = window.requestAnimationFrame(() => {
+                alignmentFrame = 0;
+                if (timeline.clientWidth === 0) return;
+                updateTimelineViewport();
+                alignTimelineItem(items[activeIndex]);
+            });
+        };
+        syncTimelineAlignment();
+        panel.addEventListener('about:panel-visible', syncTimelineAlignment);
+        window.addEventListener('resize', syncTimelineAlignment);
+        if ('ResizeObserver' in window) {
+            const timelineResizeObserver = new ResizeObserver(syncTimelineAlignment);
+            timelineResizeObserver.observe(timeline);
+        }
         const handleMotionPreference = () => {
             if (reducedMotion.matches && finishTextTransition) finishTextTransition();
         };

@@ -3080,7 +3080,8 @@ body.feedback-modal-open {
     .about__panel--history .timeline.timeline--visible {
         --timeline-anchor: 50%;
         --timeline-item-width: min(8.333333vw, 120px);
-        --timeline-item-half: calc(var(--timeline-item-width) / 2);
+        --timeline-active-item-width: min(9.861111vw, 142px);
+        --timeline-item-half: calc(var(--timeline-active-item-width) / 2);
         --timeline-viewport-width: var(--timeline-frame-width);
         position: relative;
         z-index: 1;
@@ -3153,8 +3154,7 @@ body.feedback-modal-open {
     .about__panel--history .timeline__strip {
         position: relative;
         left: auto;
-        display: grid;
-        grid-template-columns: repeat(var(--timeline-total), var(--timeline-item-width));
+        display: flex;
         align-items: stretch;
         width: max-content;
         min-width: 100%;
@@ -3178,7 +3178,8 @@ body.feedback-modal-open {
         position: relative;
         inset: auto !important;
         display: block;
-        width: 100%;
+        flex: 0 0 var(--timeline-item-width);
+        width: var(--timeline-item-width);
         height: 100%;
         margin: 0;
         padding: 0;
@@ -3186,15 +3187,17 @@ body.feedback-modal-open {
     }
 
     .about__panel--history .timeline__item--active {
-        width: 100%;
+        flex-basis: var(--timeline-active-item-width);
+        width: var(--timeline-active-item-width);
     }
 
     .about__panel--history .timeline__date {
         bottom: calc(100% - var(--timeline-rail-center) + var(--timeline-dot-half) + min(0.555556vw, 8px));
-        flex-direction: row-reverse;
+        flex-direction: column;
         gap: min(0.277778vw, 4px);
         line-height: 1;
         min-height: 23px;
+        transform: translateX(-50%);
     }
 
     .about__panel--history .timeline__year {
@@ -3217,15 +3220,15 @@ body.feedback-modal-open {
     }
 
     .about__panel--history .timeline__item--active .timeline__date {
-        bottom: calc(100% - var(--timeline-rail-center) + var(--timeline-dot-half) + min(0.416667vw, 6px));
+        bottom: calc(100% - var(--timeline-rail-center) + var(--timeline-dot-half) + min(0.555556vw, 8px));
     }
 
     .about__panel--history .timeline__item--active .timeline__year {
-        font-size: min(1.666667vw, 24px);
+        font-size: min(2.5vw, 36px);
     }
 
     .about__panel--history .timeline__item--active .timeline__month {
-        font-size: min(1.111111vw, 16px);
+        font-size: min(1.666667vw, 24px);
     }
 
     .about__panel--history .timeline__dot {
