@@ -360,13 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!item) return;
 
             const itemCenter = item.offsetLeft + item.offsetWidth / 2;
-            const isMobile = window.matchMedia('(max-width: 768px)').matches;
-            const desktopAnchor = Number.parseFloat(
-                getComputedStyle(timeline).getPropertyValue('--timeline-anchor')
-            );
-            const targetAnchor = isMobile
-                ? timeline.clientWidth / 2
-                : (Number.isFinite(desktopAnchor) ? desktopAnchor : 64);
+            const targetAnchor = timeline.clientWidth / 2;
             const maxScrollLeft = Math.max(0, timeline.scrollWidth - timeline.clientWidth);
             const nextScrollLeft = Math.max(
                 0,

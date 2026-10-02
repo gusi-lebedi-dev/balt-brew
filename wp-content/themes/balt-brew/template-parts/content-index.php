@@ -64,7 +64,10 @@ if ($current_page > 1 && $current_page > (int) $content_items->max_num_pages) {
                         </span>
                         <span class="content-card__title"><?php the_title(); ?></span>
                         <span class="content-card__excerpt"><?php echo esc_html($excerpt); ?></span>
-                        <time class="content-card__date" datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d.m.Y')); ?></time>
+                        <span class="content-card__meta">
+                            <span class="content-card__more">Подробнее</span>
+                            <time class="content-card__date" datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d.m.Y')); ?></time>
+                        </span>
                     </a>
                 <?php endwhile; ?>
             </div>

@@ -200,23 +200,28 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
                             </div>
 
                             <?php if ($is_history_tab && $events) : ?>
-                                <div class="timeline timeline--visible" style="--timeline-total: <?php echo esc_attr((string) count($events)); ?>;">
-                                    <div class="timeline__strip">
-                                        <div class="timeline__track" aria-hidden="true"></div>
-                                        <?php foreach ($events as $event_index => $event) : ?>
-                                            <button
-                                                type="button"
-                                                class="timeline__item<?php echo $event_index === $active_event_index ? ' timeline__item--active' : ''; ?>"
-                                                data-about-event-target="<?php echo esc_attr((string) $event_index); ?>"
-                                            >
-                                                <span class="timeline__date">
-                                                    <span class="timeline__year"><?php echo esc_html($event['year']); ?></span>
-                                                    <span class="timeline__month"><?php echo esc_html($event['month']); ?></span>
-                                                </span>
-                                                <span class="timeline__dot" aria-hidden="true"></span>
-                                            </button>
-                                        <?php endforeach; ?>
+                                <div class="timeline__viewport">
+                                    <span class="timeline__rail" aria-hidden="true"></span>
+                                    <div class="timeline timeline--visible" style="--timeline-total: <?php echo esc_attr((string) count($events)); ?>;">
+                                        <div class="timeline__strip">
+                                            <div class="timeline__track" aria-hidden="true"></div>
+                                            <?php foreach ($events as $event_index => $event) : ?>
+                                                <button
+                                                    type="button"
+                                                    class="timeline__item<?php echo $event_index === $active_event_index ? ' timeline__item--active' : ''; ?>"
+                                                    data-about-event-target="<?php echo esc_attr((string) $event_index); ?>"
+                                                >
+                                                    <span class="timeline__date">
+                                                        <span class="timeline__year"><?php echo esc_html($event['year']); ?></span>
+                                                        <span class="timeline__month"><?php echo esc_html($event['month']); ?></span>
+                                                    </span>
+                                                    <span class="timeline__dot" aria-hidden="true"></span>
+                                                </button>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
+                                    <span class="timeline__fade timeline__fade--left" aria-hidden="true"></span>
+                                    <span class="timeline__fade timeline__fade--right" aria-hidden="true"></span>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -275,7 +280,10 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
                                 <a href="<?php echo esc_url($news_permalink); ?>"><?php the_title(); ?></a>
                             </h3>
                             <p class="news-card__excerpt"><?php echo esc_html($news_excerpt); ?></p>
-                            <time class="news-card__date" datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d.m.Y')); ?></time>
+                            <div class="news-card__meta">
+                                <a class="news-card__more" href="<?php echo esc_url($news_permalink); ?>">Подробнее</a>
+                                <time class="news-card__date" datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d.m.Y')); ?></time>
+                            </div>
                         </article>
                     <?php endwhile; ?>
                 </div>
@@ -369,7 +377,10 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
                             <a href="<?php echo esc_url($author_permalink); ?>"><?php the_title(); ?></a>
                         </h3>
                         <p class="author-card__text"><?php echo esc_html($author_excerpt); ?></p>
-                        <time class="author-card__date" datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d.m.Y')); ?></time>
+                        <div class="author-card__meta">
+                            <a class="author-card__more" href="<?php echo esc_url($author_permalink); ?>">Подробнее</a>
+                            <time class="author-card__date" datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo esc_html(get_the_date('d.m.Y')); ?></time>
+                        </div>
                     </article>
                 <?php endwhile; ?>
                 <?php wp_reset_postdata(); ?>
