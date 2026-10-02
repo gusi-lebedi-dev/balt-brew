@@ -3130,7 +3130,8 @@ body.feedback-modal-open {
     .about__panel--history .timeline__fade--left {
         left: 0;
         width: min(7.916667vw, 114px);
-        background-image: url('images/about-tabs/timeline-fade-left.svg');
+        background-image: url('images/about-tabs/timeline-fade-right.svg');
+        transform: scaleX(-1);
     }
 
     .about__panel--history .timeline__fade--right {
