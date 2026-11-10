@@ -3320,24 +3320,27 @@ body.feedback-modal-open {
 
     .about__panel--history .timeline,
     .about__panel--history .timeline.timeline--visible {
+        --timeline-item-half: calc(var(--timeline-item-width) / 2);
         width: 100%;
         max-width: 100%;
         margin: 0;
+        overflow-x: auto;
         scroll-behavior: auto;
         transform: none;
-        cursor: default;
+        cursor: grab;
     }
 
     .about__panel--history .timeline__strip {
-        width: 100%;
+        width: max-content;
         min-width: 100%;
-        padding: 0;
+        padding-left: max(0px, calc(var(--timeline-anchor) - var(--timeline-item-half)));
+        padding-right: max(0px, calc(var(--timeline-viewport-width) - var(--timeline-anchor) - var(--timeline-item-half)));
     }
 
     .about__panel--history .timeline__item,
     .about__panel--history .timeline__item--active {
-        flex: 1 1 0;
-        width: auto;
+        flex: 0 0 var(--timeline-item-width);
+        width: var(--timeline-item-width);
         min-width: 0;
         cursor: pointer;
     }

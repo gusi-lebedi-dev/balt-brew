@@ -391,7 +391,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!timeline || !content || !items.length || !texts.length) return;
 
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-        const timelineScrollable = window.matchMedia('(max-width: 768px)');
         let activeIndex = Math.max(0, items.findIndex((item) => item.classList.contains('timeline__item--active')));
         let finishTextTransition = null;
         let activeTextIncomingLayer = null;
@@ -408,11 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const alignTimelineItem = (item, smooth = false) => {
             if (!item || timeline.clientWidth === 0) return;
-            if (!timelineScrollable.matches) {
-                timeline.scrollLeft = 0;
-                return;
-            }
-
             const itemCenter = item.offsetLeft + item.offsetWidth / 2;
             const targetAnchor = timeline.clientWidth / 2;
             const maxScrollLeft = Math.max(0, timeline.scrollWidth - timeline.clientWidth);
@@ -529,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateItems();
             animateText(previousEventId, nextEventId);
-            alignTimelineItem(items[activeIndex], true);
+            alignTimelineItem(items[activeIndex]);
 
             if (moveFocus) items[activeIndex].focus({ preventScroll: true });
         };
