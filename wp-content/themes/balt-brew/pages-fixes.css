@@ -3071,10 +3071,10 @@ body.feedback-modal-open {
         width: 100%;
         margin-inline: auto;
         text-align: center;
-        max-width: 620px;
+        max-width: 720px;
 
         @media screen and (max-width: 1140px) {
-             max-width: 450px;
+             max-width: 550px;
         }
         @media screen and (max-width: 830px) {
              max-width: 350px;
@@ -3291,6 +3291,57 @@ body.feedback-modal-open {
     }
 }
 
+/* Keep history copy above the rail and keep desktop dates fixed in place. */
+@media (min-width: 769px) {
+    .about:has(.about__panel--history.about__panel--active) .about_wrapper {
+        padding-bottom: calc(min(13.888889vw, 200px) + 16px);
+    }
+
+    .about:has(.about__panel--history.about__panel--active) .about__content {
+        display: flex;
+        flex: 1 1 0;
+        min-height: 0;
+        flex-direction: column;
+    }
+
+    .about__panel--history.about__panel--active {
+        flex: 1 1 0;
+        min-height: 0;
+    }
+
+    .about__panel--history.about__panel--active .about__history-content {
+        flex: 1 1 0;
+        min-height: 0;
+        height: auto;
+        max-height: none;
+        padding-bottom: 0;
+        scrollbar-gutter: stable;
+    }
+
+    .about__panel--history .timeline,
+    .about__panel--history .timeline.timeline--visible {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        scroll-behavior: auto;
+        transform: none;
+        cursor: default;
+    }
+
+    .about__panel--history .timeline__strip {
+        width: 100%;
+        min-width: 100%;
+        padding: 0;
+    }
+
+    .about__panel--history .timeline__item,
+    .about__panel--history .timeline__item--active {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        cursor: pointer;
+    }
+}
 @media (min-width: 769px) {
     .hero__scroll {
         right: 60px;
@@ -3368,7 +3419,7 @@ body.feedback-modal-open {
     transform: none;
     height: 140px;
     padding: 10px clamp(32px, 6.944444vw, 100px);
-    background: linear-gradient(90deg, #07153a 0%, #0d1d66 34.8%, #091a47 100%);
+    /* background: linear-gradient(90deg, #07153a 0%, #0d1d66 34.8%, #091a47 100%); */
 }
 
 .header .header__container {
@@ -3492,12 +3543,14 @@ body.feedback-modal-open {
 
     .header .header__burger {
         grid-column: 3;
+        position: relative;
         display: flex;
         flex: none;
         align-items: center;
         justify-content: flex-end;
         justify-self: end;
-        width: 35px;
+        width: 44px;
+        height: 44px;
         padding: 0;
         border: 0;
         background: none;
@@ -3508,6 +3561,33 @@ body.feedback-modal-open {
         display: block;
         width: 26px;
         height: 26px;
+    }
+
+    .header .header__burger::before,
+    .header .header__burger::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 0;
+        width: 26px;
+        height: 2px;
+        border-radius: 2px;
+        background: #fff;
+        opacity: 0;
+    }
+
+    .header .header__burger[aria-expanded="true"] .header__burger-icon {
+        opacity: 0;
+    }
+
+    .header .header__burger[aria-expanded="true"]::before {
+        opacity: 1;
+        transform: translateY(-50%) rotate(45deg);
+    }
+
+    .header .header__burger[aria-expanded="true"]::after {
+        opacity: 1;
+        transform: translateY(-50%) rotate(-45deg);
     }
 
     .header .header__mobile-menu {
