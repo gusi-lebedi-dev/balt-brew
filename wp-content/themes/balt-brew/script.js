@@ -198,22 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('.header');
     if (header) {
         const SCROLL_THRESHOLD = 160;
-        let lastScrollY = window.scrollY;
         let ticking = false;
 
         const updateHeader = () => {
-            const currentScrollY = window.scrollY;
-            header.classList.toggle('header--scrolled', currentScrollY > SCROLL_THRESHOLD);
-
-            if (header.classList.contains('header--menu-open')) {
-                header.classList.remove('header--hidden');
-            } else if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
-                header.classList.add('header--hidden');
-            } else {
-                header.classList.remove('header--hidden');
-            }
-
-            lastScrollY = currentScrollY;
+            header.classList.toggle('header--scrolled', window.scrollY > SCROLL_THRESHOLD);
             ticking = false;
         };
 
@@ -232,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (burger && mobileMenu) {
             const setMenuOpen = (open) => {
                 header.classList.toggle('header--menu-open', open);
-                header.classList.remove('header--hidden');
                 mobileMenu.classList.toggle('header__mobile-menu--open', open);
                 burger.setAttribute('aria-expanded', String(open));
                 burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');

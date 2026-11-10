@@ -58,16 +58,19 @@ $about_tabs = function_exists('baltic_home_about_tabs') ? baltic_home_about_tabs
 $home_sections_hidden['about'] = $home_sections_hidden['about'] || !$about_tabs;
 
 $hero_scroll_target = '';
-foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', 'video' => '#video', 'author' => '#author'] as $home_section => $target) {
+foreach (['products', 'about', 'news', 'video', 'author'] as $home_section) {
     if (!$home_sections_hidden[$home_section]) {
-        $hero_scroll_target = $target;
+        $hero_scroll_target = '#' . baltic_home_anchor($home_section);
         break;
     }
 }
 ?>
+    <!-- ================= HEADER ================= -->
+    <?php get_template_part('template-parts/site-header'); ?>
+
     <!-- ================= HERO ================= -->
     <?php if (!$home_sections_hidden['hero']) : ?>
-    <div class="hero">
+    <div class="hero" id="<?php echo esc_attr(baltic_home_anchor('hero')); ?>">
         <video class="hero__bg hero__video hero__video--desktop hero__video--intro" playsinline muted preload="none" data-hero-format="desktop" data-hero-intro data-src="<?php echo baltic_option_asset('hero_desktop_intro', 'video/OPEN.mp4'); ?>" aria-hidden="true"></video>
         <video class="hero__bg hero__video hero__video--desktop hero__video--loop" playsinline muted preload="none" loop data-hero-format="desktop" data-hero-loop data-src="<?php echo baltic_option_asset('hero_desktop_loop', 'video/LOOP.mp4'); ?>" aria-hidden="true"></video>
         <video class="hero__bg hero__video hero__video--mobile hero__video--intro" playsinline muted preload="none" data-hero-format="mobile" data-hero-intro data-src="<?php echo baltic_option_asset('hero_mobile_intro', 'video/FINAL 9-16_OPEN.mp4'); ?>" aria-hidden="true"></video>
@@ -90,9 +93,6 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
         </div>
     </div>
 
-    <!-- ================= HEADER ================= -->
-    <?php get_template_part('template-parts/site-header'); ?>
-
     <!-- ================= PRODUCT ================= -->
     <?php if (!$home_sections_hidden['products']) : ?>
     <?php get_template_part('template-parts/home-products'); ?>
@@ -111,7 +111,7 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
     );
     ?>
     <?php if (!$home_sections_hidden['about'] && $about_tabs) : ?>
-    <section class="section about" id="about" style="<?php echo esc_attr($about_background_style); ?>">
+    <section class="section about" id="<?php echo esc_attr(baltic_home_anchor('about')); ?>" style="<?php echo esc_attr($about_background_style); ?>">
         <div class="about_wrapper">
             <h2 class="about__title gold-title"><?php echo baltic_option_text('about_title', 'о нас'); ?></h2>
 
@@ -229,7 +229,7 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
     $news_background = baltic_option_asset('news_background', $news_desktop_fallback);
     $news_background_mobile = baltic_option_asset('news_background_mobile', $news_mobile_fallback);
     ?>
-    <section class="section news news--count-<?php echo esc_attr((string) $news_count); ?>" id="news">
+    <section class="section news news--count-<?php echo esc_attr((string) $news_count); ?>" id="<?php echo esc_attr(baltic_home_anchor('news')); ?>">
         <picture class="news__artwork" aria-hidden="true">
             <source media="(max-width: 768px)" srcset="<?php echo $news_background_mobile; ?>">
             <img src="<?php echo $news_background; ?>" alt="">
@@ -289,7 +289,7 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
         trim($video_iframe_src)
     );
     ?>
-    <section class="section video" id="video">
+    <section class="section video" id="<?php echo esc_attr(baltic_home_anchor('video')); ?>">
         <picture class="video__artwork" aria-hidden="true">
             <source media="(max-width: 768px)" srcset="<?php echo $video_background_mobile; ?>">
             <img src="<?php echo $video_background; ?>" alt="" class="video__bg">
@@ -325,7 +325,7 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
     $author_background = baltic_option_asset('author_background', 'images/author/author-grid-desktop.png');
     $author_background_mobile = baltic_option_asset('author_background_mobile', $author_mobile_fallback);
     ?>
-    <section class="section author author--count-<?php echo esc_attr((string) $author_count); ?>" id="author">
+    <section class="section author author--count-<?php echo esc_attr((string) $author_count); ?>" id="<?php echo esc_attr(baltic_home_anchor('author')); ?>">
         <picture class="author__artwork" aria-hidden="true">
             <source media="(max-width: 768px)" srcset="<?php echo $author_background_mobile; ?>">
             <img src="<?php echo $author_background; ?>" alt="">

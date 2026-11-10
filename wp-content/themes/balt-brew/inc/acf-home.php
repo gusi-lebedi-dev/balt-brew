@@ -50,6 +50,36 @@ add_filter('acf/load_value/key=field_baltic_header_menu_items', static function 
     return $rows;
 }, 10, 3);
 
+foreach (baltic_home_anchor_defaults() as $anchor_section => $default_anchor) {
+    add_filter('acf/validate_value/key=field_baltic_anchor_' . $anchor_section, static function ($valid, $value) use ($anchor_section, $default_anchor) {
+        if ($valid !== true) {
+            return $valid;
+        }
+
+        $anchor = ltrim(trim((string) $value), '#');
+        if ($anchor !== '' && !preg_match('/^[A-Za-z][A-Za-z0-9_-]*$/D', $anchor)) {
+            return 'Используйте латинские буквы, цифры, дефис или подчёркивание; первый символ — буква.';
+        }
+        $anchor = $anchor !== '' ? $anchor : $default_anchor;
+        $submitted = isset($_POST['acf']) && is_array($_POST['acf']) ? wp_unslash($_POST['acf']) : [];
+
+        foreach (baltic_home_anchor_defaults() as $other_section => $other_default) {
+            if ($other_section === $anchor_section) {
+                continue;
+            }
+            $key = 'field_baltic_anchor_' . $other_section;
+            $other_value = array_key_exists($key, $submitted)
+                ? $submitted[$key]
+                : baltic_option('anchor_' . $other_section, $other_default);
+            $other_anchor = baltic_home_anchor_normalize($other_value, $other_default);
+            if ($anchor === $other_anchor) {
+                return 'Этот якорь уже указан для другого блока главной.';
+            }
+        }
+
+        return true;
+    }, 10, 2);
+}
 function baltic_register_home_acf(): void
 {
     static $registered = false;
@@ -93,6 +123,7 @@ function baltic_register_home_acf(): void
             'placement' => 'top',
         ],
         baltic_acf_hide_section_field('hero'),
+        baltic_acf_anchor_field('hero'),
         baltic_acf_file_field('hero_desktop_intro', 'Видео для компьютера: начало', 'mp4,webm'),
         baltic_acf_file_field('hero_desktop_loop', 'Видео для компьютера: повтор', 'mp4,webm'),
         baltic_acf_file_field('hero_mobile_intro', 'Видео для телефона: начало', 'mp4,webm'),
@@ -106,6 +137,7 @@ function baltic_register_home_acf(): void
             'placement' => 'top',
         ],
         baltic_acf_hide_section_field('products'),
+        baltic_acf_anchor_field('products'),
         [
             'key' => 'field_baltic_product_items',
             'label' => 'Товары',
@@ -198,6 +230,7 @@ function baltic_register_home_acf(): void
             'placement' => 'top',
         ],
         baltic_acf_hide_section_field('about'),
+        baltic_acf_anchor_field('about'),
         baltic_acf_text_field('about_title', 'Заголовок блока', 'о нас'),
         baltic_acf_image_field('about_background', 'Фон блока (компьютер)', 'Рекомендуемый размер: 1765 × 891 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_image_field('about_background_mobile', 'Фон блока (телефон)', 'Рекомендуемый размер: 460 × 560 px. Если изображение не выбрано, используется встроенный фон.'),
@@ -346,6 +379,7 @@ function baltic_register_home_acf(): void
             'placement' => 'top',
         ],
         baltic_acf_hide_section_field('news'),
+        baltic_acf_anchor_field('news'),
         [
             'key' => 'field_baltic_news_admin_hint',
             'label' => 'Содержание новостей',
@@ -366,6 +400,7 @@ function baltic_register_home_acf(): void
             'placement' => 'top',
         ],
         baltic_acf_hide_section_field('video'),
+        baltic_acf_anchor_field('video'),
         baltic_acf_image_field('video_background', 'Фон блока (компьютер)', 'Рекомендуемый размер: 1535 × 1024 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_image_field('video_background_mobile', 'Фон блока (телефон)', 'Рекомендуемый размер: 375 × 566 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_text_field('video_title', 'Название видео', 'Название видео'),
@@ -385,6 +420,7 @@ function baltic_register_home_acf(): void
             'placement' => 'top',
         ],
         baltic_acf_hide_section_field('author'),
+        baltic_acf_anchor_field('author'),
         baltic_acf_image_field('author_background', 'Фон блока (компьютер)', 'Рекомендуемая ширина: 1920 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_image_field('author_background_mobile', 'Фон блока (телефон)', 'Рекомендуемая ширина: 460 px. Если изображение не выбрано, используется встроенный фон.'),
         baltic_acf_text_field('author_title', 'Название секции', 'Слово автора'),
@@ -916,6 +952,22 @@ function baltic_default_product_rows(): array
             'bottle' => '',
         ];
     }, baltic_acf_products());
+}
+
+function baltic_acf_anchor_field(string $section): array
+{
+    $default = baltic_home_anchor_defaults()[$section] ?? '';
+
+    return [
+        'key' => 'field_baltic_anchor_' . $section,
+        'label' => 'Якорь блока',
+        'name' => 'anchor_' . $section,
+        'type' => 'text',
+        'instructions' => 'Уникальное имя для ссылки на этот блок: латинские буквы, цифры, дефис и подчёркивание. Можно писать с # или без него, например #' . $default . '.',
+        'default_value' => $default,
+        'placeholder' => $default,
+        'wrapper' => ['width' => '50'],
+    ];
 }
 
 function baltic_acf_hide_section_field(string $section): array
