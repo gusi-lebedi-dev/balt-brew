@@ -50,11 +50,14 @@ if (!defined('ABSPATH')) {
             <header class="feedback-modal__header">
                 <h2 class="feedback-modal__title" id="feedback-modal-title">Оставьте ваше обращение</h2>
                 <p class="feedback-modal__intro">Если у вас возникли вопросы, касающиеся качества продукции, производства, пожалуйста, отправьте сообщение.</p>
+                <span class="feedback-modal__intro" style="margin-bottom: 0; font-size: 13px;">Завод-изготовитель написан на этикетке.</span>
             </header>
 
             <form class="feedback-form" data-feedback-form action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>" method="post" novalidate>
                 <input type="hidden" name="action" value="baltic_submit_feedback">
                 <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('baltic_feedback')); ?>">
+                <input type="hidden" name="form_name" value="Заявка с сайта">
+                <input type="hidden" name="site" value="брю.балтика.рф">
                 <label class="feedback-form__honeypot" aria-hidden="true">
                     <span>Не заполняйте это поле</span>
                     <input type="text" name="website" tabindex="-1" autocomplete="off">
@@ -90,10 +93,14 @@ if (!defined('ABSPATH')) {
                         <span class="feedback-visually-hidden">Завод-изготовитель</span>
                         <select id="feedback-factory" name="factory" aria-describedby="feedback-factory-error" required>
                             <option value="">Завод-изготовитель*</option>
-                            <option value="Санкт-Петербург">Санкт-Петербург</option>
-                            <option value="Ярославль">Ярославль</option>
-                            <option value="Ростов-на-Дону">Ростов-на-Дону</option>
-                            <option value="Новосибирск">Новосибирск</option>
+                            <option value="F">F</option>
+                            <option value="H">H</option>
+                            <option value="J">J</option>
+                            <option value="V">V</option>
+                            <option value="W">W</option>
+                            <option value="X">X</option>
+                            <option value="Y">Y</option>
+                            <option value="Z">Z</option>
                             <option value="Не знаю">Не знаю</option>
                         </select>
                         <span class="feedback-field__error" id="feedback-factory-error" data-feedback-error="factory"></span>

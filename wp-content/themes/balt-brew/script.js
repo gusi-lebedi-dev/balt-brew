@@ -196,61 +196,76 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const header = document.querySelector('.header');
-    if (!header) return;
+    if (header) {
+        const SCROLL_THRESHOLD = 160;
+        let lastScrollY = window.scrollY;
+        let ticking = false;
 
-    const SCROLL_THRESHOLD = 160;
-    let lastScrollY = window.scrollY;
-    let ticking = false;
+        const updateHeader = () => {
+            const currentScrollY = window.scrollY;
+            header.classList.toggle('header--scrolled', currentScrollY > SCROLL_THRESHOLD);
 
-    const updateHeader = () => {
-        const currentScrollY = window.scrollY;
+            if (header.classList.contains('header--menu-open')) {
+                header.classList.remove('header--hidden');
+            } else if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
+                header.classList.add('header--hidden');
+            } else {
+                header.classList.remove('header--hidden');
+            }
 
-        // Добавляем фон при скролле
-        header.classList.toggle('header--scrolled', currentScrollY > SCROLL_THRESHOLD);
+            lastScrollY = currentScrollY;
+            ticking = false;
+        };
 
-        // Скрываем хедер при скролле вниз, показываем при скролле вверх
-        if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
-            // Скролл вниз
-            header.classList.add('header--hidden');
-        } else {
-            // Скролл вверх
-            header.classList.remove('header--hidden');
-        }
+        const requestTick = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateHeader);
+                ticking = true;
+            }
+        };
 
-        lastScrollY = currentScrollY;
-        ticking = false;
-    };
+        updateHeader();
+        window.addEventListener('scroll', requestTick, { passive: true });
 
-    const requestTick = () => {
-        if (!ticking) {
-            window.requestAnimationFrame(updateHeader);
-            ticking = true;
-        }
-    };
+        const burger = header.querySelector('.header__burger');
+        const mobileMenu = header.querySelector('.header__mobile-menu');
+        if (burger && mobileMenu) {
+            const setMenuOpen = (open) => {
+                header.classList.toggle('header--menu-open', open);
+                header.classList.remove('header--hidden');
+                mobileMenu.classList.toggle('header__mobile-menu--open', open);
+                burger.setAttribute('aria-expanded', String(open));
+                burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+            };
 
-    updateHeader();
-    window.addEventListener('scroll', requestTick, { passive: true });
-
-    // Mobile burger menu
-    const burger = document.querySelector('.header__burger');
-    const mobileMenu = document.querySelector('.header__mobile-menu');
-
-    if (burger && mobileMenu) {
-        burger.addEventListener('click', () => {
-            mobileMenu.classList.toggle('header__mobile-menu--open');
-            burger.setAttribute('aria-expanded', mobileMenu.classList.contains('header__mobile-menu--open'));
-        });
-
-        // Close menu when clicking on links
-        const mobileLinks = document.querySelectorAll('.header__mobile-link');
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.remove('header__mobile-menu--open');
-                burger.setAttribute('aria-expanded', 'false');
+            setMenuOpen(false);
+            burger.addEventListener('click', () => {
+                setMenuOpen(burger.getAttribute('aria-expanded') !== 'true');
             });
-        });
-    }
 
+            mobileMenu.querySelectorAll('.header__mobile-link').forEach((link) => {
+                link.addEventListener('click', () => setMenuOpen(false));
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key !== 'Escape' || burger.getAttribute('aria-expanded') !== 'true') return;
+                setMenuOpen(false);
+                burger.focus();
+            });
+
+            document.addEventListener('click', (event) => {
+                if (burger.getAttribute('aria-expanded') === 'true' && !header.contains(event.target)) {
+                    setMenuOpen(false);
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 1099 && burger.getAttribute('aria-expanded') === 'true') {
+                    setMenuOpen(false);
+                }
+            });
+        }
+    }
     const aboutTabs = document.querySelectorAll('[data-about-tab]');
     const aboutPanels = document.querySelectorAll('[data-about-panel]');
     const aboutPrevButton = document.querySelector('.about__tabs-arrow--prev');
@@ -311,6 +326,49 @@ document.addEventListener('DOMContentLoaded', () => {
         aboutNextButton?.addEventListener('click', () => cycleAboutTab(1));
 
         requestAnimationFrame(() => revealAboutTab(tabs.find(tab => tab.getAttribute('aria-selected') === 'true') || aboutTabs[0]));
+    }
+
+    const aboutSection = document.querySelector('.about');
+    if (aboutSection && aboutPanels.length) {
+        let fadeFrame = 0;
+        const updateAboutFade = () => {
+            fadeFrame = 0;
+            const panel = aboutSection.querySelector('.about__panel--active');
+            const content = panel?.querySelector('.about__history-content');
+            if (!content || content.classList.contains('about__history-content--switching')) {
+                aboutSection.classList.remove('about--has-more-content');
+                return;
+            }
+
+            const remaining = content.scrollHeight - content.clientHeight - content.scrollTop;
+            const fadeBuffer = Math.min(80, content.clientHeight * 0.2);
+            aboutSection.classList.toggle('about--has-more-content', remaining > fadeBuffer + 2);
+        };
+        const scheduleAboutFade = () => {
+            if (fadeFrame) window.cancelAnimationFrame(fadeFrame);
+            fadeFrame = window.requestAnimationFrame(updateAboutFade);
+        };
+
+        aboutPanels.forEach((panel) => {
+            const content = panel.querySelector('.about__history-content');
+            if (!content) return;
+            content.addEventListener('scroll', scheduleAboutFade, { passive: true });
+            content.addEventListener('load', (event) => {
+                if (event.target.tagName === 'IMG') scheduleAboutFade();
+            }, true);
+            content.addEventListener('about:content-change', scheduleAboutFade);
+            panel.addEventListener('about:panel-visible', scheduleAboutFade);
+
+            if ('ResizeObserver' in window) {
+                const copyResizeObserver = new ResizeObserver(scheduleAboutFade);
+                copyResizeObserver.observe(content);
+                content.querySelectorAll('.about__timeline-text').forEach((copy) => {
+                    copyResizeObserver.observe(copy);
+                });
+            }
+        });
+        window.addEventListener('resize', scheduleAboutFade);
+        scheduleAboutFade();
     }
 
     const brewerSlides = document.querySelectorAll('.about__brewers-slide');
@@ -383,6 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 text.classList.toggle('about__timeline-text--active', isActive);
                 text.setAttribute('aria-hidden', String(!isActive));
             });
+            content.dispatchEvent(new Event('about:content-change'));
         };
 
         const updateItems = () => {
@@ -452,6 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 content.classList.remove('about__history-content--switching');
                 content.style.removeProperty('min-height');
                 effect.remove();
+                content.dispatchEvent(new Event('about:content-change'));
                 if (activeTextIncomingLayer === incomingLayer) activeTextIncomingLayer = null;
                 if (finishTextTransition === finish) finishTextTransition = null;
             };
@@ -831,7 +891,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestController = controller;
 
         try {
-            const response = await fetch(form.action, {
+            const response = await fetch(form.getAttribute('action'), {
                 method: 'POST',
                 body: new FormData(form),
                 credentials: 'same-origin',

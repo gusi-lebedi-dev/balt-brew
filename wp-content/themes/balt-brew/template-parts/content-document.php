@@ -35,7 +35,15 @@ $back_label = $is_news ? 'Ко всем новостям' : 'Ко всем за�
                 <h1 class="content-document__title"><?php the_title(); ?></h1>
 
                 <?php if (has_post_thumbnail()) : ?>
-                    <div class="content-document__image"><?php the_post_thumbnail('full', ['alt' => the_title_attribute(['echo' => false])]); ?></div>
+                    <?php
+                    $thumbnail_meta = wp_get_attachment_metadata(get_post_thumbnail_id());
+                    $thumbnail_width = (int) ($thumbnail_meta['width'] ?? 0);
+                    $thumbnail_height = (int) ($thumbnail_meta['height'] ?? 0);
+                    $is_square_thumbnail = $thumbnail_width > 0 && $thumbnail_width === $thumbnail_height;
+                    ?>
+                    <div class="content-document__image<?php echo $is_square_thumbnail ? ' content-document__image--square' : ''; ?>">
+                        <?php the_post_thumbnail('full', ['alt' => the_title_attribute(['echo' => false])]); ?>
+                    </div>
                 <?php elseif ($is_news) : ?>
                     <div class="content-document__image"><img src="<?php echo esc_url(baltic_asset('images/news/default-article.png')); ?>" alt=""></div>
                 <?php endif; ?>

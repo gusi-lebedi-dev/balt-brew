@@ -13,6 +13,28 @@ add_action('after_setup_theme', static function () {
 });
 
 add_action('init', static function () {
+    if (get_role('baltic_content_editor')) {
+        return;
+    }
+
+    // Blog posts and baltic_news both use WordPress's default post capabilities.
+    add_role('baltic_content_editor', 'Редактор новостей и блога', [
+        'read' => true,
+        'upload_files' => true,
+        'edit_posts' => true,
+        'edit_others_posts' => true,
+        'edit_private_posts' => true,
+        'edit_published_posts' => true,
+        'publish_posts' => true,
+        'read_private_posts' => true,
+        'delete_posts' => true,
+        'delete_others_posts' => true,
+        'delete_private_posts' => true,
+        'delete_published_posts' => true,
+    ]);
+}, 5);
+
+add_action('init', static function () {
     register_post_type('baltic_news', [
         'labels' => [
             'name' => 'Новости',
@@ -202,6 +224,136 @@ function baltic_option_asset(string $field, string $fallback_path): string
     return baltic_option_url($field, baltic_asset($fallback_path));
 }
 
+/**
+ * Global header settings live on the separate ACF options page.
+ */
+function baltic_header_hidden(): bool
+{
+    $value = function_exists('get_field')
+        ? get_field('hide_header', 'option')
+        : get_option('options_hide_header', false);
+
+    return (bool) $value;
+}
+
+function baltic_header_custom_logo_url(): string
+{
+    $value = function_exists('get_field')
+        ? get_field('header_logo', 'option')
+        : get_option('options_header_logo', '');
+
+    if (is_array($value)) {
+        $value = $value['url'] ?? '';
+    }
+    if (is_numeric($value)) {
+        $value = wp_get_attachment_url((int) $value);
+    }
+
+    return is_string($value) ? esc_url_raw(trim($value)) : '';
+}
+
+function baltic_header_has_custom_logo(): bool
+{
+    return baltic_header_custom_logo_url() !== '';
+}
+
+function baltic_header_logo_url(bool $mobile = false): string
+{
+    $custom_logo = baltic_header_custom_logo_url();
+    if ($custom_logo !== '') {
+        return $custom_logo;
+    }
+
+    return baltic_asset($mobile ? 'images/header/logo-mobile.png' : 'images/header/logo.png');
+}
+
+/**
+ * Accept section anchors, site paths and absolute URLs from the menu editor.
+ */
+function baltic_header_link_url(string $url): string
+{
+    $url = trim($url);
+    if ($url === '') {
+        return '';
+    }
+
+    if ($url[0] === '#') {
+        $url = home_url('/' . $url);
+    } elseif ($url[0] === '/' && strpos($url, '//') !== 0) {
+        $url = home_url($url);
+    } elseif (strpos($url, '//') !== 0 && !preg_match('/^[a-z][a-z0-9+.-]*:/i', $url)) {
+        return '';
+    }
+
+    return esc_url_raw($url);
+}
+
+/**
+ * Initial links shared by the site and the ACF editor.
+ */
+function baltic_header_default_menu_items(): array
+{
+    return [
+        ['label' => 'Ассортимент', 'url' => '#assortment'],
+        ['label' => 'О нас', 'url' => '#about'],
+        ['label' => 'Новости', 'url' => '#news'],
+        ['label' => 'Видео', 'url' => '#video'],
+        ['label' => 'Слово автора', 'url' => '#author'],
+    ];
+}
+
+/**
+ * Return at most six menu entries in editor order; an intentionally empty menu stays empty.
+ */
+function baltic_header_menu_items(): array
+{
+    if (get_option('options_header_menu_items', null) === null) {
+        $rows = baltic_header_default_menu_items();
+    } else {
+        $rows = function_exists('get_field')
+            ? (get_field('header_menu_items', 'option') ?: [])
+            : [];
+    }
+
+    $hidden_sections_by_url = [];
+    foreach ([
+        'assortment' => 'products',
+        'about' => 'about',
+        'news' => 'news',
+        'video' => 'video',
+        'author' => 'author',
+    ] as $anchor => $section) {
+        $hidden_sections_by_url[baltic_header_link_url('#' . $anchor)] = $section;
+    }
+
+    $items = [];
+    foreach ((array) $rows as $row) {
+        if (count($items) >= 6) {
+            break;
+        }
+        if (!is_array($row) || !is_string($row['label'] ?? null) || !is_string($row['url'] ?? null)) {
+            continue;
+        }
+
+        $label = trim(sanitize_text_field($row['label']));
+        $url = baltic_header_link_url($row['url']);
+        if ($label === '' || $url === '') {
+            continue;
+        }
+        if (isset($hidden_sections_by_url[$url])) {
+            $section = $hidden_sections_by_url[$url];
+            if (baltic_home_section_hidden($section)
+                || ($section === 'about' && function_exists('baltic_home_about_tabs') && !baltic_home_about_tabs())) {
+                continue;
+            }
+        }
+
+        $items[] = ['label' => $label, 'url' => $url];
+    }
+
+    return $items;
+}
+
 require_once get_template_directory() . '/inc/acf-home.php';
 
 add_filter('query_vars', static function (array $vars): array {
@@ -284,12 +436,14 @@ function baltic_feedback_email_body(array $values): string
     $empty_value = '<span style="color:#8c8378;">Не указано</span>';
 
     $fields = [
-        'name' => 'ФИО',
+        'form_name' => 'Название формы',
+        'site' => 'Сайт',
+        'name' => 'Имя',
         'phone' => 'Телефон',
-        'email' => 'Почта',
-        'product' => 'Наименование продукции',
+        'email' => 'Email',
+        'product' => 'Продукция',
         'production_date' => 'Дата розлива',
-        'factory' => 'Завод-изготовитель',
+        'factory' => 'Завод',
     ];
     $rows = '';
 
@@ -398,6 +552,8 @@ function baltic_handle_feedback(): void
     $raw_email = baltic_feedback_post_value('email');
 
     $values = [
+        'form_name' => 'Заявка с сайта',
+        'site' => 'брю.балтика.рф',
         'name' => baltic_feedback_limit(sanitize_text_field(baltic_feedback_post_value('name')), 160),
         'phone' => baltic_feedback_limit(sanitize_text_field(baltic_feedback_post_value('phone')), 80),
         'email' => baltic_feedback_limit(sanitize_email($raw_email), 160),
@@ -440,7 +596,9 @@ function baltic_handle_feedback(): void
     }
     set_transient($rate_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
 
-    $recipient = 'bsite.robot@dialogforce.tech';
+    $recipients = [
+        'bsite.robot@dialogforce.tech'
+    ];
     $site_name = sanitize_text_field(
         wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES)
     );
@@ -450,13 +608,15 @@ function baltic_handle_feedback(): void
         baltic_feedback_limit($values['product'], 100)
     );
     $body = baltic_feedback_email_body($values);
+    $sender_email = 'support@baltikapromo.ru';
+    $reply_to = $values['email'] !== '' && is_email($values['email'])
+        ? $values['email']
+        : $sender_email;
     $headers = [
         'Content-Type: text/html; charset=UTF-8',
+        'From: Балтика Brew <' . $sender_email . '>',
+        'Reply-To: ' . $reply_to,
     ];
-
-    if ($values['email'] !== '' && is_email($values['email'])) {
-        $headers[] = 'Reply-To: ' . $values['email'];
-    }
 
     $mail_failed_callback = static function ($wp_error): void {
         if (!is_wp_error($wp_error)) {
@@ -467,7 +627,7 @@ function baltic_handle_feedback(): void
     };
 
     add_action('wp_mail_failed', $mail_failed_callback);
-    $mail_sent = wp_mail($recipient, $subject, $body, $headers);
+    $mail_sent = wp_mail($recipients, $subject, $body, $headers);
     remove_action('wp_mail_failed', $mail_failed_callback);
 
     if (!$mail_sent) {

@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
+    <!-- Yandex.Metrika counter -->
+
+    <script type="text/javascript">
+
+        (function(m,e,t,r,i,k,a){
+
+            m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+
+            m[i].l=1*new Date();
+
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+
+        })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109448312', 'ym');
+
+
+        ym(109448312, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+
+    </script>
+
+    <noscript><div><img src="https://mc.yandex.ru/watch/109448312" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+    <!-- /Yandex.Metrika counter -->
 <meta charset="<?php bloginfo('charset'); ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Балтика Brew - крафтовая пивоварня. Познакомьтесь с нашими уникальными сортами пива.">
@@ -8,7 +32,7 @@
 <meta property="og:description" content="Крафтовое пиво высокого качества. Регулярные и лимитированные линейки продукции.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="<?php echo esc_url(baltic_asset('images/header/logo.png')); ?>">
-<link rel="icon" type="image/png" href="<?php echo esc_url(baltic_asset('images/header/logo.png')); ?>">
+<link rel="icon" type="image/png" href="<?php echo esc_url(baltic_asset('img/favicon.svg')); ?>">
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/Inter-Regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/tt-backwardssans-regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/TTTricks-Regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
@@ -67,56 +91,8 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
     </div>
 
     <!-- ================= HEADER ================= -->
-    <header class="header" id="home">
-        <div class="container">
-            <!-- Desktop Navigation -->
-            <!-- <div class="header__nav-bar header__nav-bar--desktop"> -->
-                <!-- <nav class="header__links">
-                    <a href="#assortment" class="header__link">Ассортимент</a>
-                    <a href="#about" class="header__link">О нас</a>
-                </nav> -->
+    <?php get_template_part('template-parts/site-header'); ?>
 
-                <!-- <a class="logo_header" href="#home">
-                    <img src="<?php echo baltic_option_asset('header_logo', 'images/header/logo.png'); ?>" alt="Логотип" class="header__logo">
-                </a> -->
-
-                <!-- <nav class="header__links">
-                    <div class="header__lang">
-                        <a href="#" class="header__lang-link header__lang-link--active">RU</a>
-                        <a href="#" class="header__lang-link">EN</a>
-                    </div>
-                </nav> -->
-            <!-- </div> -->
-
-            <!-- Mobile Navigation -->
-            <!-- <div class="header__nav-bar header__nav-bar--mobile"> -->
-                <!-- <div class="header__lang header__lang--mobile">
-                    <a href="#" class="header__lang-link header__lang-link--active">RU</a>
-                    <a href="#" class="header__lang-link">EN</a>
-                </div> -->
-
-                <!-- <a href="#home" style="margin: 0 auto;">
-                    <img src="<?php echo baltic_option_asset('header_logo_mobile', 'images/header/logo-mobile.png'); ?>" alt="Логотип" class="header__logo header__logo--mobile">
-                </a> -->
-
-                <!-- <button class="header__burger" aria-label="Открыть меню">
-                    <img src="<?php echo esc_url(baltic_asset('images/header/menu-icon.svg')); ?>" alt="" class="header__burger-icon">
-                </button> -->
-            <!-- </div> -->
-        </div>
-
-        <!-- Mobile Menu -->
-        <nav class="header__mobile-menu">
-            <div class="container">
-                <?php if (!$home_sections_hidden['products']) : ?>
-                <a href="#assortment" class="header__mobile-link">Ассортимент</a>
-                <?php endif; ?>
-                <?php if (!$home_sections_hidden['about']) : ?>
-                <a href="#about" class="header__mobile-link">О нас</a>
-                <?php endif; ?>
-            </div>
-        </nav>
-    </header>
     <!-- ================= PRODUCT ================= -->
     <?php if (!$home_sections_hidden['products']) : ?>
     <?php get_template_part('template-parts/home-products'); ?>
@@ -188,13 +164,13 @@ foreach (['products' => '#assortment', 'about' => '#about', 'news' => '#news', '
                                     <?php foreach ($events as $event_index => $event) : ?>
                                         <div class="about__timeline-text<?php echo $event_index === $active_event_index ? ' about__timeline-text--active' : ''; ?>" data-about-event="<?php echo esc_attr((string) $event_index); ?>">
                                             <h3 class="about__content-title"><?php echo esc_html($event['heading'] ?: $tab['heading']); ?></h3>
-                                            <p class="about__content-text"><?php echo wp_kses_post(nl2br((string) ($event['text'] ?: $tab['text']))); ?></p>
+                                            <div class="about__content-text"><?php echo baltic_about_content_html((string) ($event['text'] ?: $tab['text'])); ?></div>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php else : ?>
                                     <div class="about__timeline-text about__timeline-text--active" data-about-event="0">
                                         <h3 class="about__content-title"><?php echo esc_html($tab['heading']); ?></h3>
-                                        <p class="about__content-text"><?php echo wp_kses_post(nl2br((string) $tab['text'])); ?></p>
+                                        <div class="about__content-text"><?php echo baltic_about_content_html((string) $tab['text']); ?></div>
                                     </div>
                                 <?php endif; ?>
                             </div>

@@ -51,23 +51,34 @@ if ($count === 0) {
 
         <div class="product__copy">
             <?php foreach ($products as $index => $product) : ?>
+                <?php
+                $title = (string) ($product['title'] ?? '');
+                $description = (string) ($product['description'] ?? '');
+                $stats = array_filter([
+                    ['label' => 'Алкоголь', 'value' => (string) ($product['alcohol'] ?? '')],
+                    ['label' => 'Плотность', 'value' => (string) ($product['density'] ?? '')],
+                    ['label' => 'IBU', 'value' => (string) ($product['ibu'] ?? '')],
+                ], static function (array $stat): bool {
+                    return trim(wp_strip_all_tags($stat['value'])) !== '';
+                });
+                ?>
                 <article class="product__slide product__slide--<?php echo esc_attr($product['modifier']); ?> product__info" role="group" aria-roledescription="слайд" aria-label="<?php echo esc_attr(($index + 1) . ' из ' . $count); ?>" aria-hidden="<?php echo $index === 0 ? 'false' : 'true'; ?>"<?php echo $index === 0 ? '' : ' inert'; ?>>
-                    <h2 class="product__title"><?php echo wp_kses_post($product['title']); ?></h2>
-                    <p class="product__description"><?php echo wp_kses_post(nl2br((string) $product['description'])); ?></p>
-                    <div class="product__stats">
-                        <div class="product__stat">
-                            <span class="product__stat-value"><?php echo esc_html((string) $product['alcohol']); ?></span>
-                            <span class="product__stat-label">Алкоголь</span>
+                    <?php if (trim(wp_strip_all_tags($title)) !== '') : ?>
+                        <h2 class="product__title"><?php echo wp_kses_post($title); ?></h2>
+                    <?php endif; ?>
+                    <?php if (trim(wp_strip_all_tags($description)) !== '') : ?>
+                        <p class="product__description"><?php echo wp_kses_post(nl2br($description)); ?></p>
+                    <?php endif; ?>
+                    <?php if ($stats) : ?>
+                        <div class="product__stats">
+                            <?php foreach ($stats as $stat) : ?>
+                                <div class="product__stat">
+                                    <span class="product__stat-value"><?php echo esc_html($stat['value']); ?></span>
+                                    <span class="product__stat-label"><?php echo esc_html($stat['label']); ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                        <div class="product__stat">
-                            <span class="product__stat-value"><?php echo esc_html((string) $product['density']); ?></span>
-                            <span class="product__stat-label">Плотность</span>
-                        </div>
-                        <div class="product__stat">
-                            <span class="product__stat-value"><?php echo esc_html((string) $product['ibu']); ?></span>
-                            <span class="product__stat-label">IBU</span>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </article>
             <?php endforeach; ?>
         </div>

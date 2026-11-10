@@ -19,6 +19,37 @@ function baltic_design_copy(string $key): string
 add_action('acf/init', 'baltic_register_home_acf');
 add_action('init', 'baltic_register_home_acf', 20);
 
+/**
+ * Show the same initial menu in the editor and on the site until it is first saved.
+ * Repeater load values use subfield keys; get_field() later formats them by name.
+ */
+add_filter('acf/load_value/key=field_baltic_header_menu_items', static function ($value, $post_id, array $field) {
+    if (!in_array((string) $post_id, ['option', 'options'], true)
+        || get_option('options_header_menu_items', null) !== null) {
+        return $value;
+    }
+
+    $keys = [];
+    foreach ((array) ($field['sub_fields'] ?? []) as $sub_field) {
+        if (!empty($sub_field['name']) && !empty($sub_field['key'])) {
+            $keys[$sub_field['name']] = $sub_field['key'];
+        }
+    }
+    if (!isset($keys['label'], $keys['url'])) {
+        return $value;
+    }
+
+    $rows = [];
+    foreach (baltic_header_default_menu_items() as $item) {
+        $rows[] = [
+            $keys['label'] => $item['label'],
+            $keys['url'] => $item['url'],
+        ];
+    }
+
+    return $rows;
+}, 10, 3);
+
 function baltic_register_home_acf(): void
 {
     static $registered = false;
@@ -32,6 +63,16 @@ function baltic_register_home_acf(): void
     }
 
     $registered = true;
+
+    acf_add_options_page([
+        'page_title' => 'Хедер',
+        'menu_title' => 'Хедер',
+        'menu_slug'  => 'baltic-header',
+        'capability' => 'edit_theme_options',
+        'redirect'   => false,
+        'position'   => 20,
+        'icon_url'   => 'dashicons-menu',
+    ]);
 
     acf_add_options_page([
         'page_title' => 'Футер',
@@ -223,9 +264,11 @@ function baltic_register_home_acf(): void
                     'key' => 'field_baltic_about_tab_text',
                     'label' => 'Текст вкладки',
                     'name' => 'text',
-                    'type' => 'textarea',
-                    'rows' => 7,
-                    'new_lines' => '',
+                    'type' => 'wysiwyg',
+                    'instructions' => 'Можно выделять текст жирным и курсивом, а также вставлять изображения между абзацами через кнопку «Добавить медиафайл».',
+                    'toolbar' => 'full',
+                    'media_upload' => 1,
+                    'delay' => 1,
                 ],
                 [
                     'key' => 'field_baltic_about_tab_active_timeline_item',
@@ -284,9 +327,11 @@ function baltic_register_home_acf(): void
                             'key' => 'field_baltic_about_timeline_text',
                             'label' => 'Большой текст события',
                             'name' => 'text',
-                            'type' => 'textarea',
-                            'rows' => 10,
-                            'new_lines' => '',
+                            'type' => 'wysiwyg',
+                            'instructions' => 'Можно выделять текст жирным и курсивом, а также вставлять изображения между абзацами через кнопку «Добавить медиафайл».',
+                            'toolbar' => 'full',
+                            'media_upload' => 1,
+                            'delay' => 1,
                         ],
                     ],
                 ],
@@ -355,6 +400,49 @@ function baltic_register_home_acf(): void
         baltic_acf_textarea_field('author_text', 'Текст', baltic_design_copy('author_text'), 8),
     ];
 
+    $header_fields = [
+        [
+            'key' => 'field_baltic_hide_header',
+            'label' => 'Скрыть хедер',
+            'name' => 'hide_header',
+            'type' => 'true_false',
+            'instructions' => 'Скрывает навигационную шапку на всех страницах сайта.',
+            'message' => 'Не показывать хедер на сайте',
+            'default_value' => 0,
+            'ui' => 1,
+        ],
+        baltic_acf_image_field('header_logo', 'Логотип хедера', 'Загруженный логотип используется на компьютере и телефоне. Если поле пустое, остаются встроенные версии логотипа.'),
+        [
+            'key' => 'field_baltic_header_menu_items',
+            'label' => 'Пункты меню',
+            'name' => 'header_menu_items',
+            'type' => 'repeater',
+            'instructions' => 'Добавьте до шести ссылок в нужном порядке. При нечётном количестве дополнительный пункт будет слева от логотипа. Если список ещё не сохранён, используются исходные ссылки.',
+            'layout' => 'row',
+            'button_label' => 'Добавить пункт',
+            'min' => 0,
+            'max' => 6,
+            'collapsed' => 'field_baltic_header_menu_label',
+            'sub_fields' => [
+                [
+                    'key' => 'field_baltic_header_menu_label',
+                    'label' => 'Название пункта',
+                    'name' => 'label',
+                    'type' => 'text',
+                    'wrapper' => ['width' => '40'],
+                ],
+                [
+                    'key' => 'field_baltic_header_menu_url',
+                    'label' => 'Ссылка',
+                    'name' => 'url',
+                    'type' => 'text',
+                    'instructions' => 'Допустимы якорь #about, путь /news/ или полный адрес https://example.com/.',
+                    'wrapper' => ['width' => '60'],
+                ],
+            ],
+        ],
+    ];
+
     $footer_fields = [
         baltic_acf_image_field('footer_logo', 'Логотип футера'),
         baltic_acf_url_field('footer_vk_url', 'Ссылка VK', 'https://vk.ru/baltikabrew'),
@@ -394,6 +482,22 @@ function baltic_register_home_acf(): void
     ]);
 
     acf_add_local_field_group([
+        'key' => 'group_baltic_header',
+        'title' => 'Хедер',
+        'fields' => $header_fields,
+        'location' => [[[
+            'param' => 'options_page',
+            'operator' => '==',
+            'value' => 'baltic-header',
+        ]]],
+        'menu_order' => 0,
+        'position' => 'normal',
+        'style' => 'seamless',
+        'label_placement' => 'top',
+        'active' => true,
+    ]);
+
+    acf_add_local_field_group([
         'key' => 'group_baltic_footer',
         'title' => 'Футер',
         'fields' => $footer_fields,
@@ -419,7 +523,7 @@ add_action('admin_enqueue_scripts', static function (string $hook): void {
         && in_array($hook, ['post.php', 'post-new.php'], true)
         && isset($_GET['post']) && (int) $_GET['post'] === $front_page_id;
 
-    if ($hook !== 'toplevel_page_baltic-home' && !$is_front_page_editor) {
+    if (!in_array($hook, ['toplevel_page_baltic-home', 'toplevel_page_baltic-header'], true) && !$is_front_page_editor) {
         return;
     }
 
@@ -582,6 +686,23 @@ function baltic_acf_about_tabs(): array
             'timeline_items' => [],
         ],
     ];
+}
+
+/**
+ * Render both legacy plain text and ACF editor markup in About panels.
+ */
+function baltic_about_content_html(string $text): string
+{
+    $text = trim($text);
+    if ($text === '') {
+        return '';
+    }
+
+    if (!preg_match('/<\s*(?:p|div|figure|ul|ol|blockquote|h[1-6])\b/i', $text)) {
+        $text = wpautop($text);
+    }
+
+    return wp_kses_post($text);
 }
 
 function baltic_home_about_tabs(): array
