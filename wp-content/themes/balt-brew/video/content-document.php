@@ -25,8 +25,8 @@ $back_label = $is_news ? 'Ко всем новостям' : 'Ко всем за�
 </head>
 <body <?php body_class('content-page content-document-page'); ?>>
 <?php wp_body_open(); ?>
+<?php get_template_part('template-parts/content-header'); ?>
 <div class="page">
-    <?php get_template_part('template-parts/content-header'); ?>
 
     <main class="content-document">
         <?php while (have_posts()) : the_post(); ?>

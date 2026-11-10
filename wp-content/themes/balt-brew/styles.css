@@ -173,11 +173,11 @@ div.page {
 .header {
     position: fixed;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    transform: none;
     z-index: 100;
     width: 100%;
-    max-width: 1440px;
+    max-width: none;
     padding: 15px 20px;
     box-sizing: border-box;
     background: transparent;
@@ -187,17 +187,6 @@ div.page {
     /* width: 280px; */
     margin: 0 auto;
  }
-.header--hidden {
-    transform: translateX(-50%) translateY(-100%);
-}
-
-@media (min-width: 1440px) {
-    .header {
-        width: 1440px;
-        padding: 25px 0;
-    }
-}
-
 .header--scrolled {
     /* background: linear-gradient(90deg, #07153a 0%, #0d1d66 34.8%, #091a47 100%), #000000; */
 }

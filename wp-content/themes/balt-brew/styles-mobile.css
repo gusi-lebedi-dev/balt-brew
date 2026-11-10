@@ -44,8 +44,8 @@
     }
 
     .header__logo--mobile {
-        width: 107px;
-        height: 78px;
+        width: 165px;
+        height: 120px;
         object-fit: contain;
     }
 
@@ -89,7 +89,7 @@
         color: white;
         text-decoration: none;
         font-family: 'TT Backwards Sans', sans-serif;
-        font-size: 18px;
+        font-size: 20px;
         padding: 10px 0;
         transition: color 0.3s ease;
     }

@@ -14,7 +14,7 @@ if ($count === 0) {
     return;
 }
 ?>
-<section class="section product" role="region" aria-roledescription="карусель" aria-label="Ассортимент Балтика Brew" id="assortment" data-product-carousel data-slide="0">
+<section class="section product" role="region" aria-roledescription="карусель" aria-label="Ассортимент Балтика Brew" id="<?php echo esc_attr(baltic_nav_home_anchor('products')); ?>" data-product-carousel data-slide="0">
     <div class="product__stage">
         <div class="product__art">
             <div class="product__scene">

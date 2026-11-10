@@ -40,7 +40,7 @@ add_filter('acf/load_value/key=field_baltic_header_menu_items', static function 
     }
 
     $rows = [];
-    foreach (baltic_header_default_menu_items() as $item) {
+    foreach (baltic_nav_header_default_menu_items() as $item) {
         $rows[] = [
             $keys['label'] => $item['label'],
             $keys['url'] => $item['url'],
@@ -50,7 +50,7 @@ add_filter('acf/load_value/key=field_baltic_header_menu_items', static function 
     return $rows;
 }, 10, 3);
 
-foreach (baltic_home_anchor_defaults() as $anchor_section => $default_anchor) {
+foreach (baltic_nav_home_anchor_defaults() as $anchor_section => $default_anchor) {
     add_filter('acf/validate_value/key=field_baltic_anchor_' . $anchor_section, static function ($valid, $value) use ($anchor_section, $default_anchor) {
         if ($valid !== true) {
             return $valid;
@@ -63,7 +63,7 @@ foreach (baltic_home_anchor_defaults() as $anchor_section => $default_anchor) {
         $anchor = $anchor !== '' ? $anchor : $default_anchor;
         $submitted = isset($_POST['acf']) && is_array($_POST['acf']) ? wp_unslash($_POST['acf']) : [];
 
-        foreach (baltic_home_anchor_defaults() as $other_section => $other_default) {
+        foreach (baltic_nav_home_anchor_defaults() as $other_section => $other_default) {
             if ($other_section === $anchor_section) {
                 continue;
             }
@@ -71,7 +71,7 @@ foreach (baltic_home_anchor_defaults() as $anchor_section => $default_anchor) {
             $other_value = array_key_exists($key, $submitted)
                 ? $submitted[$key]
                 : baltic_option('anchor_' . $other_section, $other_default);
-            $other_anchor = baltic_home_anchor_normalize($other_value, $other_default);
+            $other_anchor = baltic_nav_home_anchor_normalize($other_value, $other_default);
             if ($anchor === $other_anchor) {
                 return 'Этот якорь уже указан для другого блока главной.';
             }
@@ -956,7 +956,7 @@ function baltic_default_product_rows(): array
 
 function baltic_acf_anchor_field(string $section): array
 {
-    $default = baltic_home_anchor_defaults()[$section] ?? '';
+    $default = baltic_nav_home_anchor_defaults()[$section] ?? '';
 
     return [
         'key' => 'field_baltic_anchor_' . $section,

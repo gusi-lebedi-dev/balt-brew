@@ -39,8 +39,8 @@ if ($current_page > 1 && $current_page > (int) $content_items->max_num_pages) {
 </head>
 <body <?php body_class('content-page content-index-page'); ?>>
 <?php wp_body_open(); ?>
+<?php get_template_part('template-parts/content-header'); ?>
 <div class="page">
-    <?php get_template_part('template-parts/content-header'); ?>
 
     <main class="content-index">
         <a class="content-page__back" href="<?php echo esc_url(home_url('/')); ?>">← На главную</a>
