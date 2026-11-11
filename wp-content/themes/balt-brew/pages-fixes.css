@@ -640,6 +640,25 @@ body {
     opacity: 1 !important;
 }
 
+.about__card,
+.about__tabs-arrow,
+.timeline__item {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.about__card:focus:not(:focus-visible),
+.about__tabs-arrow:focus:not(:focus-visible),
+.timeline__item:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.about__card:focus-visible,
+.about__tabs-arrow:focus-visible,
+.timeline__item:focus-visible {
+    outline: 2px solid #a57c4c;
+    outline-offset: 3px;
+}
+
 .timeline,
 .timeline.timeline--visible {
     --timeline-rail-center: 124px;
@@ -1107,8 +1126,14 @@ body {
         margin: 0 auto;
     }
 
+    .about__panel:not(.about__panel--history) .about__history-content {
+        max-height: none;
+        padding-bottom: 0;
+        overflow: visible;
+    }
+
     .about__panel:not(.about__panel--history) .about__timeline-text--active {
-        max-width: none;
+        max-width: 290px;
     }
 
     .about__panel--history .timeline,
@@ -3071,10 +3096,10 @@ body.feedback-modal-open {
         width: 100%;
         margin-inline: auto;
         text-align: center;
-        max-width: 720px;
+        max-width: 590px;
 
         @media screen and (max-width: 1140px) {
-             max-width: 550px;
+             max-width: 470px;
         }
         @media screen and (max-width: 830px) {
              max-width: 350px;
