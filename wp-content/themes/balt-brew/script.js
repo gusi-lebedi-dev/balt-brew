@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const header = document.querySelector('.header');
     if (header) {
-        const SCROLL_THRESHOLD = 160;
+        const SCROLL_THRESHOLD = header.classList.contains('header--scroll-reveal') ? 24 : 160;
         let ticking = false;
 
         const updateHeader = () => {

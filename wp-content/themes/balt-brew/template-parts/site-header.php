@@ -16,7 +16,7 @@ $logo_href = baltic_home_section_hidden('hero')
     ? home_url('/')
     : home_url('/#' . baltic_nav_home_anchor('hero'));
 ?>
-<header class="header">
+<header class="header<?php echo (is_front_page() || is_home()) && !baltic_home_section_hidden('hero') ? ' header--scroll-reveal' : ''; ?>">
     <div class="container header__container">
         <div class="header__nav-bar header__nav-bar--desktop">
             <nav class="header__links header__links--left" aria-label="Основное меню, первая часть">

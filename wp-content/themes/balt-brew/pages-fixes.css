@@ -3448,7 +3448,7 @@ body.feedback-modal-open {
 }
 
 
-/* Editable header: viewport-wide with a centered 165 x 120 logo. */
+/* Editable header: viewport-wide with a compact centered logo. */
 .header {
     position: fixed;
     top: 0;
@@ -3457,9 +3457,15 @@ body.feedback-modal-open {
     width: 100%;
     max-width: none;
     transform: none;
-    height: 140px;
+    height: 122px;
     padding: 10px clamp(32px, 6.944444vw, 100px);
     /* background: linear-gradient(90deg, #07153a 0%, #0d1d66 34.8%, #091a47 100%); */
+}
+
+.header--scroll-reveal:not(.header--scrolled):not(.header--menu-open) {
+    transform: translateY(-100%);
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .header .header__container {
@@ -3471,10 +3477,10 @@ body.feedback-modal-open {
 
 .header__nav-bar--desktop {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 165px minmax(0, 1fr);
-    gap: 50px;
+    grid-template-columns: minmax(0, 1fr) 140px minmax(0, 1fr);
+    gap: 40px;
     align-items: center;
-    height: 120px;
+    height: 102px;
 }
 
 .header__links--left,
@@ -3504,8 +3510,8 @@ body.feedback-modal-open {
 .header .logo_header {
     position: relative;
     display: block;
-    width: 165px;
-    height: 120px;
+    width: 140px;
+    height: 102px;
     margin: 0;
     overflow: hidden;
 }
@@ -3534,7 +3540,7 @@ body.feedback-modal-open {
 }
 
 .page > .section[id] {
-    scroll-margin-top: 156px;
+    scroll-margin-top: 138px;
 }
 
 .header .header__link:focus-visible,
@@ -3547,12 +3553,12 @@ body.feedback-modal-open {
 
 .content-page .content-index,
 .content-page .content-document {
-    padding-top: 172px;
+    padding-top: 154px;
 }
 
 @media (max-width: 1099px) {
     .header {
-        height: 140px;
+        height: 122px;
         padding: 10px 16px;
         background: transparent;
     }
@@ -3569,16 +3575,16 @@ body.feedback-modal-open {
 
     .header__nav-bar--mobile {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 165px minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) 140px minmax(0, 1fr);
         align-items: center;
         width: 100%;
-        height: 120px;
+        height: 102px;
     }
 
     .header__nav-bar--mobile .header__logo-link {
         grid-column: 2;
-        width: 165px;
-        height: 120px;
+        width: 140px;
+        height: 102px;
     }
 
     .header .header__burger {
@@ -3636,7 +3642,7 @@ body.feedback-modal-open {
         left: 0;
         display: none;
         width: 100%;
-        max-height: calc(100vh - 140px);
+        max-height: calc(100vh - 122px);
         overflow-y: auto;
         background: linear-gradient(90deg, #07153a 0%, #0d1d66 34.8%, #091a47 100%);
         box-shadow: 0 12px 24px rgba(7, 21, 58, .2);
