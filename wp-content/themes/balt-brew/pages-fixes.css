@@ -1103,6 +1103,11 @@ body {
         -webkit-overflow-scrolling: touch;
     }
 
+    .about--has-more-content .about__panel--active .about__history-content {
+        -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+        mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+    }
+
     .about__content-title {
         margin-bottom: 16px;
         font-size: clamp(20px, 5.4vw, 25px);
@@ -1134,7 +1139,7 @@ body {
     }
 
     .about__panel:not(.about__panel--history) .about__timeline-text--active {
-        max-width: 290px;
+        max-width: 260px;
     }
 
     .about__panel--history .timeline,
