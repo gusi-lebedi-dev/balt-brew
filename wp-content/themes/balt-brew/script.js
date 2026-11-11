@@ -199,9 +199,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (header) {
         const SCROLL_THRESHOLD = header.classList.contains('header--scroll-reveal') ? window.innerHeight * 0.5 : 160;
         let ticking = false;
+        let lastScrollY = Math.max(0, window.scrollY);
 
         const updateHeader = () => {
-            header.classList.toggle('header--scrolled', window.scrollY > SCROLL_THRESHOLD);
+            const scrollY = Math.max(0, window.scrollY);
+            const pastThreshold = scrollY > SCROLL_THRESHOLD;
+            header.classList.toggle('header--scrolled', pastThreshold);
+
+            if (Math.abs(scrollY - lastScrollY) > 4) {
+                const canHide = !header.classList.contains('header--scroll-reveal') || pastThreshold;
+                header.classList.toggle('header--scrolling-down', canHide && scrollY > lastScrollY);
+                lastScrollY = scrollY;
+            }
             ticking = false;
         };
 
