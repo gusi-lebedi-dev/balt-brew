@@ -3464,8 +3464,7 @@ body.feedback-modal-open {
     transition: transform .3s ease, background .3s ease, visibility 0s;
 }
 
-.header--scroll-reveal:not(.header--scrolled):not(.header--menu-open),
-.header--scrolling-down:not(.header--menu-open) {
+.header--scroll-reveal:not(.header--revealed):not(.header--menu-open) {
     transform: translateY(-100%);
     visibility: hidden;
     pointer-events: none;

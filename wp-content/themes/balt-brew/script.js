@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(() => requestAnimationFrame(() => {
                 if (group === activeGroup && generation === activeGeneration) {
                     heroScrollButton.classList.add('hero__scroll--visible');
+                    document.querySelector('.header--scroll-reveal')?.classList.add('header--revealed');
                 }
             }));
         }, 8000);
@@ -197,20 +198,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const header = document.querySelector('.header');
     if (header) {
-        const SCROLL_THRESHOLD = header.classList.contains('header--scroll-reveal') ? window.innerHeight * 0.5 : 160;
+        if (!heroScrollButton) header.classList.add('header--revealed');
+        const SCROLL_THRESHOLD = 160;
         let ticking = false;
-        let lastScrollY = Math.max(0, window.scrollY);
 
         const updateHeader = () => {
-            const scrollY = Math.max(0, window.scrollY);
-            const pastThreshold = scrollY > SCROLL_THRESHOLD;
-            header.classList.toggle('header--scrolled', pastThreshold);
-
-            if (Math.abs(scrollY - lastScrollY) > 4) {
-                const canHide = !header.classList.contains('header--scroll-reveal') || pastThreshold;
-                header.classList.toggle('header--scrolling-down', canHide && scrollY > lastScrollY);
-                lastScrollY = scrollY;
-            }
+            header.classList.toggle('header--scrolled', window.scrollY > SCROLL_THRESHOLD);
             ticking = false;
         };
 
