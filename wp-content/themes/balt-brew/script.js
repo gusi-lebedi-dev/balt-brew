@@ -201,9 +201,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!heroScrollButton) header.classList.add('header--revealed');
         const SCROLL_THRESHOLD = 160;
         let ticking = false;
+        let lastScrollY = Math.max(0, window.scrollY);
 
         const updateHeader = () => {
-            header.classList.toggle('header--scrolled', window.scrollY > SCROLL_THRESHOLD);
+            const scrollY = Math.max(0, window.scrollY);
+            header.classList.toggle('header--scrolled', scrollY > SCROLL_THRESHOLD);
+
+            if (Math.abs(scrollY - lastScrollY) > 4) {
+                const canHide = !header.classList.contains('header--scroll-reveal') ||
+                    header.classList.contains('header--revealed');
+                header.classList.toggle('header--scrolling-down', canHide && scrollY > lastScrollY);
+                lastScrollY = scrollY;
+            }
             ticking = false;
         };
 
