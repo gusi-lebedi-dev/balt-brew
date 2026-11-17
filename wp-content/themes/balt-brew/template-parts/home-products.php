@@ -1,6 +1,6 @@
 <?php
 /**
- * Home product carousel.
+ * WordPress product panorama.
  */
 
 if (!defined('ABSPATH')) {
@@ -10,79 +10,111 @@ if (!defined('ABSPATH')) {
 $products = baltic_home_products();
 $count = count($products);
 
-if ($count === 0) {
+if (!$count) {
     return;
 }
+
+$art_url = static function (string $name): string {
+    return baltic_asset(baltic_product_panorama_asset($name));
+};
 ?>
-<section class="section product" role="region" aria-roledescription="карусель" aria-label="Ассортимент Балтика Brew" id="<?php echo esc_attr(baltic_nav_home_anchor('products')); ?>" data-product-carousel data-slide="0">
-    <div class="product__stage">
-        <div class="product__art">
-            <div class="product__scene">
-                <div class="product__track" aria-hidden="true">
-                    <?php foreach ($products as $index => $product) : ?>
-                        <div class="product__background product__background--<?php echo esc_attr($product['modifier']); ?>">
-                            <img src="<?php echo esc_url($product['background']); ?>" alt="" draggable="false">
-                        </div>
-
-                        <?php if ($index < $count - 1) : ?>
-                            <div class="product__bridge">
-                                <img src="<?php echo esc_url(baltic_asset('images/product/bridge.png')); ?>" alt="" draggable="false">
-                            </div>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </div>
-
-                <?php foreach ($products as $index => $product) : ?>
-                    <div class="product__bottle product__bottle--<?php echo esc_attr($product['modifier']); ?>" aria-hidden="<?php echo $index === 0 ? 'false' : 'true'; ?>">
-                        <img src="<?php echo esc_url($product['bottle']); ?>" alt="<?php echo esc_attr(wp_strip_all_tags($product['title'])); ?>" draggable="false">
-                    </div>
-                <?php endforeach; ?>
-
-                <div class="product__controls">
-                    <button class="product__arrow product__arrow--prev" type="button" data-prev aria-label="Предыдущий напиток">
-                        <img src="<?php echo esc_url(baltic_asset('images/left-arrow.png')); ?>" alt="" draggable="false">
-                    </button>
-                    <button class="product__arrow product__arrow--next" type="button" data-next aria-label="Следующий напиток">
-                        <img src="<?php echo esc_url(baltic_asset('images/right-arrow.png')); ?>" alt="" draggable="false">
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="product__copy">
+<section class="section product-panorama" role="region" aria-roledescription="карусель" aria-label="Ассортимент Балтика Brew" id="<?php echo esc_attr(baltic_nav_home_anchor('products')); ?>" data-product-panorama data-slide="0">
+    <div class="product-panorama__art">
+        <div class="product-panorama__track" data-panorama-track aria-hidden="true">
             <?php foreach ($products as $index => $product) : ?>
                 <?php
-                $title = (string) ($product['title'] ?? '');
-                $description = (string) ($product['description'] ?? '');
-                $stats = array_filter([
-                    ['label' => 'Алкоголь', 'value' => (string) ($product['alcohol'] ?? '')],
-                    ['label' => 'Плотность', 'value' => (string) ($product['density'] ?? '')],
-                    ['label' => 'IBU', 'value' => (string) ($product['ibu'] ?? '')],
-                ], static function (array $stat): bool {
-                    return trim(wp_strip_all_tags($stat['value'])) !== '';
-                });
+                $scene = $product['scene'];
+                [$background_left, $background_width, $background_height] = $scene['background'];
+                [$drink_width, $drink_height, $drink_top] = $scene['drink'];
+                $frame_style = sprintf(
+                    '--advance:%s;--background-left:%s;--background-width:%s;--background-height:%s;--drink-width:%s;--drink-height:%s;--drink-top:%s;--hall-left:%s',
+                    $scene['advance'],
+                    $background_left,
+                    $background_width,
+                    $background_height,
+                    $drink_width,
+                    $drink_height,
+                    $drink_top,
+                    $scene['hall']
+                );
+                if ($index === $count - 1) {
+                    $first_background_left = $products[0]['scene']['background'][0];
+                    $frame_style .= ';--hall-end:' . ($scene['advance'] + $first_background_left - $scene['hall']);
+                }
+                $loading = $index === 0 ? 'eager' : 'lazy';
                 ?>
-                <article class="product__slide product__slide--<?php echo esc_attr($product['modifier']); ?> product__info" role="group" aria-roledescription="слайд" aria-label="<?php echo esc_attr(($index + 1) . ' из ' . $count); ?>" aria-hidden="<?php echo $index === 0 ? 'false' : 'true'; ?>"<?php echo $index === 0 ? '' : ' inert'; ?>>
-                    <?php if (trim(wp_strip_all_tags($title)) !== '') : ?>
-                        <h2 class="product__title"><?php echo wp_kses_post($title); ?></h2>
-                    <?php endif; ?>
-                    <?php if (trim(wp_strip_all_tags($description)) !== '') : ?>
-                        <p class="product__description"><?php echo wp_kses_post(nl2br($description)); ?></p>
-                    <?php endif; ?>
-                    <?php if ($stats) : ?>
-                        <div class="product__stats">
-                            <?php foreach ($stats as $stat) : ?>
-                                <div class="product__stat">
-                                    <span class="product__stat-value"><?php echo esc_html($stat['value']); ?></span>
-                                    <span class="product__stat-label"><?php echo esc_html($stat['label']); ?></span>
-                                </div>
-                            <?php endforeach; ?>
+                <div class="product-panorama__frame" data-panorama-frame data-advance="<?php echo esc_attr($scene['advance']); ?>" style="<?php echo esc_attr($frame_style); ?>">
+                    <div class="product-panorama__background">
+                        <img<?php echo empty($scene['flip']) ? '' : ' class="is-mirrored"'; ?> src="<?php echo esc_url($product['background']); ?>" alt="" loading="<?php echo esc_attr($loading); ?>" decoding="async" draggable="false">
+                    </div>
+                    <?php if ($count > 1) : ?>
+                        <div class="product-panorama__hall<?php echo $index === $count - 1 ? ' product-panorama__hall--terminal' : ''; ?>">
+                            <img class="product-panorama__hall-art" src="<?php echo esc_url($art_url('hall')); ?>" alt="" decoding="async" draggable="false">
+                            <img class="product-panorama__column product-panorama__column--left" src="<?php echo esc_url($art_url('column')); ?>" alt="" decoding="async" draggable="false">
+                            <img class="product-panorama__column product-panorama__column--right" src="<?php echo esc_url($art_url('column')); ?>" alt="" decoding="async" draggable="false">
                         </div>
                     <?php endif; ?>
-                </article>
+                    <?php if (isset($scene['reflection'])) : ?>
+                        <?php
+                        [$reflection_top, $opacity, $blend] = $scene['reflection'];
+                        $reflection_style = sprintf('--reflection-top:%s;--reflection-opacity:%s;--reflection-blend:%s', $reflection_top, $opacity, $blend);
+                        ?>
+                        <div class="product-panorama__reflection" style="<?php echo esc_attr($reflection_style); ?>">
+                            <img src="<?php echo esc_url($product['bottle']); ?>" alt="" loading="<?php echo esc_attr($loading); ?>" decoding="async" draggable="false">
+                        </div>
+                    <?php endif; ?>
+                    <div class="product-panorama__drink">
+                        <img src="<?php echo esc_url($product['bottle']); ?>" alt="" loading="<?php echo esc_attr($loading); ?>" decoding="async" draggable="false">
+                    </div>
+                </div>
             <?php endforeach; ?>
         </div>
+
+        <?php if ($count > 1) : ?>
+            <div class="product-panorama__controls">
+                <button class="product-panorama__button product-panorama__button--prev" type="button" data-prev aria-label="Предыдущий напиток">
+                    <img src="<?php echo esc_url($art_url('arrow')); ?>" alt="" draggable="false">
+                </button>
+                <button class="product-panorama__button" type="button" data-next aria-label="Следующий напиток">
+                    <img src="<?php echo esc_url($art_url('arrow')); ?>" alt="" draggable="false">
+                </button>
+            </div>
+        <?php endif; ?>
     </div>
 
-    <p class="product__sr-only" data-status role="status" aria-live="polite" aria-atomic="true"></p>
+    <div class="product-panorama__cards">
+        <?php foreach ($products as $index => $product) : ?>
+            <?php
+            $title = (string) $product['title'];
+            $description = (string) $product['description'];
+            $stats = array_filter([
+                'Алкоголь' => $product['alcohol'],
+                'Плотность' => $product['density'],
+                'IBU' => $product['ibu'],
+            ], static function ($value): bool {
+                return trim(wp_strip_all_tags((string) $value)) !== '';
+            });
+            $scene = $product['scene'];
+            ?>
+            <article class="product-panorama__card<?php echo empty($scene['border']) ? '' : ' product-panorama__card--outlined'; ?>" style="<?php echo esc_attr('--card-left:' . $scene['card']); ?>" role="group" aria-roledescription="слайд" aria-label="<?php echo esc_attr($scene['label'] . ', ' . ($index + 1) . ' из ' . $count); ?>" aria-hidden="<?php echo $index === 0 ? 'false' : 'true'; ?>"<?php echo $index === 0 ? '' : ' inert'; ?>>
+                <?php if (trim(wp_strip_all_tags($title)) !== '') : ?>
+                    <h2 class="product-panorama__title"><?php echo wp_kses_post($title); ?></h2>
+                <?php endif; ?>
+                <?php if (trim(wp_strip_all_tags($description)) !== '') : ?>
+                    <p class="product-panorama__description"><?php echo wp_kses_post(nl2br($description)); ?></p>
+                <?php endif; ?>
+                <?php if ($stats) : ?>
+                    <dl class="product-panorama__stats">
+                        <?php foreach ($stats as $label => $value) : ?>
+                            <div class="product-panorama__stat">
+                                <dt><?php echo esc_html($label); ?></dt>
+                                <dd><?php echo esc_html($value); ?></dd>
+                            </div>
+                        <?php endforeach; ?>
+                    </dl>
+                <?php endif; ?>
+            </article>
+        <?php endforeach; ?>
+    </div>
+    <p class="product-panorama__status" data-status role="status" aria-live="polite" aria-atomic="true"></p>
 </section>

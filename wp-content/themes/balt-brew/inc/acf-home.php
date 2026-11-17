@@ -158,19 +158,27 @@ function baltic_register_home_acf(): void
                 ],
                 [
                     'key' => 'field_baltic_product_item_modifier',
-                    'label' => 'Тип анимации',
+                    'label' => 'Оформление сцены',
                     'name' => 'modifier',
                     'type' => 'select',
-                    'instructions' => 'Оставьте подходящий тип из существующей анимации. Для новых товаров обычно подойдет "Обычный".',
-                    'choices' => [
-                        'product1' => 'Обычный',
-                        'product2' => 'IPA',
-                        'product4' => 'Бланш',
-                        'product3' => 'Крик',
-                        'cider' => 'Сидр',
-                    ],
+                    'instructions' => 'Определяет фон, напиток и отражение из макета. Ниже можно заменить изображения для этой позиции.',
+                    'choices' => array_map(static function (array $scene): string {
+                        return $scene['label'];
+                    }, baltic_product_panorama_scenes()),
                     'default_value' => 'product1',
                     'wrapper' => ['width' => '50'],
+                ],
+                [
+                    'key' => 'field_baltic_product_item_reflection',
+                    'label' => 'Отражение на полу',
+                    'name' => 'reflection',
+                    'type' => 'select',
+                    'choices' => [
+                        'scene' => 'Как в макете',
+                        'show' => 'Показывать',
+                        'hide' => 'Скрыть',
+                    ],
+                    'default_value' => 'scene',
                 ],
                 [
                     'key' => 'field_baltic_product_item_description',
@@ -550,6 +558,7 @@ function baltic_register_home_acf(): void
     ]);
 
     baltic_migrate_home_fields($fields);
+    baltic_migrate_panorama_products();
     baltic_migrate_about_tab_kinds();
 }
 
@@ -586,50 +595,81 @@ add_action('admin_enqueue_scripts', static function (string $hook): void {
     ');
 });
 
+const BALTIC_PRODUCT_PLACEHOLDER_STATS = [
+    'alcohol' => '5,3 %',
+    'density' => '12,7 %',
+    'ibu' => '23',
+];
+
 function baltic_acf_products(): array
 {
-    return [
+    $products = [
         [
             'label' => 'Продукт 1: Анти-лагер Кёльш',
             'title' => 'Анти-лагер Кёльш',
             'description' => 'Кёльш - гибридный стиль: светлый эль с солодовым вкусом, фруктовой сладостью и мягкими пшеничными полутонами.',
             'modifier' => 'product1',
-            'background' => 'images/product/line/amti-lager-1-bg.webp',
-            'bottle' => 'images/product/line/anti-lager-1.webp',
         ],
         [
             'label' => 'Продукт 2: Техно IPA',
             'title' => 'Техно IPA',
             'description' => 'IPA с ярким хвойно-цитрусовым ароматом и выразительной хмелевой горечью.',
             'modifier' => 'product2',
-            'background' => 'images/product/line/lgaer-bg.webp',
-            'bottle' => 'images/product/line/lgaer-bg-new.webp',
+            'alcohol' => '6,0 %',
+            'density' => '14,0 %',
+            'ibu' => '45',
         ],
         [
             'label' => 'Продукт 3: Аэронавт Бланш',
             'title' => 'Аэронавт Бланш',
             'description' => 'Пшеничный напиток с освежающим цитрусово-кориандровым профилем.',
             'modifier' => 'product4',
-            'background' => 'images/product/line/aero-bg.webp',
-            'bottle' => 'images/product/line/aero-bottle.png',
+            'density' => '11,8 %',
+            'ibu' => '9,5',
         ],
         [
             'label' => 'Продукт 4: Заводной Крик',
             'title' => 'Заводной Крик',
             'description' => 'Ягодный ламбик с насыщенным характером и выразительной кислинкой.',
             'modifier' => 'product3',
-            'background' => 'images/product/line/kriek-scene.png',
-            'bottle' => 'images/product/line/kriek-bottle.png',
+            'alcohol' => '5,1 %',
+            'density' => '14,5 %',
+            'ibu' => '11',
         ],
         [
             'label' => 'Продукт 5: Пневмо-сидр',
             'title' => 'Пневмо-сидр<br> Полусухой',
             'description' => baltic_design_copy('cider_description'),
             'modifier' => 'cider',
-            'background' => 'images/product/line/cider-scene.png',
-            'bottle' => 'images/product/line/cider-bottle.png',
+            'alcohol' => '5,5 %',
         ],
     ];
+
+    $placeholder = 'Попробуйте изысканный пшеничный напиток, доведённый до совершенства в нашей лаборатории. Мы взяли за основу проверенный временем подход к стилю «Бланш» и вывернули тумблер на полную мощность. Пышный, как облако, и освежающий, как дуновение цитрусово-кориандрового вихря.';
+    $scenes = baltic_product_panorama_scenes();
+
+    foreach ([
+        'blond' => ['description' => 'Светлый эль.', 'alcohol' => '8,7 %', 'density' => '14,7 %', 'ibu' => '12'],
+        'bruin' => ['description' => 'Тёмный эль.', 'alcohol' => '6,5 %', 'density' => '14,7 %', 'ibu' => '18'],
+        'stout' => ['description' => $placeholder],
+        'helles' => ['description' => $placeholder],
+    ] as $modifier => $content) {
+        $products[] = $content + [
+            'label' => $scenes[$modifier]['label'],
+            'title' => $scenes[$modifier]['label'],
+            'modifier' => $modifier,
+        ];
+    }
+
+    foreach ($products as &$product) {
+        $product += BALTIC_PRODUCT_PLACEHOLDER_STATS;
+        $asset = $scenes[$product['modifier']]['asset'];
+        $product['background'] = baltic_product_panorama_asset($asset . '-scene');
+        $product['bottle'] = baltic_product_panorama_asset($asset . '-drink');
+    }
+    unset($product);
+
+    return $products;
 }
 
 function baltic_home_products(): array
@@ -645,28 +685,40 @@ function baltic_home_products(): array
         $rows = get_field('product_items', 'option') ?: [];
     }
 
-    if (!$rows) {
-        $rows = baltic_acf_products();
-    }
-
+    $defaults = baltic_acf_products();
+    $defaults_by_scene = array_column($defaults, null, 'modifier');
+    $scenes = baltic_product_panorama_scenes();
     $products = [];
-    foreach ($rows as $index => $row) {
-        $defaults = baltic_acf_products()[$index % count(baltic_acf_products())];
-        $modifier = $row['modifier'] ?? $defaults['modifier'];
 
-        if (!in_array($modifier, ['product1', 'product2', 'product3', 'product4', 'cider'], true)) {
+    foreach (array_values($rows ?: $defaults) as $index => $row) {
+        $modifier = $row['modifier'] ?? $defaults[$index % count($defaults)]['modifier'];
+        if (!isset($scenes[$modifier])) {
             $modifier = 'product1';
         }
 
+        $default = $defaults_by_scene[$modifier];
+        $scene = $scenes[$modifier];
+        $reflection = $row['reflection'] ?? 'scene';
+        if ($reflection === 'hide') {
+            unset($scene['reflection']);
+        } elseif ($reflection === 'show' && !isset($scene['reflection'])) {
+            $scene['reflection'] = [$scene['drink'][1] + $scene['drink'][2] - 8, .5, 'normal'];
+        }
+
+        // The stock art is mirrored as in the design. Uploaded images retain their orientation.
+        if (!empty($row['background'])) {
+            unset($scene['flip']);
+        }
+
         $products[] = [
-            'title' => $row['title'] ?? $defaults['title'],
-            'description' => $row['description'] ?? $defaults['description'],
-            'alcohol' => $row['alcohol'] ?? '5,3 %',
-            'density' => $row['density'] ?? '12,7 %',
-            'ibu' => $row['ibu'] ?? '23',
-            'modifier' => $modifier,
-            'background' => baltic_product_media_url($row['background'] ?? '', $defaults['background']),
-            'bottle' => baltic_product_media_url($row['bottle'] ?? '', $defaults['bottle']),
+            'title' => $row['title'] ?? $default['title'],
+            'description' => $row['description'] ?? $default['description'],
+            'alcohol' => $row['alcohol'] ?? $default['alcohol'],
+            'density' => $row['density'] ?? $default['density'],
+            'ibu' => $row['ibu'] ?? $default['ibu'],
+            'scene' => $scene,
+            'background' => baltic_product_media_url($row['background'] ?? '', $default['background']),
+            'bottle' => baltic_product_media_url($row['bottle'] ?? '', $default['bottle']),
         ];
     }
 
@@ -938,15 +990,72 @@ function baltic_migrate_about_tab_kinds(): void
     update_option($migration_key, 1, false);
 }
 
+/**
+ * Add the new scenes and replace the old shared stats on unedited product rows.
+ */
+function baltic_migrate_panorama_products(): void
+{
+    $page_id = (int) get_option('page_on_front');
+    $migration_key = 'baltic_panorama_products_v1_' . $page_id;
+
+    if ($page_id <= 0 || get_option($migration_key)) {
+        return;
+    }
+
+    $field_key = 'field_baltic_product_items';
+    $modifier_key = 'field_baltic_product_item_modifier';
+    $rows = get_field($field_key, $page_id, false);
+    $defaults = baltic_default_product_rows();
+    $changed = false;
+
+    if (!$rows) {
+        $rows = $defaults;
+        $changed = true;
+    } else {
+        $defaults_by_scene = array_column($defaults, null, 'modifier');
+        $old_stats = [];
+        foreach (BALTIC_PRODUCT_PLACEHOLDER_STATS as $stat => $value) {
+            $old_stats['field_baltic_product_item_' . $stat] = $value;
+        }
+        foreach ($rows as &$row) {
+            $default = $defaults_by_scene[$row[$modifier_key] ?? ''] ?? null;
+            if (!$default || ($row['field_baltic_product_item_title'] ?? '') !== $default['title']
+                || !empty($row['field_baltic_product_item_bottle'])
+                || array_intersect_key($row, $old_stats) != $old_stats) {
+                continue;
+            }
+            foreach (BALTIC_PRODUCT_PLACEHOLDER_STATS as $stat => $value) {
+                if ($default[$stat] !== $value) {
+                    $row['field_baltic_product_item_' . $stat] = $default[$stat];
+                    $changed = true;
+                }
+            }
+        }
+        unset($row);
+
+        $modifiers = array_column($rows, $modifier_key);
+        foreach (array_slice($defaults, 5) as $row) {
+            if (!in_array($row['modifier'], $modifiers, true)) {
+                $rows[] = $row;
+                $changed = true;
+            }
+        }
+    }
+
+    if (!$changed || update_field($field_key, $rows, $page_id)) {
+        update_option($migration_key, 1, false);
+    }
+}
+
 function baltic_default_product_rows(): array
 {
     return array_map(static function (array $product): array {
         return [
             'title' => $product['title'],
             'description' => $product['description'],
-            'alcohol' => '5,3 %',
-            'density' => '12,7 %',
-            'ibu' => '23',
+            'alcohol' => $product['alcohol'],
+            'density' => $product['density'],
+            'ibu' => $product['ibu'],
             'modifier' => $product['modifier'],
             'background' => '',
             'bottle' => '',

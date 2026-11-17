@@ -38,12 +38,12 @@
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/TTTricks-Regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('styles.css')); ?>">
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('styles-mobile.css')); ?>">
-<link rel="stylesheet" href="<?php echo esc_url(baltic_asset('product-animation.css')); ?>">
+<link rel="stylesheet" href="<?php echo esc_url(baltic_asset('product-panorama.css')); ?>">
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('loader.css')); ?>">
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('pages-fixes.css')); ?>">
 <script src="<?php echo esc_url(baltic_asset('age-check.js')); ?>"></script>
 <script src="<?php echo esc_url(baltic_asset('script.js')); ?>" defer></script>
-<script src="<?php echo esc_url(baltic_asset('product-animation.js')); ?>" defer></script>
+<script src="<?php echo esc_url(baltic_asset('product-panorama.js')); ?>" defer></script>
 <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>

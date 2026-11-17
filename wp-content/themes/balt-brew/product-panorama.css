@@ -1,0 +1,362 @@
+.product-panorama {
+    /* The original scene is 1778 × 952. Size the art and camera offsets together. */
+    --unit: calc(100cqw / 1778);
+    --travel-time: 1450ms;
+    --travel-easing: cubic-bezier(.42, 0, .58, 1);
+    --ink: #502c2c;
+    --paper: #fff6e2;
+    container-type: inline-size;
+    margin-inline: auto;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--paper);
+    color: var(--ink);
+    touch-action: pan-y pinch-zoom;
+}
+
+.product-panorama *, .product-panorama *::before, .product-panorama *::after {
+    box-sizing: border-box;
+}
+
+.product-panorama img {
+    display: block;
+    max-width: none;
+    user-select: none;
+    pointer-events: none;
+}
+
+.product-panorama__art {
+    position: relative;
+    height: calc(952 * var(--unit));
+    overflow: hidden;
+    background: #835e41;
+}
+
+.product-panorama__track {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: flex;
+    width: var(--track-width, max-content);
+    height: 100%;
+    transform: translateX(var(--camera-position, 0%));
+    transition: transform var(--travel-time) var(--travel-easing);
+}
+
+.product-panorama__frame {
+    position: relative;
+    flex: 0 0 calc(var(--advance) * var(--unit));
+    height: 100%;
+}
+
+.product-panorama__background {
+    position: absolute;
+    left: calc(var(--background-left) * var(--unit));
+    top: 0;
+    width: calc(var(--background-width) * var(--unit));
+    height: calc(var(--background-height) * var(--unit));
+    z-index: 1;
+}
+
+.product-panorama__background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-panorama__background .is-mirrored {
+    transform: scaleX(-1);
+}
+
+.product-panorama__hall {
+    position: absolute;
+    top: 0;
+    left: calc(var(--hall-left) * var(--unit));
+    width: calc(952 * var(--unit));
+    height: 100%;
+}
+
+.product-panorama__hall-art {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The edge under each pillar covers the small joins between the source panels. */
+    box-shadow: 0 0 0 calc(46 * var(--unit)) #9a7553;
+}
+
+.product-panorama__column {
+    position: absolute;
+    top: calc(-116 * var(--unit));
+    width: calc(638.988 * var(--unit));
+    height: calc(1130 * var(--unit));
+    z-index: 2;
+    object-fit: cover;
+}
+
+.product-panorama__column--left {
+    left: calc(-263 * var(--unit));
+}
+
+.product-panorama__column--right {
+    left: calc(595 * var(--unit));
+}
+
+.product-panorama__hall--terminal .product-panorama__column--right {
+    clip-path: inset(0 calc((1233.988 - var(--hall-end)) * var(--unit)) 0 0);
+}
+
+.product-panorama__drink,
+.product-panorama__reflection {
+    position: absolute;
+    left: calc(-.5 * var(--drink-width) * var(--unit));
+    width: calc(var(--drink-width) * var(--unit));
+    height: calc(var(--drink-height) * var(--unit));
+}
+
+.product-panorama__drink {
+    top: calc(var(--drink-top) * var(--unit));
+    z-index: 4;
+}
+
+.product-panorama__reflection {
+    top: calc(var(--reflection-top) * var(--unit));
+    z-index: 3;
+    opacity: var(--reflection-opacity);
+    mix-blend-mode: var(--reflection-blend);
+}
+
+.product-panorama__drink img, .product-panorama__reflection img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+}
+
+.product-panorama__reflection img {
+    transform: rotate(180deg);
+}
+
+.product-panorama__controls {
+    position: absolute;
+    left: 50%;
+    top: calc(540 * var(--unit));
+    z-index: 5;
+    width: calc(506 * var(--unit));
+    display: flex;
+    justify-content: space-between;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.product-panorama__button {
+    display: grid;
+    place-items: center;
+    width: max(44px, calc(88 * var(--unit)));
+    height: max(44px, calc(88 * var(--unit)));
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.product-panorama__button img {
+    width: calc(88 * var(--unit));
+    height: calc(88 * var(--unit));
+    transition: scale 120ms ease-out;
+}
+
+.product-panorama__button--prev img {
+    rotate: 180deg;
+}
+
+.product-panorama__button:focus-visible,
+.product-panorama:focus-visible {
+    outline: 2px solid #0d1d66;
+    outline-offset: -2px;
+}
+
+@media (hover: hover) {
+    .product-panorama__button:hover img {
+        scale: 1.08;
+    }
+}
+
+.product-panorama__cards {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.product-panorama__card {
+    position: absolute;
+    top: calc(183 * var(--unit));
+    left: calc(50% + var(--card-left) * var(--unit));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: calc(454 * var(--unit));
+    min-height: calc(586.04 * var(--unit));
+    max-height: calc(750 * var(--unit));
+    padding: calc(38 * var(--unit)) calc(16 * var(--unit)) calc(38 * var(--unit)) calc(59 * var(--unit));
+    overflow: auto;
+    border-radius: calc(18.088 * var(--unit));
+    background: rgb(255 246 226 / .7);
+    backdrop-filter: blur(calc(24 * var(--unit)));
+    opacity: 0;
+    transform: translateX(calc(var(--card-x, 0) * var(--unit)));
+    transition: transform var(--travel-time) var(--travel-easing);
+    overflow-wrap: anywhere;
+}
+
+.product-panorama__card--outlined {
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / .85);
+}
+
+.product-panorama__card[aria-hidden='false'] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.product-panorama__card[data-leaving] {
+    opacity: 1;
+}
+
+.product-panorama__title {
+    margin: 0 0 calc(20 * var(--unit));
+    color: #0d1d66;
+    font: 500 calc(50 * var(--unit))/1 'TT Tricks Variable', Georgia, serif;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #07153a, #0d1d66 34.797%, #091a47);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.product-panorama__description {
+    margin: 0;
+    font: 400 calc(22 * var(--unit))/1.2 'TT Backwards Sans', 'Arial Narrow', sans-serif;
+}
+
+.product-panorama__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(12 * var(--unit)) calc(40 * var(--unit));
+    margin: calc(32 * var(--unit)) 0 0;
+    font-family: 'TT Backwards Sans', 'Arial Narrow', sans-serif;
+}
+
+.product-panorama__stat {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+}
+
+.product-panorama__stat dd {
+    margin: 0;
+    font-size: calc(40 * var(--unit));
+    line-height: 1.2;
+}
+
+.product-panorama__stat dt {
+    font-size: calc(24 * var(--unit));
+    line-height: 1.4;
+    color: rgb(80 44 44 / .7);
+}
+
+.product-panorama__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.product-panorama[data-panorama-reset] .product-panorama__track,
+.product-panorama[data-panorama-reset] .product-panorama__card {
+    transition: none;
+}
+
+@media (max-width: 768px) {
+    .product-panorama {
+        --unit: clamp(.4px, .104cqw, .62px);
+    }
+
+    .product-panorama__cards {
+        position: relative;
+        display: grid;
+        padding: 16px;
+        background: var(--paper);
+    }
+
+    .product-panorama__card {
+        position: relative;
+        inset: auto;
+        grid-area: 1 / 1;
+        justify-content: flex-start;
+        width: min(100%, 560px);
+        min-height: 0;
+        max-height: none;
+        margin-inline: auto;
+        padding: 18px clamp(12px, 4vw, 24px) 24px;
+        border-radius: 12px;
+        background: transparent;
+        backdrop-filter: none;
+        box-shadow: none;
+        text-align: center;
+        transform: none;
+    }
+
+    .product-panorama__card[aria-hidden='true'] {
+        display: none;
+    }
+
+    .product-panorama__card[aria-hidden='false'] {
+        animation: product-panorama-card-in 260ms ease;
+    }
+
+    .product-panorama__title {
+        margin-bottom: 14px;
+        font-size: clamp(27px, 7vw, 37px);
+        line-height: 1.05;
+    }
+
+    .product-panorama__description {
+        font-size: 18px;
+        line-height: 1.3;
+    }
+
+    .product-panorama__stats {
+        justify-content: center;
+        gap: 8px clamp(16px, 6vw, 32px);
+        margin-top: 20px;
+    }
+
+    .product-panorama__stat dd { font-size: 30px; }
+    .product-panorama__stat dt { font-size: 17px; }
+}
+
+@keyframes product-panorama-card-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .product-panorama {
+        --travel-time: 0ms;
+    }
+
+    .product-panorama__card,
+    .product-panorama__button img {
+        transition: none;
+    }
+
+    .product-panorama__card[aria-hidden='false'] {
+        animation: none;
+    }
+}

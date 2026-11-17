@@ -354,6 +354,7 @@ function baltic_header_menu_items(): array
     return $items;
 }
 
+require_once get_template_directory() . '/inc/product-panorama.php';
 require_once get_template_directory() . '/inc/acf-home.php';
 
 add_filter('query_vars', static function (array $vars): array {
