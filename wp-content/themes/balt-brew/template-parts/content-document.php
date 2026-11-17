@@ -19,7 +19,6 @@ $back_label = $is_news ? 'Ко всем новостям' : 'Ко всем за�
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('styles.css')); ?>">
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('styles-mobile.css')); ?>">
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('pages-fixes.css')); ?>">
-<script src="<?php echo esc_url(baltic_asset('age-check.js')); ?>"></script>
 <script src="<?php echo esc_url(baltic_asset('script.js')); ?>" defer></script>
 <?php wp_head(); ?>
 </head>

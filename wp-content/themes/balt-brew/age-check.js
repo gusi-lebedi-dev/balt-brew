@@ -59,11 +59,83 @@
         return fallback.href;
     }
 
-    window.BrewAgeGate = Object.freeze({ confirm, destination });
+    // Old bookmarks can still open the standalone confirmation page.
+    if (script.hasAttribute('data-age-gate')) {
+        window.BrewAgeGate = Object.freeze({ confirm, destination });
+        return;
+    }
 
-    if (!script.hasAttribute('data-age-gate') && !hasConfirmation()) {
-        const gate = new URL('age-gate.html', siteRoot);
-        gate.searchParams.set('returnTo', window.location.href);
-        window.location.replace(gate.href);
+    function showOverlay() {
+        if (hasConfirmation() || document.querySelector('.age-overlay')) return;
+
+        const dialog = document.createElement('dialog');
+        dialog.className = 'age-overlay';
+        dialog.setAttribute('aria-modal', 'true');
+        dialog.setAttribute('aria-labelledby', 'age-overlay-title');
+        dialog.setAttribute('aria-describedby', 'age-overlay-description');
+        dialog.innerHTML = `
+            <div class="age-overlay__panel" data-nosnippet>
+                <img class="age-overlay__logo" alt="Балтика Brew">
+                <h2 id="age-overlay-title" class="age-overlay__title" tabindex="-1" autofocus>Вам есть 18 лет?</h2>
+                <p id="age-overlay-description" class="age-overlay__description">Чтобы продолжить, подтвердите свой возраст.</p>
+                <div class="age-overlay__actions">
+                    <button type="button" class="age-overlay__button age-overlay__button--yes" data-age-yes>Мне есть 18 лет</button>
+                    <button type="button" class="age-overlay__button" data-age-no>Мне нет 18 лет</button>
+                </div>
+            </div>`;
+        dialog.querySelector('img').src = new URL('images/header/logo.png', siteRoot).href;
+
+        const title = dialog.querySelector('h2');
+        const description = dialog.querySelector('p');
+        const actions = dialog.querySelector('.age-overlay__actions');
+        const nativeModal = typeof dialog.showModal === 'function';
+        const focusTitle = () => title.focus({ preventScroll: true });
+        const keepFocus = () => {
+            if (dialog.open && !dialog.contains(document.activeElement)) focusTitle();
+        };
+        const blockEscape = event => {
+            if (event.key === 'Escape' && dialog.open) event.preventDefault();
+        };
+
+        dialog.addEventListener('cancel', event => event.preventDefault());
+        document.addEventListener('keydown', blockEscape, true);
+        dialog.querySelector('[data-age-yes]').addEventListener('click', () => {
+            confirm();
+            document.removeEventListener('keydown', blockEscape, true);
+            document.documentElement.classList.remove('age-overlay-open');
+            if (nativeModal) dialog.close();
+            else document.removeEventListener('focusin', keepFocus);
+            dialog.remove();
+        });
+        dialog.querySelector('[data-age-no]').addEventListener('click', () => {
+            title.textContent = 'Сайт доступен только для пользователей 18+';
+            description.textContent = 'Вы сможете посетить его после достижения совершеннолетия.';
+            actions.hidden = true;
+            focusTitle();
+        });
+
+        document.body.append(dialog);
+        document.documentElement.classList.add('age-overlay-open');
+        if (nativeModal) {
+            dialog.showModal();
+        } else {
+            dialog.classList.add('age-overlay--fallback');
+            dialog.setAttribute('open', '');
+            dialog.setAttribute('role', 'dialog');
+            document.addEventListener('focusin', keepFocus);
+        }
+        focusTitle();
+
+        // Initial fragment navigation can move focus after a deferred script runs.
+        if (document.readyState !== 'complete') {
+            document.addEventListener('DOMContentLoaded', keepFocus, { once: true });
+            window.addEventListener('load', keepFocus, { once: true });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showOverlay, { once: true });
+    } else {
+        showOverlay();
     }
 }());

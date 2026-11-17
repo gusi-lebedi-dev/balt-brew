@@ -1,0 +1,116 @@
+html.age-overlay-open {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+}
+
+.age-overlay {
+    box-sizing: border-box;
+    width: min(560px, calc(100% - 32px));
+    max-height: calc(100% - 32px);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: #fff;
+    font: 400 18px/1.35 'TT Backwards Sans', Arial, sans-serif;
+}
+
+.age-overlay::backdrop,
+.age-overlay--fallback {
+    background: rgb(7 21 58 / .8);
+}
+
+.age-overlay--fallback {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    height: 100%;
+    padding: 16px;
+    border-radius: 0;
+}
+
+.age-overlay__panel {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 560px;
+    padding: clamp(24px, 6vw, 56px);
+    border-radius: 8px;
+    background: linear-gradient(90deg, #07153a, #0d1d66 35%, #091a47);
+    text-align: center;
+}
+
+.age-overlay__logo {
+    display: block;
+    width: clamp(105px, 32vw, 160px);
+    height: auto;
+    margin: 0 auto 24px;
+}
+
+.age-overlay__title {
+    margin: 0 0 12px;
+    font: 400 clamp(28px, 7vw, 42px)/1.1 'TT Backwards Sans', Arial, sans-serif;
+    text-transform: uppercase;
+}
+
+.age-overlay__title:focus {
+    outline: none;
+}
+
+.age-overlay__description {
+    margin: 0;
+}
+
+.age-overlay__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.age-overlay__actions[hidden] {
+    display: none;
+}
+
+.age-overlay__button {
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid #fff;
+    border-radius: 2px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.age-overlay__button:hover {
+    background: rgb(255 255 255 / .12);
+}
+
+.age-overlay__button--yes {
+    border-color: #fdd46d;
+    background: #fdd46d;
+    color: #07153a;
+}
+
+.age-overlay__button--yes:hover {
+    background: #ffc947;
+}
+
+.age-overlay__button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+    .age-overlay__actions {
+        flex-direction: column;
+    }
+}

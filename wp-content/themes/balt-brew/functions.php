@@ -12,6 +12,11 @@ add_action('after_setup_theme', static function () {
     add_theme_support('post-thumbnails');
 });
 
+add_action('wp_enqueue_scripts', static function (): void {
+    wp_enqueue_style('baltic-age-overlay', baltic_asset('age-overlay.css'), [], null);
+    wp_enqueue_script('baltic-age-check', baltic_asset('age-check.js'), [], null, ['strategy' => 'defer']);
+});
+
 add_action('init', static function () {
     if (get_role('baltic_content_editor')) {
         return;

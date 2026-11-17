@@ -41,7 +41,6 @@
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('product-panorama.css')); ?>">
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('loader.css')); ?>">
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('pages-fixes.css')); ?>">
-<script src="<?php echo esc_url(baltic_asset('age-check.js')); ?>"></script>
 <script src="<?php echo esc_url(baltic_asset('script.js')); ?>" defer></script>
 <script src="<?php echo esc_url(baltic_asset('product-panorama.js')); ?>" defer></script>
 <?php wp_head(); ?>
