@@ -96,8 +96,14 @@ $art_url = static function (string $name): string {
                 return trim(wp_strip_all_tags((string) $value)) !== '';
             });
             $scene = $product['scene'];
+            $card_style = sprintf(
+                '--card-left:%s;--card-padding-left:%s;--card-padding-right:%s',
+                $scene['card'],
+                $scene['card_padding_left'] ?? 59,
+                $scene['card_padding_right'] ?? 16
+            );
             ?>
-            <article class="product-panorama__card<?php echo empty($scene['border']) ? '' : ' product-panorama__card--outlined'; ?>" style="<?php echo esc_attr('--card-left:' . $scene['card']); ?>" role="group" aria-roledescription="слайд" aria-label="<?php echo esc_attr($scene['label'] . ', ' . ($index + 1) . ' из ' . $count); ?>" aria-hidden="<?php echo $index === 0 ? 'false' : 'true'; ?>"<?php echo $index === 0 ? '' : ' inert'; ?>>
+            <article class="product-panorama__card<?php echo empty($scene['border']) ? '' : ' product-panorama__card--outlined'; ?>" style="<?php echo esc_attr($card_style); ?>" role="group" aria-roledescription="слайд" aria-label="<?php echo esc_attr($scene['label'] . ', ' . ($index + 1) . ' из ' . $count); ?>" aria-hidden="<?php echo $index === 0 ? 'false' : 'true'; ?>"<?php echo $index === 0 ? '' : ' inert'; ?>>
                 <?php if (trim(wp_strip_all_tags($title)) !== '') : ?>
                     <h2 class="product-panorama__title<?php echo preg_match('/.{25}/u', wp_strip_all_tags($title)) ? ' product-panorama__title--compact' : ''; ?>"><?php echo wp_kses_post($title); ?></h2>
                 <?php endif; ?>

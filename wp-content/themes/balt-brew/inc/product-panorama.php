@@ -21,7 +21,8 @@ function baltic_product_panorama_scenes(): array
             'asset' => 'kolsch-zero', 'label' => 'Анти-лагер безалкогольный',
             'background' => [-1014.5, 1916, 1083], 'background_top' => -65,
             'drink' => [275, 807, 107],
-            'card' => -761.5, 'hall' => 791.5, 'advance' => 2622,
+            'card' => -761.5, 'card_padding_left' => 40, 'card_padding_right' => 19,
+            'hall' => 791.5, 'advance' => 2622,
             'reflection' => [886, .5, 'normal'],
         ],
         'product2' => [
@@ -49,7 +50,7 @@ function baltic_product_panorama_scenes(): array
         ],
         'blond' => [
             'asset' => 'blond', 'label' => 'Латунный Блонд',
-            'background' => [-902.5, 1774, 1002], 'drink' => [275, 802, 111],
+            'background' => [-902.5, 1774, 1002], 'drink' => [275, 802, 95],
             'card' => -804.5, 'hall' => 790.5, 'advance' => 2609, 'border' => true,
         ],
         'bruin' => [

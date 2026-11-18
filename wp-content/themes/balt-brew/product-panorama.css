@@ -219,7 +219,7 @@
     width: calc(454 * var(--unit));
     min-height: calc(586.04 * var(--unit));
     max-height: calc(750 * var(--unit));
-    padding: calc(38 * var(--unit)) calc(16 * var(--unit)) calc(38 * var(--unit)) calc(59 * var(--unit));
+    padding: calc(38 * var(--unit)) calc(var(--card-padding-right, 16) * var(--unit)) calc(38 * var(--unit)) calc(var(--card-padding-left, 59) * var(--unit));
     overflow: auto;
     border-radius: calc(18.088 * var(--unit));
     background: rgb(255 246 226 / .7);
