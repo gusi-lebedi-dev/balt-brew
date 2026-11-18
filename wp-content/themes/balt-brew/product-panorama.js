@@ -18,7 +18,8 @@
         track.prepend(clone(frames[count - 1]));
         track.append(clone(frames[0]));
 
-        const stops = Array.from(track.children).reduce((offsets, frame) => {
+        const renderedFrames = Array.from(track.children);
+        const stops = renderedFrames.reduce((offsets, frame) => {
             offsets.push(offsets[offsets.length - 1] + Number(frame.dataset.advance));
             return offsets;
         }, [0]);
@@ -77,13 +78,20 @@
             const outgoing = cards[from];
             const incoming = cards[target];
             const moveCardWithScene = !mobileLayout.matches;
+            const outgoingFrame = renderedFrames[from + 1];
+            const incomingFrame = renderedFrames[cameraIndex + 1];
 
             prepareNeighbors(target);
-            if (moveCardWithScene) {
-                withoutTransition(() => incoming.style.setProperty('--card-x', String(distance)));
-                // Resolve the start position before enabling the card and moving the track.
-                void track.offsetWidth;
+            withoutTransition(() => {
+                incomingFrame.style.setProperty('--drink-x', String(direction * 1100));
+                if (moveCardWithScene) incoming.style.setProperty('--card-x', String(distance));
+            });
+            // The bottle and its reflection fly further than the moving background.
+            void track.offsetWidth;
+            outgoingFrame.style.setProperty('--drink-x', String(-direction * 1100));
+            incomingFrame.style.removeProperty('--drink-x');
 
+            if (moveCardWithScene) {
                 outgoing.setAttribute('data-leaving', '');
                 reveal(target);
                 outgoing.style.setProperty('--card-x', String(-distance));
@@ -103,6 +111,8 @@
                     setCamera(target);
                     outgoing.removeAttribute('data-leaving');
                     outgoing.style.removeProperty('--card-x');
+                    outgoingFrame.style.removeProperty('--drink-x');
+                    incomingFrame.style.removeProperty('--drink-x');
                     if (!moveCardWithScene) reveal(target);
                 });
                 finishTravel = null;

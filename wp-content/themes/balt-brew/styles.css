@@ -164,7 +164,8 @@ div.page {
     color: transparent;
     text-align: center;
     line-height: 1;
-    margin: 0;
+    padding-block: .18em;
+    margin: -.18em 0;
 }
 
 /* ============================================

@@ -37,6 +37,7 @@ $art_url = static function (string $name): string {
                     $drink_top,
                     $scene['hall']
                 );
+                $frame_style .= ';--background-top:' . ($scene['background_top'] ?? 0);
                 if ($index === $count - 1) {
                     $first_background_left = $products[0]['scene']['background'][0];
                     $frame_style .= ';--hall-end:' . ($scene['advance'] + $first_background_left - $scene['hall']);
@@ -63,7 +64,7 @@ $art_url = static function (string $name): string {
                             <img src="<?php echo esc_url($product['bottle']); ?>" alt="" loading="<?php echo esc_attr($loading); ?>" decoding="async" draggable="false">
                         </div>
                     <?php endif; ?>
-                    <div class="product-panorama__drink">
+                    <div class="product-panorama__drink<?php echo empty($scene['contact_shadow']) ? '' : ' product-panorama__drink--grounded'; ?>">
                         <img src="<?php echo esc_url($product['bottle']); ?>" alt="" loading="<?php echo esc_attr($loading); ?>" decoding="async" draggable="false">
                     </div>
                 </div>
@@ -98,7 +99,7 @@ $art_url = static function (string $name): string {
             ?>
             <article class="product-panorama__card<?php echo empty($scene['border']) ? '' : ' product-panorama__card--outlined'; ?>" style="<?php echo esc_attr('--card-left:' . $scene['card']); ?>" role="group" aria-roledescription="слайд" aria-label="<?php echo esc_attr($scene['label'] . ', ' . ($index + 1) . ' из ' . $count); ?>" aria-hidden="<?php echo $index === 0 ? 'false' : 'true'; ?>"<?php echo $index === 0 ? '' : ' inert'; ?>>
                 <?php if (trim(wp_strip_all_tags($title)) !== '') : ?>
-                    <h2 class="product-panorama__title"><?php echo wp_kses_post($title); ?></h2>
+                    <h2 class="product-panorama__title<?php echo preg_match('/.{25}/u', wp_strip_all_tags($title)) ? ' product-panorama__title--compact' : ''; ?>"><?php echo wp_kses_post($title); ?></h2>
                 <?php endif; ?>
                 <?php if (trim(wp_strip_all_tags($description)) !== '') : ?>
                     <p class="product-panorama__description"><?php echo wp_kses_post(nl2br($description)); ?></p>

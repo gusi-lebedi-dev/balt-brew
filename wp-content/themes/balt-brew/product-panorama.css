@@ -52,7 +52,7 @@
 .product-panorama__background {
     position: absolute;
     left: calc(var(--background-left) * var(--unit));
-    top: 0;
+    top: calc(var(--background-top, 0) * var(--unit));
     width: calc(var(--background-width) * var(--unit));
     height: calc(var(--background-height) * var(--unit));
     z-index: 1;
@@ -112,11 +112,28 @@
     left: calc(-.5 * var(--drink-width) * var(--unit));
     width: calc(var(--drink-width) * var(--unit));
     height: calc(var(--drink-height) * var(--unit));
+    transform: translateX(calc(var(--drink-x, 0) * var(--unit)));
+    transition: transform var(--travel-time) var(--travel-easing);
 }
 
 .product-panorama__drink {
     top: calc(var(--drink-top) * var(--unit));
     z-index: 4;
+}
+
+.product-panorama__drink--grounded::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: calc(-8 * var(--unit));
+    width: 100%;
+    height: calc(22 * var(--unit));
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgb(45 23 14 / .6), transparent 72%);
+}
+
+.product-panorama__drink--grounded img {
+    position: relative;
 }
 
 .product-panorama__reflection {
@@ -134,7 +151,7 @@
 }
 
 .product-panorama__reflection img {
-    transform: rotate(180deg);
+    transform: scaleY(-1);
 }
 
 .product-panorama__controls {
@@ -230,6 +247,10 @@
     margin: 0 0 calc(20 * var(--unit));
     color: #0d1d66;
     font: 500 calc(50 * var(--unit))/1 'TT Tricks Variable', Georgia, serif;
+    /* Give the background-clip mask room for Cyrillic accents above the em box. */
+    padding-block: .18em;
+    margin-top: -.18em;
+    margin-bottom: calc(20 * var(--unit) - .18em);
     text-transform: uppercase;
     background: linear-gradient(90deg, #07153a, #0d1d66 34.797%, #091a47);
     background-clip: text;
@@ -239,6 +260,10 @@
 .product-panorama__description {
     margin: 0;
     font: 400 calc(22 * var(--unit))/1.2 'TT Backwards Sans', 'Arial Narrow', sans-serif;
+}
+
+.product-panorama__title--compact {
+    font-size: calc(40 * var(--unit));
 }
 
 .product-panorama__stats {
@@ -278,7 +303,9 @@
 }
 
 .product-panorama[data-panorama-reset] .product-panorama__track,
-.product-panorama[data-panorama-reset] .product-panorama__card {
+.product-panorama[data-panorama-reset] .product-panorama__card,
+.product-panorama[data-panorama-reset] .product-panorama__drink,
+.product-panorama[data-panorama-reset] .product-panorama__reflection {
     transition: none;
 }
 

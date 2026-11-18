@@ -17,6 +17,13 @@ function baltic_product_panorama_scenes(): array
             'card' => -761.5, 'hall' => 791.5, 'advance' => 2622,
             'reflection' => [888, .5, 'normal'],
         ],
+        'kolsch_zero' => [
+            'asset' => 'kolsch-zero', 'label' => 'Анти-лагер безалкогольный',
+            'background' => [-1014.5, 1916, 1083], 'background_top' => -65,
+            'drink' => [275, 807, 107],
+            'card' => -761.5, 'hall' => 791.5, 'advance' => 2622,
+            'reflection' => [912, .5, 'normal'],
+        ],
         'product2' => [
             'asset' => 'ipa', 'label' => 'Техно IPA',
             'background' => [-838.5, 1684, 952], 'drink' => [275, 806, 107],
@@ -32,7 +39,7 @@ function baltic_product_panorama_scenes(): array
             'asset' => 'kriek', 'label' => 'Заводной Крик',
             'background' => [-838.5, 1684, 952], 'drink' => [274.757, 782, 120],
             'card' => -761.5, 'hall' => 835.5, 'advance' => 2701,
-            'reflection' => [900, .45, 'hard-light'],
+            'reflection' => [900, .45, 'hard-light'], 'contact_shadow' => true,
         ],
         'cider' => [
             'asset' => 'cider', 'label' => 'Пневмо-сидр',
@@ -44,7 +51,6 @@ function baltic_product_panorama_scenes(): array
             'asset' => 'blond', 'label' => 'Латунный Блонд',
             'background' => [-902.5, 1774, 1002], 'drink' => [275, 802, 111],
             'card' => -804.5, 'hall' => 790.5, 'advance' => 2609, 'border' => true,
-            'reflection' => [877, .5, 'hard-light'],
         ],
         'bruin' => [
             'asset' => 'bruin', 'label' => 'Медный Брюн',

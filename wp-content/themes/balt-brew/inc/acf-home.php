@@ -559,6 +559,7 @@ function baltic_register_home_acf(): void
 
     baltic_migrate_home_fields($fields);
     baltic_migrate_panorama_products();
+    baltic_migrate_alcohol_free_product();
     baltic_migrate_about_tab_kinds();
 }
 
@@ -609,6 +610,15 @@ function baltic_acf_products(): array
             'title' => 'Анти-лагер Кёльш',
             'description' => 'Кёльш - гибридный стиль: светлый эль с солодовым вкусом, фруктовой сладостью и мягкими пшеничными полутонами.',
             'modifier' => 'product1',
+        ],
+        [
+            'label' => 'Анти-лагер безалкогольный',
+            'title' => 'Анти-лагер безалкогольный',
+            'description' => 'Безалкогольный кёльш.',
+            'modifier' => 'kolsch_zero',
+            'alcohol' => '0,0 %',
+            'density' => '',
+            'ibu' => '',
         ],
         [
             'label' => 'Продукт 2: Техно IPA',
@@ -1043,6 +1053,33 @@ function baltic_migrate_panorama_products(): void
     }
 
     if (!$changed || update_field($field_key, $rows, $page_id)) {
+        update_option($migration_key, 1, false);
+    }
+}
+
+/** Add the alcohol-free scene once, immediately after the original Kolsch. */
+function baltic_migrate_alcohol_free_product(): void
+{
+    $page_id = (int) get_option('page_on_front');
+    $migration_key = 'baltic_alcohol_free_product_v1_' . $page_id;
+    if ($page_id <= 0 || get_option($migration_key)) {
+        return;
+    }
+
+    $field = 'field_baltic_product_items';
+    $modifier = 'field_baltic_product_item_modifier';
+    $rows = get_field($field, $page_id, false) ?: [];
+    $modifiers = array_column($rows, $modifier);
+    if (in_array('kolsch_zero', $modifiers, true)) {
+        update_option($migration_key, 1, false);
+        return;
+    }
+
+    $defaults = array_column(baltic_default_product_rows(), null, 'modifier');
+    $kolsch_index = array_search('product1', $modifiers, true);
+    $position = $kolsch_index === false ? count($rows) : $kolsch_index + 1;
+    array_splice($rows, $position, 0, [$defaults['kolsch_zero']]);
+    if (update_field($field, $rows, $page_id)) {
         update_option($migration_key, 1, false);
     }
 }
