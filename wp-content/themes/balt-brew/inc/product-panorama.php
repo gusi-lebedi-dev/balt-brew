@@ -39,7 +39,7 @@ function baltic_product_panorama_scenes(): array
             'asset' => 'kriek', 'label' => 'Заводной Крик',
             'background' => [-838.5, 1684, 952], 'drink' => [274.757, 782, 120],
             'card' => -761.5, 'hall' => 835.5, 'advance' => 2701,
-            'reflection' => [900, .45, 'hard-light'], 'contact_shadow' => true,
+            'reflection' => [894, .4, 'normal'], 'contact_shadow' => true,
         ],
         'cider' => [
             'asset' => 'cider', 'label' => 'Пневмо-сидр',

@@ -124,12 +124,12 @@
 .product-panorama__drink--grounded::before {
     content: '';
     position: absolute;
-    left: 0;
-    bottom: calc(-8 * var(--unit));
-    width: 100%;
-    height: calc(22 * var(--unit));
+    left: 6%;
+    bottom: calc(-16 * var(--unit));
+    width: 88%;
+    height: calc(32 * var(--unit));
     border-radius: 50%;
-    background: radial-gradient(ellipse, rgb(45 23 14 / .6), transparent 72%);
+    background: radial-gradient(ellipse, rgb(38 17 10 / .8), rgb(38 17 10 / .4) 35%, transparent 72%);
 }
 
 .product-panorama__drink--grounded img {
