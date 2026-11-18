@@ -22,7 +22,7 @@ function baltic_product_panorama_scenes(): array
             'background' => [-1014.5, 1916, 1083], 'background_top' => -65,
             'drink' => [275, 807, 107],
             'card' => -761.5, 'hall' => 791.5, 'advance' => 2622,
-            'reflection' => [912, .5, 'normal'],
+            'reflection' => [886, .5, 'normal'],
         ],
         'product2' => [
             'asset' => 'ipa', 'label' => 'Техно IPA',
