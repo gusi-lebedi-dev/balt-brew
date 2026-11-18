@@ -15,7 +15,7 @@ function baltic_product_panorama_scenes(): array
             'asset' => 'kolsch', 'label' => 'Анти-лагер Кёльш',
             'background' => [-885.5, 1778, 1005], 'drink' => [275, 807, 107],
             'card' => -761.5, 'hall' => 791.5, 'advance' => 2622,
-            'reflection' => [888, .5, 'normal'],
+            'reflection' => [886, .5, 'normal'],
         ],
         'kolsch_zero' => [
             'asset' => 'kolsch-zero', 'label' => 'Анти-лагер безалкогольный',
@@ -39,7 +39,7 @@ function baltic_product_panorama_scenes(): array
             'asset' => 'kriek', 'label' => 'Заводной Крик',
             'background' => [-838.5, 1684, 952], 'drink' => [274.757, 782, 120],
             'card' => -761.5, 'hall' => 835.5, 'advance' => 2701,
-            'reflection' => [894, .4, 'normal'], 'contact_shadow' => true,
+            'reflection' => [866, .4, 'normal'], 'contact_shadow' => true,
         ],
         'cider' => [
             'asset' => 'cider', 'label' => 'Пневмо-сидр',
