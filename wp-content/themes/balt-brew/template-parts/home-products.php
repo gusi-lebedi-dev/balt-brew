@@ -93,7 +93,7 @@ $art_url = static function (string $name): string {
                 'Плотность' => $product['density'],
                 'IBU' => $product['ibu'],
             ], static function ($value): bool {
-                return trim(wp_strip_all_tags((string) $value)) !== '';
+                return trim((string) $value) !== '';
             });
             $scene = $product['scene'];
             $card_style = sprintf(

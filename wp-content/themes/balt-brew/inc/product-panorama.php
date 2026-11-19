@@ -50,7 +50,7 @@ function baltic_product_panorama_scenes(): array
         ],
         'blond' => [
             'asset' => 'blond', 'label' => 'Латунный Блонд',
-            'background' => [-902.5, 1774, 1002], 'drink' => [275, 802, 95],
+            'background' => [-902.5, 1774, 1002], 'drink' => [275, 802, 102],
             'card' => -804.5, 'hall' => 790.5, 'advance' => 2609, 'border' => true,
         ],
         'bruin' => [

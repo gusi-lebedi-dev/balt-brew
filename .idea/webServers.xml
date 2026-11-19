@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="c38a1760-cf0e-41f2-ad51-2e44a3b8bc76" name="brew">
+        <fileTransfer accessType="SFTP" host="cg01.kinoafisha.org" port="22" sshConfigId="d50effd5-5110-4078-a628-2e5a5504bb16" sshConfig="brfbru@cg01.kinoafisha.org:22 key" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
