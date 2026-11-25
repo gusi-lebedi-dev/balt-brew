@@ -3544,7 +3544,7 @@ body.feedback-modal-open {
 }
 
 .page > .section[id] {
-    scroll-margin-top: 98px;
+    scroll-margin-top: 0;
 }
 
 .header .header__link:focus-visible,

@@ -32,6 +32,8 @@
 <meta property="og:description" content="Крафтовое пиво высокого качества. Регулярные и лимитированные линейки продукции.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="<?php echo esc_url(baltic_asset('images/header/logo.png')); ?>">
+<meta name="yandex-verification" content="a877d1b77e9ef994" />
+
 <link rel="icon" type="image/png" href="<?php echo esc_url(baltic_asset('img/favicon.svg')); ?>">
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/Inter-Regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?php echo esc_url(baltic_asset('fonts/tt-backwardssans-regular.woff2')); ?>" as="font" type="font/woff2" crossorigin>
@@ -43,6 +45,7 @@
 <link rel="stylesheet" href="<?php echo esc_url(baltic_asset('pages-fixes.css')); ?>">
 <script src="<?php echo esc_url(baltic_asset('script.js')); ?>" defer></script>
 <script src="<?php echo esc_url(baltic_asset('product-panorama.js')); ?>" defer></script>
+
 <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
