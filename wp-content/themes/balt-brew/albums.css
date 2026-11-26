@@ -1,0 +1,237 @@
+.albums .albums__description {
+    margin: -6px 0 36px;
+    max-width: 900px;
+}
+
+.albums__grid,
+.album-photos {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 40px 20px;
+}
+
+.albums__grid .content-card__image {
+    aspect-ratio: 4 / 3;
+}
+
+.albums__grid .content-card__image img {
+    object-fit: cover;
+}
+
+.albums__grid .content-card__title {
+    font-size: 22px;
+    min-height: 51px;
+}
+
+.albums__grid .content-card__meta {
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+.album-photos {
+    gap: 20px;
+}
+
+.album-photo {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #d7c5aa;
+}
+
+.album-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .35s ease;
+}
+
+.album-photo:hover img,
+.album-photo:focus-visible img {
+    transform: scale(1.04);
+}
+
+.album-photo__zoom {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #f5efe4;
+    border-radius: 50%;
+    background: #502c2ccc;
+    color: #fff;
+    font: 24px/1 'TT Backwards Sans', sans-serif;
+}
+
+.albums__pagination {
+    margin-top: 40px;
+    text-align: center;
+    font-family: 'TT Backwards Sans', 'Inter', sans-serif;
+}
+
+.albums__status {
+    margin-bottom: 18px;
+    font-size: 16px;
+}
+
+.albums__more {
+    display: inline-block;
+    border: 1px solid #502c2c;
+    border-radius: 24px;
+    padding: 12px 26px;
+    color: #502c2c;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background .2s, color .2s;
+}
+
+.albums__more:hover {
+    background: #502c2c;
+    color: #f5efe4;
+}
+
+.albums__more[aria-disabled='true'] {
+    opacity: .6;
+    cursor: progress;
+}
+
+.albums__item--enter {
+    animation: album-appear .55s ease both;
+    animation-delay: var(--album-delay, 0ms);
+}
+
+@keyframes album-appear {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+body.album-lightbox-open {
+    overflow: hidden;
+}
+
+.album-lightbox {
+    position: fixed;
+    inset: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #f5efe4;
+    font-family: 'TT Backwards Sans', 'Inter', sans-serif;
+}
+
+.album-lightbox::backdrop {
+    background: rgb(12 10 9 / 94%);
+}
+
+.album-lightbox__panel {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) 52px;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 12px 20px;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 70px 32px 24px;
+    box-sizing: border-box;
+}
+
+.album-lightbox button {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid #f5efe480;
+    border-radius: 50%;
+    color: #f5efe4;
+    background: #502c2c80;
+    font: 28px/1 'TT Backwards Sans', sans-serif;
+    cursor: pointer;
+}
+
+.album-lightbox button:hover:not(:disabled) { background: #502c2c; }
+.album-lightbox button:disabled { opacity: .3; cursor: default; }
+.album-lightbox button:focus-visible { outline: 3px solid #fdd46d; outline-offset: 4px; }
+
+.album-lightbox .album-lightbox__close {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    font-size: 34px;
+}
+
+.album-lightbox__figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+}
+
+.album-lightbox__image {
+    display: block;
+    min-height: 0;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.album-lightbox__caption {
+    flex: 0 0 auto;
+    max-height: 20%;
+    overflow-y: auto;
+    max-width: 800px;
+    text-align: center;
+    overflow-wrap: anywhere;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+.album-lightbox__caption:empty { display: none; }
+.album-lightbox__count { grid-column: 1 / -1; margin: 0; text-align: center; font-size: 16px; }
+
+@media (max-width: 900px) {
+    .albums__grid,
+    .album-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 540px) {
+    .albums__grid,
+    .album-photos { grid-template-columns: minmax(0, 1fr); }
+    .album-photos { gap: 16px; }
+    .albums__grid .content-card__title { min-height: 0; }
+    .album-lightbox__panel {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: minmax(0, 1fr) auto auto;
+        gap: 16px;
+        padding: 72px 16px 24px;
+    }
+    .album-lightbox__figure { grid-column: 1 / -1; grid-row: 1; }
+    .album-lightbox__arrow--prev { justify-self: end; }
+    .album-lightbox__arrow--next { justify-self: start; }
+    .album-lightbox__caption { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .albums__item--enter { animation: none; }
+    .album-photo img,
+    .albums__grid .content-card__image img,
+    .albums__more { transition: none; }
+}
