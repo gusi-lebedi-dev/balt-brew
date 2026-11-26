@@ -62,11 +62,14 @@ if ($is_album && $shown < $total) {
                     <?php foreach ($photo_batch as $photo_index => $photo_id) : ?>
                         <?php
                         $image_url = wp_get_attachment_image_url($photo_id, 'full');
+                        $image = wp_get_attachment_image_src($photo_id, 'full');
+                        $preview_url = wp_get_attachment_image_url($photo_id, 'large') ?: $image_url;
+                        $image_srcset = wp_get_attachment_image_srcset($photo_id, 'full');
                         $caption = wp_strip_all_tags((string) wp_get_attachment_caption($photo_id));
                         $alt = (string) get_post_meta($photo_id, '_wp_attachment_image_alt', true);
                         $number = $photo_offset + $photo_index + 1;
                         ?>
-                        <a class="album-photo" href="<?php echo esc_url($image_url); ?>" data-photo data-photo-number="<?php echo esc_attr((string) $number); ?>" data-caption="<?php echo esc_attr($caption); ?>" data-alt="<?php echo esc_attr($alt); ?>" aria-label="<?php echo esc_attr('Открыть фото ' . $number . ($alt !== '' ? ': ' . $alt : '')); ?>">
+                        <a class="album-photo" href="<?php echo esc_url($image_url); ?>" data-photo data-photo-src="<?php echo esc_url($preview_url); ?>" data-photo-srcset="<?php echo esc_attr($image_srcset ?: ''); ?>" data-photo-width="<?php echo esc_attr((string) ($image[1] ?? 0)); ?>" data-photo-height="<?php echo esc_attr((string) ($image[2] ?? 0)); ?>" data-photo-number="<?php echo esc_attr((string) $number); ?>" data-caption="<?php echo esc_attr($caption); ?>" data-alt="<?php echo esc_attr($alt); ?>" aria-label="<?php echo esc_attr('Открыть фото ' . $number . ($alt !== '' ? ': ' . $alt : '')); ?>">
                             <?php echo wp_get_attachment_image($photo_id, 'medium_large', false, ['loading' => 'lazy', 'decoding' => 'async', 'sizes' => '(max-width: 540px) 100vw, (max-width: 900px) 50vw, 25vw']); ?>
                         </a>
                     <?php endforeach; ?>

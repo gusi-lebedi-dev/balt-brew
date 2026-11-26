@@ -8,7 +8,7 @@ if (!defined('ABSPATH') || baltic_nav_header_hidden()) {
 }
 
 $menu_items = baltic_nav_header_menu_items();
-$left_count = (int) ceil(count($menu_items) / 2);
+$left_count = intdiv(count($menu_items), 2);
 $left_items = array_slice($menu_items, 0, $left_count);
 $right_items = array_slice($menu_items, $left_count);
 $logo_modifier = baltic_nav_header_has_custom_logo() ? ' header__logo--custom' : '';

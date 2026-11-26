@@ -96,6 +96,7 @@
     const dialog = document.querySelector('[data-album-lightbox]');
     if (!dialog || typeof dialog.showModal !== 'function') return;
     const photo = dialog.querySelector('[data-photo-image]');
+    const figure = dialog.querySelector('.album-lightbox__figure');
     const caption = dialog.querySelector('[data-photo-caption]');
     const count = dialog.querySelector('[data-photo-count]');
     const previous = dialog.querySelector('[data-photo-prev]');
@@ -104,7 +105,34 @@
     let trigger = null;
     let moving = false;
     let generation = 0;
+    let adjacentImages = [];
     const photos = () => Array.from(grid.querySelectorAll('[data-photo]'));
+
+    // Use the same responsive source selection for the viewer and its preload cache.
+    const setPhotoSource = (image, entry) => {
+        const bounds = figure.getBoundingClientRect();
+        const ratio = Number(entry.dataset.photoWidth) / Number(entry.dataset.photoHeight);
+        const captionHeight = caption.getBoundingClientRect().height;
+        const gap = parseFloat(getComputedStyle(figure).rowGap) || 0;
+        const height = Math.max(1, bounds.height - captionHeight - (captionHeight ? gap : 0));
+        const width = Number.isFinite(ratio) && ratio > 0
+            ? Math.min(bounds.width, height * ratio)
+            : bounds.width;
+        image.sizes = `${Math.max(1, Math.ceil(width))}px`;
+        image.srcset = entry.dataset.photoSrcset || '';
+        image.src = entry.dataset.photoSrc || entry.href;
+    };
+    const preloadAdjacent = () => {
+        if (!dialog.open || navigator.connection?.saveData) return;
+        const entries = photos();
+        adjacentImages = [entries[current + 1], entries[current - 1]].filter(Boolean).map(entry => {
+            const image = new Image();
+            image.decoding = 'async';
+            image.fetchPriority = 'low';
+            setPhotoSource(image, entry);
+            return image;
+        });
+    };
 
     const updateButtons = () => {
         previous.disabled = moving || current === 0;
@@ -115,9 +143,9 @@
         if (!entry) return;
         current = index;
         photo.alt = entry.dataset.alt || '';
-        photo.src = entry.href;
         caption.textContent = entry.dataset.caption || '';
         count.textContent = `${entry.dataset.photoNumber} / ${root.dataset.total}`;
+        setPhotoSource(photo, entry);
         updateButtons();
     };
 
@@ -127,9 +155,9 @@
         event.preventDefault();
         trigger = entry;
         generation++;
-        show(photos().indexOf(entry));
         dialog.showModal();
         document.body.classList.add('album-lightbox-open');
+        show(photos().indexOf(entry));
     });
 
     const move = async (direction) => {
@@ -172,6 +200,7 @@
     });
     dialog.addEventListener('close', () => {
         generation++;
+        adjacentImages = [];
         document.body.classList.remove('album-lightbox-open');
         trigger?.focus({ preventScroll: true });
         if (nextLink && pagination) {
@@ -181,6 +210,13 @@
     });
     photo.addEventListener('error', () => {
         if (dialog.open) count.textContent = 'Не удалось открыть изображение. Можно перейти к следующему фото.';
+    });
+    // Start background requests after the current image has finished loading.
+    photo.addEventListener('load', preloadAdjacent);
+    window.addEventListener('resize', () => {
+        if (!dialog.open) return;
+        const entry = photos()[current];
+        if (entry) setPhotoSource(photo, entry);
     });
 
     let touchStart = null;
