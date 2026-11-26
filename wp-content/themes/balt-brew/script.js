@@ -271,6 +271,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (aboutTabs.length && aboutPanels.length) {
         const tabs = Array.from(aboutTabs);
+        const tabList = tabs[0].parentElement;
+        let tabDrag = null;
+        let suppressTabClick = false;
+        const finishTabDrag = (event) => {
+            if (!tabDrag || (event.pointerId !== undefined && event.pointerId !== tabDrag.id)) return;
+            const drag = tabDrag;
+            tabDrag = null;
+            suppressTabClick = drag.moved;
+            tabList.classList.remove('about__tabs--dragging');
+            if (tabList.hasPointerCapture(drag.id)) tabList.releasePointerCapture(drag.id);
+        };
+
+        tabList.addEventListener('pointerdown', (event) => {
+            suppressTabClick = false;
+            if (event.pointerType !== 'mouse' || event.button !== 0
+                || !window.matchMedia('(min-width: 769px)').matches
+                || tabList.scrollWidth <= tabList.clientWidth) return;
+            tabDrag = { id: event.pointerId, x: event.clientX, scrollLeft: tabList.scrollLeft, moved: false };
+        });
+        window.addEventListener('pointermove', (event) => {
+            if (!tabDrag || event.pointerId !== tabDrag.id) return;
+            if (!(event.buttons & 1)) {
+                finishTabDrag(event);
+                return;
+            }
+            const distance = event.clientX - tabDrag.x;
+            if (!tabDrag.moved && Math.abs(distance) < 5) return;
+            if (!tabDrag.moved) {
+                tabDrag.moved = true;
+                tabList.setPointerCapture(event.pointerId);
+                tabList.classList.add('about__tabs--dragging');
+            }
+            tabList.scrollLeft = tabDrag.scrollLeft - distance;
+            event.preventDefault();
+        });
+        window.addEventListener('pointerup', finishTabDrag);
+        window.addEventListener('pointercancel', finishTabDrag);
+        window.addEventListener('blur', finishTabDrag);
+        tabList.addEventListener('lostpointercapture', finishTabDrag);
+        tabList.addEventListener('click', (event) => {
+            // A drag must not activate the tab under the released mouse button.
+            if (!suppressTabClick || event.detail === 0) return;
+            suppressTabClick = false;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }, true);
+
         const revealAboutTab = (tab) => {
             const list = tab.parentElement;
             const bounds = list.getBoundingClientRect();

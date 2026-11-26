@@ -3090,6 +3090,18 @@ body.feedback-modal-open {
         display: none;
     }
 
+    .about__tabs,
+    .about__tabs .about__card {
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .about__tabs--dragging,
+    .about__tabs--dragging .about__card {
+        cursor: grabbing;
+    }
+
     .about__card,
     .about__card[data-pos="center"],
     .about__card[data-pos="left"],
