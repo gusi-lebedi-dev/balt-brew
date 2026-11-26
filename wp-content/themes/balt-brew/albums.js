@@ -51,7 +51,7 @@
 
                 animate(items);
                 grid.append(...items);
-                if (status) status.textContent = incoming.querySelector('[data-albums-status]')?.textContent || '';
+                if (status) status.textContent = '';
                 if (newLink) {
                     link.href = new URL(newLink.getAttribute('href'), url.href).href;
                     link.textContent = 'Показать ещё';
@@ -61,6 +61,7 @@
                     if (document.activeElement === link) items[0].focus({ preventScroll: true });
                     link.remove();
                     nextLink = null;
+                    if (pagination) pagination.hidden = true;
                     observer?.disconnect();
                 }
                 autoLoad = true;

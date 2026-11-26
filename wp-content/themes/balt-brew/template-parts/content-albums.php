@@ -11,14 +11,14 @@ $photo_ids = $is_album && !$locked ? baltic_album_photo_ids($album_id) : [];
 $photo_page_value = get_query_var('photo_page', 1);
 $photo_page = is_scalar($photo_page_value) ? max(1, absint($photo_page_value)) : 1;
 $photo_total = count($photo_ids);
-$photo_offset = ($photo_page - 1) * 16;
-$photo_batch = array_slice($photo_ids, $photo_offset, 16);
+$photo_offset = ($photo_page - 1) * 12;
+$photo_batch = array_slice($photo_ids, $photo_offset, 12);
 if ($is_album && !$locked && $photo_page > 1 && !$photo_batch) {
     status_header(404);
 }
 global $wp_query;
 $total = $is_album ? $photo_total : (int) $wp_query->found_posts;
-$shown = $is_album ? min($photo_offset + count($photo_batch), $total) : min(max(1, (int) get_query_var('paged')) * 16, $total);
+$shown = $is_album ? min($photo_offset + count($photo_batch), $total) : min(max(1, (int) get_query_var('paged')) * 12, $total);
 $next_url = '';
 if ($is_album && $shown < $total) {
     $next_url = add_query_arg('photo_page', $photo_page + 1, get_permalink($album_id));
@@ -68,7 +68,6 @@ if ($is_album && $shown < $total) {
                         ?>
                         <a class="album-photo" href="<?php echo esc_url($image_url); ?>" data-photo data-photo-number="<?php echo esc_attr((string) $number); ?>" data-caption="<?php echo esc_attr($caption); ?>" data-alt="<?php echo esc_attr($alt); ?>" aria-label="<?php echo esc_attr('Открыть фото ' . $number . ($alt !== '' ? ': ' . $alt : '')); ?>">
                             <?php echo wp_get_attachment_image($photo_id, 'medium_large', false, ['loading' => 'lazy', 'decoding' => 'async', 'sizes' => '(max-width: 540px) 100vw, (max-width: 900px) 50vw, 25vw']); ?>
-                            <span class="album-photo__zoom" aria-hidden="true">+</span>
                         </a>
                     <?php endforeach; ?>
                 <?php else : ?>
@@ -94,12 +93,10 @@ if ($is_album && $shown < $total) {
             </div>
             <?php if ($total === 0 || ($is_album && !$photo_batch)) : ?>
                 <p class="content-index__empty"><?php echo $is_album ? 'Фотографий пока нет.' : 'Фотоальбомов пока нет.'; ?></p>
-            <?php else : ?>
+            <?php elseif ($next_url !== '') : ?>
                 <div class="albums__pagination" data-albums-pagination>
-                    <p class="albums__status" data-albums-status role="status" aria-live="polite"><?php echo esc_html('Показано ' . $shown . ' из ' . $total); ?></p>
-                    <?php if ($next_url !== '') : ?>
-                        <a class="albums__more" data-albums-next href="<?php echo esc_url($next_url); ?>" rel="next">Показать ещё</a>
-                    <?php endif; ?>
+                    <p class="albums__status" data-albums-status role="status" aria-live="polite"></p>
+                    <a class="albums__more" data-albums-next href="<?php echo esc_url($next_url); ?>" rel="next">Показать ещё</a>
                 </div>
             <?php endif; ?>
         <?php endif; ?>
@@ -109,7 +106,9 @@ if ($is_album && $shown < $total) {
 <?php if ($is_album && !$locked && $photo_batch) : ?>
     <dialog class="album-lightbox" data-album-lightbox aria-label="Просмотр фотографий">
         <div class="album-lightbox__panel">
-            <button class="album-lightbox__close" type="button" data-photo-close aria-label="Закрыть просмотр" autofocus>×</button>
+            <button class="album-lightbox__close" type="button" data-photo-close aria-label="Закрыть просмотр" autofocus>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18" /></svg>
+            </button>
             <button class="album-lightbox__arrow album-lightbox__arrow--prev" type="button" data-photo-prev aria-label="Предыдущее фото">←</button>
             <figure class="album-lightbox__figure">
                 <img class="album-lightbox__image" data-photo-image alt="">

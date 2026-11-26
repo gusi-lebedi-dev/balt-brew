@@ -23,8 +23,12 @@
     min-height: 51px;
 }
 
+.albums__grid .content-card__excerpt {
+    min-height: 0;
+}
+
 .albums__grid .content-card__meta {
-    margin-top: auto;
+    margin-top: 0;
     padding-top: 16px;
 }
 
@@ -54,21 +58,6 @@
     transform: scale(1.04);
 }
 
-.album-photo__zoom {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    border: 1px solid #f5efe4;
-    border-radius: 50%;
-    background: #502c2ccc;
-    color: #fff;
-    font: 24px/1 'TT Backwards Sans', sans-serif;
-}
-
 .albums__pagination {
     margin-top: 40px;
     text-align: center;
@@ -78,6 +67,10 @@
 .albums__status {
     margin-bottom: 18px;
     font-size: 16px;
+}
+
+.albums__status:empty {
+    display: none;
 }
 
 .albums__more {
@@ -170,7 +163,12 @@ body.album-lightbox-open {
     position: absolute;
     top: 16px;
     right: 24px;
-    font-size: 34px;
+}
+
+.album-lightbox__close svg {
+    display: block;
+    width: 20px;
+    height: 20px;
 }
 
 .album-lightbox__figure {

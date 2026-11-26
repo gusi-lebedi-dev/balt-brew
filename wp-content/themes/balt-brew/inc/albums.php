@@ -47,7 +47,7 @@ add_filter('query_vars', static function (array $vars): array {
 
 add_action('pre_get_posts', static function (WP_Query $query): void {
     if (!is_admin() && $query->is_main_query() && $query->is_post_type_archive('baltic_album')) {
-        $query->set('posts_per_page', 16);
+        $query->set('posts_per_page', 12);
         $query->set('orderby', ['date' => 'DESC', 'ID' => 'DESC']);
         $query->set('has_password', false);
     }
